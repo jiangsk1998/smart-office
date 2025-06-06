@@ -1,5 +1,6 @@
 package com.zkyzn.project_manager.stories;
 
+import com.zkyzn.project_manager.so.file.FileResp;
 import org.docx4j.jaxb.Context;
 import org.docx4j.openpackaging.contenttype.ContentType;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
@@ -19,9 +20,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 
 /**
@@ -158,5 +161,29 @@ public class FileStory {
         }
 
         return relativeTempPath;
+    }
+
+    /**
+     * 查询当前用户空间下的文件
+     * @param id 用户Id
+     * @param folder 用户目录
+     * @return 文件列表
+     */
+    public List<FileResp> dirPersonFolder(Integer id, String folder) throws Exception {
+        String relativeTempPath = Paths.get("person", id.toString(), folder).toString();
+        Path absolutePath = Paths.get(fileRootPath, relativeTempPath);
+        if (!Files.exists(absolutePath)) {
+            return Collections.emptyList();
+        }
+        try (final Stream<Path> stream = Files.list(absolutePath)) {
+            return stream.map(path -> {
+                FileResp file = new FileResp();
+                file.setFileName(path.getFileName().toString());
+                file.setIsDirectory(path.toFile().isDirectory());
+                file.setSize(path.toFile().length());
+                file.setUri(Paths.get(absolutePath.toString(), file.getFileName()).toString());
+                return file;
+            }).toList();
+        }
     }
 }

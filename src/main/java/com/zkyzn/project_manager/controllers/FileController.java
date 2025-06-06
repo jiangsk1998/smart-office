@@ -1,6 +1,8 @@
 package com.zkyzn.project_manager.controllers;
 
 import com.zkyzn.project_manager.so.Result;
+import com.zkyzn.project_manager.so.ResultList;
+import com.zkyzn.project_manager.so.file.FileResp;
 import com.zkyzn.project_manager.so.file.MergeFileReq;
 import com.zkyzn.project_manager.stories.FileStory;
 import com.zkyzn.project_manager.utils.ResUtil;
@@ -106,5 +108,14 @@ public class FileController {
         // TODO: 需要完善检查路径是否符合规范 以及是否符合合并要求的后缀
         var relativePathStr = fileStory.mergeDocs(mergeFileReq.getFiles());
         return ResUtil.ok(Paths.get(baseUrl, relativePathStr).toString());
+    }
+
+    @Operation(summary = "获取个人空间下文件")
+    @GetMapping(value = "/person/folder")
+    public ResultList<FileResp> dirPersonFolder(
+            @RequestParam(defaultValue = "/") String path
+    ) throws Exception {
+        var files = fileStory.dirPersonFolder(1,path);
+        return ResUtil.list(files);
     }
 }
