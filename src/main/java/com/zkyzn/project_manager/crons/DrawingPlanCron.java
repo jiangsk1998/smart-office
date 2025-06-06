@@ -15,6 +15,7 @@ public class DrawingPlanCron {
      */
     @Scheduled(cron = "0 */5 * * * *")
     public void ProcessDrawingPlan() {
+        // 读取历史图纸列表
 
     }
 }
