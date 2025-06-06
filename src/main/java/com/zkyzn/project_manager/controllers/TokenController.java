@@ -11,8 +11,8 @@ import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@Tag(name = "/token", description = "用户权限部分")
-@RequestMapping("/token")
+@Tag(name = "api/token", description = "用户权限部分")
+@RequestMapping("api/token")
 public class TokenController {
 
     @Resource

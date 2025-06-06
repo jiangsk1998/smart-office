@@ -26,8 +26,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 @RestController
-@Tag(name = "/file", description = "文件相关")
-@RequestMapping("/file")
+@Tag(name = "api/file", description = "文件相关")
+@RequestMapping("api/file")
 public class FileController {
 
     @Value("${file.base.url}")
