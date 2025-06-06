@@ -9,7 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.Calendar;
 
-public class JwtUtils {
+public class JwtUtil {
     /**
      * 获取JwtToken
      *

@@ -1,7 +1,7 @@
 package com.zkyzn.project_manager.filters;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.zkyzn.project_manager.utils.JwtUtils;
+import com.zkyzn.project_manager.utils.JwtUtil;
 import com.zkyzn.project_manager.utils.security.CurrentUser;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -23,7 +23,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         if (headerToken!=null){
             // 判断 UserDetails 中的用户主体是否为null
             if (SecurityContextHolder.getContext().getAuthentication() == null){
-                DecodedJWT decodedJWT = JwtUtils.verify(headerToken);
+                DecodedJWT decodedJWT = JwtUtil.verify(headerToken);
                 assert decodedJWT != null;
                 Integer id = decodedJWT.getClaim("id").asInt();
                 UserDetails userDetails = CurrentUser.withUsername(String.valueOf(id)).adminId(id).roles("USER").build();

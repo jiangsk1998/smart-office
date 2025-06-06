@@ -5,6 +5,7 @@ import com.zkyzn.project_manager.so.ResultList;
 import com.zkyzn.project_manager.so.file.FileResp;
 import com.zkyzn.project_manager.so.file.MergeFileReq;
 import com.zkyzn.project_manager.stories.FileStory;
+import com.zkyzn.project_manager.utils.FileUtil;
 import com.zkyzn.project_manager.utils.ResUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -70,9 +71,7 @@ public class FileController {
     public ResponseEntity<StreamingResponseBody> postFileToProjectFolder(
             HttpServletRequest request
     ) {
-        // TODO: 可能会有部分越权的内容 需要过滤部分非法字符
-        String path = ((String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE))
-                .replaceFirst("^/file/", "");
+        String path = FileUtil.getRelativePathByUri((String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE));
         Path relativePath = Paths.get(baseUrl, path);
 
         File file = relativePath.toFile();
