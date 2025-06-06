@@ -1,0 +1,51 @@
+package com.zkyzn.project_manager.models;
+
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableLogic;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.time.ZonedDateTime;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@TableName("tab_user_info")
+@JsonIgnoreProperties(value = {"userPassword"},allowSetters = true)
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+public class UserInfo {
+    @TableId(value = "user_id")
+    @Schema(description = "用户名称")
+    private Integer userId;
+
+    @Schema(description = "用户账号")
+    @TableField("user_account")
+    @NotBlank
+    private String userAccount;
+
+    @Schema(description = "用户密码")
+    @TableField("user_password")
+    @NotBlank
+    private String userPassword;
+
+    @Schema(description = "创建时间")
+    @TableField("create_time")
+    private ZonedDateTime createTime;
+
+    @Schema(description = "更新时间")
+    @TableField("update_time")
+    private ZonedDateTime updateTime;
+
+    @Schema(description = "删除标记")
+    @TableField("is_delete")
+    @TableLogic
+    private Integer isDelete;
+}
