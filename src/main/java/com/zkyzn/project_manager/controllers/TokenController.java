@@ -8,8 +8,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@Tag(name = "/token", description = "用户权限部分")
-@RequestMapping("/token")
+@Tag(name = "api/token", description = "用户权限部分")
+@RequestMapping("api/token")
 public class TokenController {
 
     @Operation(summary = "获取当前用户信息", security = @SecurityRequirement(name = "auth"))
