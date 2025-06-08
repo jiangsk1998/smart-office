@@ -47,18 +47,13 @@ public class ProjectDocument {
     @TableField("file_path")
     private String filePath;
 
-    @NotNull(message = "文件大小不能为空")
-    @Schema(description = "文件大小（字节）", requiredMode = Schema.RequiredMode.REQUIRED)
-    @TableField("file_size")
-    private Long fileSize;
-
     @NotBlank(message = "上传人不能为空")
     @Schema(description = "上传人", requiredMode = Schema.RequiredMode.REQUIRED)
     @TableField("uploader")
     private String uploader;
 
     @Schema(description = "上传时间")
-    @TableField(value = "upload_time", fill = FieldFill.INSERT)
+    @TableField(value = "upload_time")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime uploadTime;
 

@@ -47,7 +47,6 @@ CREATE TABLE tab_project_document
         )                            NOT NULL COMMENT '文档类型',
     document_name       VARCHAR(255) NOT NULL COMMENT '文档名称',
     file_path           VARCHAR(500) NOT NULL COMMENT '文件存储路径',
-    file_size           BIGINT       NOT NULL COMMENT '文件大小（字节）',
     uploader            VARCHAR(100) NOT NULL COMMENT '上传人',
     upload_time         DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '上传时间',
     version             VARCHAR(20) COMMENT '文档版本',
