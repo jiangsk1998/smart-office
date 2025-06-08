@@ -3,6 +3,9 @@ package com.zkyzn.project_manager.utils;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.URLDecoder;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 /**
  * 文件操作类
@@ -16,7 +19,8 @@ public class FileUtil {
      */
     public static String getRelativePathByUri(String Uri) {
         // TODO: 可能会有部分越权的内容 需要过滤部分非法字符
-        return Uri.replaceFirst("^/api/file/", "");
+        String absUri = Uri.replaceFirst("^/api/file/", "");
+        return URLDecoder.decode(absUri, StandardCharsets.UTF_8);
     }
 
     /**
