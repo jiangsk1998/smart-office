@@ -6,7 +6,7 @@ import com.zkyzn.project_manager.models.ProjectDocument;
 import org.springframework.stereotype.Repository;
 
 /**
- * Author: Mr-ti
+ * @author Mr-ti
  * Date: 2025/6/8 21:05
  */
 @Repository

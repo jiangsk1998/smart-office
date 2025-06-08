@@ -26,8 +26,8 @@ public class ProjectInfoStory {
 
     /**
      * 创建项目, 所有异常都会触发回滚
-     * @param req
-     * @return
+     * @param req 项目请求参数
+     * @return 项目编号
      */
     @Transactional(rollbackFor = Exception.class) //
     public String createProject(ProjectCreateReq req) {
@@ -64,8 +64,8 @@ public class ProjectInfoStory {
 
     /**
      * 更新项目
-     * @param req
-     * @return
+     * @param req 项目请求参数
+     * @return 项目编号
      */
     public String updateProject(ProjectCreateReq req) {
         // 判断项目编号是否存在，如果不存在则返回错误
@@ -84,8 +84,8 @@ public class ProjectInfoStory {
 
     /**
      * 根据项目编号获取项目信息
-     * @param projectNumber
-     * @return
+     * @param projectNumber 项目编号
+     * @return 项目信息
      */
     public ProjectInfo getProjectByProjectNumber(String projectNumber) {
 
@@ -94,11 +94,11 @@ public class ProjectInfoStory {
 
     /**
      * 删除项目
-     * @param projectId
-     * @return
+     * @param projectNumber 项目编号
+     * @return 是否删除成功
      */
-    public Boolean deleteProject(String projectId) {
-        return projectInfoService.removeByProjectNumber(projectId);
+    public Boolean deleteProject(String projectNumber) {
+        return projectInfoService.removeByProjectNumber(projectNumber);
     }
 
 }
