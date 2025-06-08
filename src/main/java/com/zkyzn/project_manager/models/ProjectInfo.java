@@ -92,7 +92,7 @@ public class ProjectInfo {
     private Long creatorId;
 
     @Schema(description = "创建时间")
-    @TableField(value = "create_time", fill = FieldFill.INSERT)
+    @TableField(value = "create_time")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssXXX")
     private ZonedDateTime createTime;
 
@@ -101,7 +101,7 @@ public class ProjectInfo {
     private Long updaterId;
 
     @Schema(description = "修改时间")
-    @TableField(value = "update_time", fill = FieldFill.INSERT_UPDATE)
+    @TableField(value = "update_time")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssXXX")
     private ZonedDateTime updateTime;
 }
