@@ -68,7 +68,7 @@ public class FileController {
 
     @Operation(summary = "获取文件")
     @GetMapping(value = "/**")
-    public ResponseEntity<StreamingResponseBody> postFileToProjectFolder(
+    public ResponseEntity<StreamingResponseBody> getFileToProjectFolder(
             HttpServletRequest request
     ) {
         String path = FileUtil.getRelativePathByUri((String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE));

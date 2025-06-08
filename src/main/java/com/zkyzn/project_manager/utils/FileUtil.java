@@ -16,7 +16,7 @@ public class FileUtil {
      */
     public static String getRelativePathByUri(String Uri) {
         // TODO: 可能会有部分越权的内容 需要过滤部分非法字符
-        return Uri.replaceFirst("^/file/", "");
+        return Uri.replaceFirst("^/api/file/", "");
     }
 
     /**
