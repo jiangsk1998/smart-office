@@ -1,4 +1,4 @@
-package com.zkyzn.project_manager.models.enums;
+package com.zkyzn.project_manager.enums;
 
 
 /**
@@ -9,7 +9,7 @@ package com.zkyzn.project_manager.models.enums;
  * Author: Mr-ti
  * Date: 2025/6/7 13:51
  */
-public enum ProjectStatus {
+public enum ProjectStatusEnum {
     NOT_STARTED("未开始"),
     IN_PROGRESS("进行中"),
     ON_HOLD("已暂停"),
@@ -18,7 +18,7 @@ public enum ProjectStatus {
 
     private final String displayName;
 
-    ProjectStatus(String displayName) {
+    ProjectStatusEnum(String displayName) {
         this.displayName = displayName;
     }
 }
