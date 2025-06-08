@@ -6,9 +6,9 @@ import com.zkyzn.project_manager.services.ProjectInfoService;
 import com.zkyzn.project_manager.so.project_info.ProjectCreateReq;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-
-
+/**
+ * @author Mr-ti
+ */
 @Service
 public class ProjectInfoStory {
 
@@ -52,8 +52,7 @@ public class ProjectInfoStory {
 
     public ProjectInfo getProjectByProjectNumber(String projectNumber) {
 
-        ProjectInfo byProjectId = projectInfoService.getByProjectNumber(projectNumber);
-        return byProjectId;
+        return projectInfoService.getByProjectNumber(projectNumber);
     }
 
     public Boolean deleteProject(String projectId) {

@@ -6,6 +6,9 @@ import com.zkyzn.project_manager.models.ProjectInfo;
 import org.springframework.stereotype.Repository;
 
 
+/**
+ * @author Mr-ti
+ */
 @Repository
 public interface ProjectInfoDao extends MPJBaseMapper<ProjectInfo> {
 

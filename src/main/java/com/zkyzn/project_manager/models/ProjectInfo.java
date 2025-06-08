@@ -13,6 +13,9 @@ import lombok.EqualsAndHashCode;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 
+/**
+ * @author Mr-ti
+ */
 @Data
 @EqualsAndHashCode(callSuper = false)
 @TableName("tab_project_info")

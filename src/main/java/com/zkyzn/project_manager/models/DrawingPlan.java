@@ -11,13 +11,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.time.LocalDate;
+
+
 /**
- * Copyright(C) 2024 HFHX.All right reserved.
- * ClassName: DrawingPlan
- * Description: TODO
- * Version: 1.0
- * Author: Mr-ti
- * Date: 2025/6/7 21:08
+ * @author Mr-ti
  */
 @Data
 @EqualsAndHashCode(callSuper = false)

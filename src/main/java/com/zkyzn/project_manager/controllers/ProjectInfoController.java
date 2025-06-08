@@ -10,8 +10,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
-
 /**
  * @author Mr-ti
  */
@@ -27,7 +25,7 @@ public class ProjectInfoController {
     @PostMapping()
     public Result<String> createProject(
             @RequestBody ProjectCreateReq req
-    ) throws IOException {
+    ) {
         String projectId = projectInfoStory.createProject(req);
         if (projectId == null) {
             return ResUtil.fail("插入失败！");
@@ -40,10 +38,10 @@ public class ProjectInfoController {
     public Result<String> updateProject(
             @PathVariable("projectNumber") String projectNumber,
             @RequestBody ProjectCreateReq req
-    ) throws IOException {
+    ) {
         req.setProjectNumber(projectNumber);
-        projectInfoStory.updateProject(req);
-        if (projectNumber == null) {
+        String projectId = projectInfoStory.updateProject(req);
+        if (projectId == null) {
             return ResUtil.fail("更新失败！");
         }
         return ResUtil.ok(projectNumber);
@@ -53,7 +51,7 @@ public class ProjectInfoController {
     @GetMapping("/{projectNumber}")
     public Result<ProjectInfo> getProjectById(
             @PathVariable("projectNumber") String projectNumber
-    ) throws IOException {
+    ) {
         ProjectInfo project = projectInfoStory.getProjectByProjectNumber(projectNumber);
         return ResUtil.ok(project);
     }
@@ -62,7 +60,7 @@ public class ProjectInfoController {
     @DeleteMapping("/{projectNumber}")
     public Result<Boolean> deleteProject(
             @PathVariable("projectNumber") String projectNumber
-    ) throws IOException {
+    ) {
         boolean success = projectInfoStory.deleteProject(projectNumber);
         return ResUtil.ok(success);
     }

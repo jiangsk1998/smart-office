@@ -12,13 +12,9 @@ import lombok.EqualsAndHashCode;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+
 /**
- * Copyright(C) 2024 HFHX.All right reserved.
- * ClassName: ProjectPlan
- * Description: TODO
- * Version: 1.0
- * Author: Mr-ti
- * Date: 2025/6/7 21:05
+ * @author Mr-ti
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
