@@ -70,7 +70,6 @@ CREATE TABLE tab_project_plan
     responsible_person VARCHAR(50)  NOT NULL COMMENT '责任人',
     department         VARCHAR(50)  NOT NULL COMMENT '科室',
     deliverable        VARCHAR(255) COMMENT '成果',
-    deliverable_type   VARCHAR(50)  NOT NULL COMMENT '科室',
     is_milestone       BOOLEAN  DEFAULT FALSE COMMENT '是否里程碑任务',
     create_time        DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     update_time        DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',

@@ -3,9 +3,12 @@ package com.zkyzn.project_manager.stories;
 
 import com.zkyzn.project_manager.models.ProjectDocument;
 import com.zkyzn.project_manager.models.ProjectInfo;
+import com.zkyzn.project_manager.models.ProjectPlan;
 import com.zkyzn.project_manager.services.ProjectDocumentService;
 import com.zkyzn.project_manager.services.ProjectInfoService;
+import com.zkyzn.project_manager.services.ProjectPlanService;
 import com.zkyzn.project_manager.so.project_info.ProjectCreateReq;
+import com.zkyzn.project_manager.utils.ExcelUtil;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +27,9 @@ public class ProjectInfoStory {
     @Resource
     private ProjectDocumentService projectDocumentService;
 
+    @Resource
+    private ProjectPlanService projectPlanService;
+
     /**
      * 创建项目, 所有异常都会触发回滚
      * @param req 项目请求参数
@@ -41,11 +47,9 @@ public class ProjectInfoStory {
         boolean insert = projectInfoService.save(req);
 
         // 将项目文档插入项目文档表
-        if (insert) {
-
-            ProjectInfo projectInfo = projectInfoService.getByProjectNumber(req.getProjectNumber());
-
-            List<ProjectDocument> projectDocumentList = req.getProjectDocumentList();
+        List<ProjectDocument> projectDocumentList = req.getProjectDocumentList();
+        ProjectInfo projectInfo = projectInfoService.getByProjectNumber(req.getProjectNumber());
+        if (insert && projectDocumentList != null && projectDocumentList.size() > 0) {
 
             // 创建项目时，projectDocumentList中projectId为空，需要将projectId设置为projectInfo的projectId
             projectDocumentList.stream()
@@ -55,6 +59,25 @@ public class ProjectInfoStory {
             // 遍历projectDocumentList，获取filePath路径文件的
 
             insert = projectDocumentService.saveBatch(projectDocumentList, 100);
+        }
+
+        // 如果文档类型是计划书，需要解析其中的任务
+        if (projectDocumentList != null && projectDocumentList.size() > 0) {
+            projectDocumentList.stream()
+                    .filter(projectDocument -> projectDocument.getDocumentType().equals("项目计划"))
+                    .forEach(projectDocument -> {
+                        // 解析计划书，获取任务列表
+                        // 根据文件路径获取计划书，计划书是excel格式，需要解析
+                        String filePath = projectDocument.getFilePath();
+                        List<ProjectPlan> planList = ExcelUtil.parseProjectPlan(filePath);
+
+                        planList.stream()
+                                .filter(planItems -> planItems.getProjectId() == null)
+                                .forEach(planItems -> planItems.setProjectId(projectInfo.getProjectId()));
+
+                        if (planList != null && planList.size() > 0)
+                            projectPlanService.saveBatch(planList);
+                    });
         }
 
         //  如果插入成功则返回项目编号
