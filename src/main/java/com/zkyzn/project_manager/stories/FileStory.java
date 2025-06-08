@@ -165,7 +165,8 @@ public class FileStory {
 
     /**
      * 查询当前用户空间下的文件
-     * @param id 用户Id
+     *
+     * @param id     用户Id
      * @param folder 用户目录
      * @return 文件列表
      */
@@ -185,5 +186,14 @@ public class FileStory {
                 return file;
             }).toList();
         }
+    }
+
+    /**
+     * 通过相对路径获取完整路径
+     * @param path 相对路径
+     * @return 绝对路径类
+     */
+    public Path get(String path) {
+        return Paths.get(fileRootPath, path);
     }
 }

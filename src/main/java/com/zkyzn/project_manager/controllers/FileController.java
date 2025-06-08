@@ -72,7 +72,7 @@ public class FileController {
             HttpServletRequest request
     ) {
         String path = FileUtil.getRelativePathByUri((String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE));
-        Path relativePath = Paths.get(baseUrl, path);
+        Path relativePath = fileStory.get(path);
 
         File file = relativePath.toFile();
         if (!file.exists()) {
