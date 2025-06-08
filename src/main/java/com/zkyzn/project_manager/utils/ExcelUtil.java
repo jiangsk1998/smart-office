@@ -33,7 +33,9 @@ public class ExcelUtil {
             // 从第二行开始读取（跳过表头）
             for (int i = 1; i <= sheet.getLastRowNum(); i++) {
                 Row row = sheet.getRow(i);
-                if (row == null) continue;
+                if (row == null) {
+                    continue;
+                }
 
                 ProjectPlan item = parseRow(row);
                 if (item != null) {
@@ -52,12 +54,14 @@ public class ExcelUtil {
      */
     private static ProjectPlan parseRow(Row row) {
         // 跳过空行
-        if (isRowEmpty(row)) return null;
+        if (isRowEmpty(row)) {
+            return null;
+        }
 
         ProjectPlan projectPlan = new ProjectPlan();
 
         // 序号（A列）
-        projectPlan.setTaskOrder(getNumericValue(row, 0));
+        projectPlan.setTaskOrder(getNumericValue(row));
 
         // 任务包（B列）
         projectPlan.setTaskPackage(getStringValue(row, 1));
@@ -93,9 +97,11 @@ public class ExcelUtil {
      * 检查行是否为空
      */
     private static boolean isRowEmpty(Row row) {
-        if (row == null) return true;
-
-        for (int i = 0; i < 10; i++) { // 检查前10列
+        if (row == null) {
+            return true;
+        }
+        // 检查前10列
+        for (int i = 0; i < 10; i++) {
             Cell cell = row.getCell(i, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
             if (cell != null && cell.getCellType() != CellType.BLANK) {
                 return false;
@@ -121,8 +127,8 @@ public class ExcelUtil {
     /**
      * 获取数值
      */
-    private static Integer getNumericValue(Row row, int columnIndex) {
-        Cell cell = row.getCell(columnIndex, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
+    private static Integer getNumericValue(Row row) {
+        Cell cell = row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
 
         if (cell.getCellType() == CellType.NUMERIC) {
             return (int) cell.getNumericCellValue();
@@ -154,11 +160,13 @@ public class ExcelUtil {
      * 判断是否为里程碑
      */
     private static boolean isMilestone(String value) {
-        if (value == null || value.isEmpty()) return false;
+        if (value == null || value.isEmpty()) {
+            return false;
+        }
 
-        return value.equalsIgnoreCase("是") ||
-                value.equalsIgnoreCase("true") ||
-                value.equalsIgnoreCase("√") ||
-                value.equalsIgnoreCase("里程碑");
+        return "是".equalsIgnoreCase(value) ||
+                "true".equalsIgnoreCase(value) ||
+                "√".equalsIgnoreCase(value) ||
+                "里程碑".equalsIgnoreCase(value);
     }
 }

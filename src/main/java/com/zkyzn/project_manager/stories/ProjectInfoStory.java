@@ -49,7 +49,7 @@ public class ProjectInfoStory {
         // 将项目文档插入项目文档表
         List<ProjectDocument> projectDocumentList = req.getProjectDocumentList();
         ProjectInfo projectInfo = projectInfoService.getByProjectNumber(req.getProjectNumber());
-        if (insert && projectDocumentList != null && projectDocumentList.size() > 0) {
+        if (insert && !projectDocumentList.isEmpty()) {
 
             // 创建项目时，projectDocumentList中projectId为空，需要将projectId设置为projectInfo的projectId
             projectDocumentList.stream()
@@ -62,9 +62,9 @@ public class ProjectInfoStory {
         }
 
         // 如果文档类型是计划书，需要解析其中的任务
-        if (projectDocumentList != null && projectDocumentList.size() > 0) {
+        if (!projectDocumentList.isEmpty()) {
             projectDocumentList.stream()
-                    .filter(projectDocument -> projectDocument.getDocumentType().equals("项目计划"))
+                    .filter(projectDocument -> "项目计划".equals(projectDocument.getDocumentType()))
                     .forEach(projectDocument -> {
                         // 解析计划书，获取任务列表
                         // 根据文件路径获取计划书，计划书是excel格式，需要解析
@@ -75,8 +75,9 @@ public class ProjectInfoStory {
                                 .filter(planItems -> planItems.getProjectId() == null)
                                 .forEach(planItems -> planItems.setProjectId(projectInfo.getProjectId()));
 
-                        if (planList != null && planList.size() > 0)
+                        if (!planList.isEmpty()) {
                             projectPlanService.saveBatch(planList);
+                        }
                     });
         }
 
