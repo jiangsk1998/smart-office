@@ -14,12 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 
 /**
- * Copyright(C) 2024 HFHX.All right reserved.
- * ClassName: ProjectInfoController
- * Description: TODO
- * Version: 1.0
- * Author: Mr-ti
- * Date: 2025/6/6 15:44
+ * @author Mr-ti
  */
 @RestController
 @Tag(name = "api/project/info", description = "项目信息管理")
@@ -32,27 +27,34 @@ public class ProjectInfoController {
     @Operation(summary = "创建项目")
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public Result<String> createProject(
-            @RequestBody ProjectCreateReq req) throws IOException {
+            @RequestBody ProjectCreateReq req
+    ) throws IOException {
         String projectId = projectInfoStory.createProject(req);
-        if(projectId == null)
+        if (projectId == null) {
             return ResUtil.fail("插入失败！");
+        }
         return ResUtil.ok(projectId);
     }
 
     @Operation(summary = "更新项目")
-    @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = "/{projectId}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public Result<String> updateProject(
-            @RequestBody ProjectCreateReq req) throws IOException {
-        String projectId = projectInfoStory.updateProject(req);
-        if(projectId == null)
+            @PathVariable("projectId") String projectId,
+            @RequestBody ProjectCreateReq req
+    ) throws IOException {
+        req.setProjectId(projectId);
+        projectInfoStory.updateProject(req);
+        if (projectId == null) {
             return ResUtil.fail("更新失败！");
+        }
         return ResUtil.ok(projectId);
     }
 
     @Operation(summary = "获取项目详情")
     @GetMapping("/{projectId}")
     public Result<ProjectInfo> getProjectById(
-            @PathVariable("projectId") String projectId) throws IOException {
+            @PathVariable("projectId") String projectId
+    ) throws IOException {
         ProjectInfo project = projectInfoStory.getProjectById(projectId);
         return ResUtil.ok(project);
     }
@@ -60,7 +62,8 @@ public class ProjectInfoController {
     @Operation(summary = "删除项目")
     @DeleteMapping("/{projectId}")
     public Result<Boolean> deleteProject(
-            @PathVariable("projectId") String projectId) throws IOException {
+            @PathVariable("projectId") String projectId
+    ) throws IOException {
         boolean success = projectInfoStory.deleteProject(projectId);
         return ResUtil.ok(success);
     }
