@@ -25,7 +25,7 @@ public class ProjectInfoController {
     private ProjectInfoStory projectInfoStory;
 
     @Operation(summary = "创建项目")
-    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping()
     public Result<String> createProject(
             @RequestBody ProjectCreateReq req
     ) throws IOException {
@@ -37,34 +37,34 @@ public class ProjectInfoController {
     }
 
     @Operation(summary = "更新项目")
-    @PutMapping(value = "/{projectId}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = "/{projectNumber}")
     public Result<String> updateProject(
-            @PathVariable("projectId") String projectId,
+            @PathVariable("projectNumber") String projectNumber,
             @RequestBody ProjectCreateReq req
     ) throws IOException {
-        req.setProjectId(projectId);
+        req.setProjectNumber(projectNumber);
         projectInfoStory.updateProject(req);
-        if (projectId == null) {
+        if (projectNumber == null) {
             return ResUtil.fail("更新失败！");
         }
-        return ResUtil.ok(projectId);
+        return ResUtil.ok(projectNumber);
     }
 
     @Operation(summary = "获取项目详情")
-    @GetMapping("/{projectId}")
+    @GetMapping("/{projectNumber}")
     public Result<ProjectInfo> getProjectById(
-            @PathVariable("projectId") String projectId
+            @PathVariable("projectNumber") String projectNumber
     ) throws IOException {
-        ProjectInfo project = projectInfoStory.getProjectById(projectId);
+        ProjectInfo project = projectInfoStory.getProjectByProjectNumber(projectNumber);
         return ResUtil.ok(project);
     }
 
     @Operation(summary = "删除项目")
-    @DeleteMapping("/{projectId}")
+    @DeleteMapping("/{projectNumber}")
     public Result<Boolean> deleteProject(
-            @PathVariable("projectId") String projectId
+            @PathVariable("projectNumber") String projectNumber
     ) throws IOException {
-        boolean success = projectInfoStory.deleteProject(projectId);
+        boolean success = projectInfoStory.deleteProject(projectNumber);
         return ResUtil.ok(success);
     }
 }

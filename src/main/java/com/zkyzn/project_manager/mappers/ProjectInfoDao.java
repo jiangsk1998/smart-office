@@ -18,6 +18,4 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ProjectInfoDao extends MPJBaseMapper<ProjectInfo> {
 
-    @Select("SELECT COUNT(*) FROM tab_project_info WHERE project_id = #{projectId}")
-    boolean existsById(@Param("projectId") String projectId);
 }

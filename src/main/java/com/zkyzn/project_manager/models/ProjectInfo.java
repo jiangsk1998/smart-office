@@ -19,9 +19,14 @@ import java.time.ZonedDateTime;
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class ProjectInfo {
 
-    @Schema(description = "项目主键-项目工号", requiredMode = Schema.RequiredMode.REQUIRED)
-    @TableId(value = "project_id")
-    private String projectId;
+    @TableId(value = "project_id", type = IdType.AUTO)
+    @Schema(description = "项目主键ID")
+    private Long projectId;
+
+    @NotBlank(message = "项目工号不能为空")
+    @Schema(description = "项目工号", requiredMode = Schema.RequiredMode.REQUIRED)
+    @TableField("project_number")
+    private String projectNumber;
 
     @NotBlank(message = "项目名称不能为空")
     @Schema(description = "项目名称", requiredMode = Schema.RequiredMode.REQUIRED)

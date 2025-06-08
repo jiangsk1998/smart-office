@@ -33,7 +33,7 @@ public class ProjectPlan {
     @NotBlank(message = "关联的项目ID不能为空")
     @Schema(description = "关联的项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @TableField("project_id")
-    private String projectId;
+    private Long projectId;
 
     @NotNull(message = "任务序号不能为空")
     @Schema(description = "任务序号", requiredMode = Schema.RequiredMode.REQUIRED)

@@ -32,7 +32,7 @@ public class ProjectDocument {
     @NotBlank(message = "项目ID不能为空")
     @Schema(description = "关联项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @TableField("project_id")
-    private String projectId;
+    private Long projectId;
 
     @NotBlank(message = "文档类型不能为空")
     @Schema(description = "文档类型（项目计划/图纸目录/生产会材料/汇报材料/二次统计/合并文档/其他）",
