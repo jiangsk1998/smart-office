@@ -12,13 +12,9 @@ import lombok.EqualsAndHashCode;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+
 /**
- * Copyright(C) 2024 HFHX.All right reserved.
- * ClassName: ProjectPlan
- * Description: TODO
- * Version: 1.0
- * Author: Mr-ti
- * Date: 2025/6/7 21:05
+ * @author Mr-ti
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -33,7 +29,7 @@ public class ProjectPlan {
     @NotBlank(message = "关联的项目ID不能为空")
     @Schema(description = "关联的项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @TableField("project_id")
-    private String projectId;
+    private Long projectId;
 
     @NotNull(message = "任务序号不能为空")
     @Schema(description = "任务序号", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -86,12 +82,12 @@ public class ProjectPlan {
     private Boolean isMilestone = false;
 
     @Schema(description = "创建时间")
-    @TableField(value = "create_time", fill = FieldFill.INSERT)
+    @TableField(value = "create_time")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createTime;
 
     @Schema(description = "修改时间")
-    @TableField(value = "update_time", fill = FieldFill.INSERT_UPDATE)
+    @TableField(value = "update_time")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime updateTime;
 }

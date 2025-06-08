@@ -11,13 +11,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.time.LocalDate;
+
+
 /**
- * Copyright(C) 2024 HFHX.All right reserved.
- * ClassName: DrawingPlan
- * Description: TODO
- * Version: 1.0
- * Author: Mr-ti
- * Date: 2025/6/7 21:08
+ * @author Mr-ti
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -32,7 +29,7 @@ public class DrawingPlan {
     @NotBlank(message = "关联项目ID不能为空")
     @Schema(description = "关联项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @TableField("project_id")
-    private String projectId;
+    private Long projectId;
 
     @NotBlank(message = "图号不能为空")
     @Schema(description = "图号", requiredMode = Schema.RequiredMode.REQUIRED)

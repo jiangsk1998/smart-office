@@ -11,7 +11,8 @@ CREATE TABLE tab_user_info
 
 CREATE TABLE tab_project_info
 (
-    project_id            VARCHAR(50) PRIMARY KEY COMMENT '项目工号',
+    project_id            BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '项目唯一ID',
+    project_number        VARCHAR(50)  NOT NULL COMMENT '项目工号',
     project_name          VARCHAR(255) NOT NULL COMMENT '项目名称',
     department            VARCHAR(50)  NOT NULL COMMENT '所属科室',
     start_date            DATE         NOT NULL COMMENT '立项时间',
@@ -34,7 +35,7 @@ CREATE TABLE tab_project_info
 CREATE TABLE tab_project_document
 (
     project_document_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '文档唯一ID',
-    project_id          VARCHAR(50)       NOT NULL COMMENT '关联项目ID',
+    project_id          BIGINT       NOT NULL COMMENT '关联项目ID',
     document_type       ENUM (
         '项目计划',
         '图纸目录',
@@ -46,7 +47,6 @@ CREATE TABLE tab_project_document
         )                            NOT NULL COMMENT '文档类型',
     document_name       VARCHAR(255) NOT NULL COMMENT '文档名称',
     file_path           VARCHAR(500) NOT NULL COMMENT '文件存储路径',
-    file_size           BIGINT       NOT NULL COMMENT '文件大小（字节）',
     uploader            VARCHAR(100) NOT NULL COMMENT '上传人',
     upload_time         DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '上传时间',
     version             VARCHAR(20) COMMENT '文档版本',
@@ -60,8 +60,8 @@ CREATE TABLE tab_project_document
 
 CREATE TABLE tab_project_plan
 (
-    project_plan_id    BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '计划项ID',
-    project_id         VARCHAR(50)       NOT NULL COMMENT '关联的项目ID',
+    project_plan_id    BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '计划项唯一ID',
+    project_id         BIGINT       NOT NULL COMMENT '关联项目ID',
     task_order         INT          NOT NULL COMMENT '任务序号',
     task_package       VARCHAR(100) NOT NULL COMMENT '任务包',
     task_description   TEXT         NOT NULL COMMENT '任务内容',
@@ -70,7 +70,6 @@ CREATE TABLE tab_project_plan
     responsible_person VARCHAR(50)  NOT NULL COMMENT '责任人',
     department         VARCHAR(50)  NOT NULL COMMENT '科室',
     deliverable        VARCHAR(255) COMMENT '成果',
-    deliverable_type   VARCHAR(50)  NOT NULL COMMENT '科室',
     is_milestone       BOOLEAN  DEFAULT FALSE COMMENT '是否里程碑任务',
     create_time        DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     update_time        DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
@@ -83,7 +82,7 @@ CREATE TABLE tab_project_plan
 CREATE TABLE tab_drawing_plan
 (
     drawing_plan_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '图纸唯一ID',
-    project_id      VARCHAR(50)       NOT NULL COMMENT '关联项目ID',
+    project_id      BIGINT       NOT NULL COMMENT '关联项目ID',
     drawing_number  VARCHAR(50)  NOT NULL COMMENT '图号',
     drawing_name    VARCHAR(255) NOT NULL COMMENT '图纸名称',
     approval_flow   VARCHAR(100) NOT NULL COMMENT '审签流程',
