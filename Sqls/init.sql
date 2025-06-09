@@ -102,7 +102,7 @@ CREATE TABLE `tab_message_info` (
                                     `receiver_id` VARCHAR(32) NOT NULL COMMENT '接收者用户ID（字符串）',
                                     `title` VARCHAR(200) DEFAULT NULL COMMENT '消息标题',
                                     `content` JSON NOT NULL COMMENT '消息内容（JSON结构）',
-                                    `message_type` TINYINT NOT NULL DEFAULT 1 COMMENT '消息类型：1=通知，2=告警，3=附件',
+                                    `message_type` TINYINT NOT NULL DEFAULT 1 COMMENT '消息类型：0=附件通知，1=变更通知，2=即将到期通知，3=延期通知,4=延期反馈，5=延期风险告警',
                                     `read_status` TINYINT NOT NULL DEFAULT 0 COMMENT '阅读状态：0=未读，1=已读',
                                     `is_top` TINYINT NOT NULL DEFAULT 0 COMMENT '是否置顶：0=否，1=是',
                                     `has_attachment` TINYINT NOT NULL DEFAULT 0 COMMENT '是否有附件：0=无，1=有',
