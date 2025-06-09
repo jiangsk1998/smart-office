@@ -25,10 +25,9 @@ public class MsgReq {
     @Schema(description = "排序条件：createTime,readTime,updateTime")
     private List<SortCondition> sorts;
 
-    @Schema(description = "消息类型：1=通知，2=告警，3=附件")
-    @TableField("message_type")
-    @JsonProperty("messageType")
-    private Integer messageType;
+    @Schema(description = "消息类型：0=附件通知，1=变更通知，2=即将到期通知，3=延期通知,4=延期反馈，5=延期风险告警")
+    @JsonProperty("messageTypes")
+    private List<Integer> messageTypes;
 
     @Schema(description = "阅读状态：0=未读，1=已读")
     @TableField("read_status")

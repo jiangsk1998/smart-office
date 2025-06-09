@@ -35,19 +35,27 @@ public class MessageInfoService extends MPJBaseServiceImpl<MessageInfoDao, Messa
         LambdaQueryWrapper<MessageInfo> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(MessageInfo::getReceiverId, req.getUserId())
                 .eq(MessageInfo::getIsDeleted, 0)
-                .eq(req.getReadStatus() != null, MessageInfo::getReadStatus, req.getReadStatus())
-                .eq(req.getMessageType() != null, MessageInfo::getMessageType, req.getMessageType());
+                .eq(req.getReadStatus() != null, MessageInfo::getReadStatus, req.getReadStatus());
 
-        // 2. 关键词搜索（安全OR条件）
+
+        // 2. 消息类型IN查询
+        if (CollectionUtils.isNotEmpty(req.getMessageTypes())) {
+            queryWrapper.in(MessageInfo::getMessageType, req.getMessageTypes());
+        } else {
+            queryWrapper.apply("1=1");
+        }
+
+        // 3. 关键词搜索（安全OR条件）
         if (StringUtils.isNotBlank(req.getKeyword())) {
+            String safeKeyword = escapeLike(req.getKeyword());
             queryWrapper.and(w -> w
-                    .like(MessageInfo::getTitle, "%" + req.getKeyword() + "%")
+                    .like(MessageInfo::getTitle, safeKeyword)
                     .or()
-                    .like(MessageInfo::getContent, "%" + req.getKeyword() + "%")
+                    .like(MessageInfo::getContent, safeKeyword)
             );
         }
 
-        // 3. 动态排序（字段白名单）
+        // 4. 动态排序（字段白名单）
         if (CollectionUtils.isNotEmpty(req.getSorts())) {
             req.getSorts().forEach(sort -> {
                 SFunction<MessageInfo, ?> field = getSortField(sort.getField());
@@ -57,7 +65,7 @@ public class MessageInfoService extends MPJBaseServiceImpl<MessageInfoDao, Messa
             queryWrapper.orderByDesc(MessageInfo::getCreateTime);
         }
 
-        // 4. 返回结果
+        // 5. 返回结果
         return list(queryWrapper);
     }
 
@@ -78,5 +86,11 @@ public class MessageInfoService extends MPJBaseServiceImpl<MessageInfoDao, Messa
             default:
                 throw new IllegalArgumentException("无效排序字段");
         }
+    }
+
+    private String escapeLike(String keyword) {
+        return "%" + StringUtils.replaceEach(keyword,
+                new String[]{"%", "_"},
+                new String[]{"\\%", "\\_"}) + "%";
     }
 }
