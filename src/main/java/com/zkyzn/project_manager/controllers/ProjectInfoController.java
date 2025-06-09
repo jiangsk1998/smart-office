@@ -1,5 +1,6 @@
 package com.zkyzn.project_manager.controllers;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zkyzn.project_manager.models.ProjectInfo;
 import com.zkyzn.project_manager.so.Result;
 import com.zkyzn.project_manager.so.project_info.ProjectCreateReq;
@@ -67,6 +68,16 @@ public class ProjectInfoController {
     ) {
         ProjectInfo project = projectInfoStory.getProjectByProjectNumber(projectNumber);
         return ResUtil.ok(project);
+    }
+
+    @Operation(summary = "分页查询项目信息")
+    @GetMapping("")
+    public Result<Page<ProjectInfo>> pageProjectInfo(
+            @RequestParam(value = "page", defaultValue = "1") Integer page,
+            @RequestParam(value = "size", defaultValue = "1") Integer size
+    ) {
+        Page<ProjectInfo> result = projectInfoStory.pageProjectInfo(page, size);
+        return ResUtil.ok(result);
     }
 
     @Operation(summary = "删除项目")

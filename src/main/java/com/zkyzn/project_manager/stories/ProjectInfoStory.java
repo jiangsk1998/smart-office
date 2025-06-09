@@ -1,5 +1,6 @@
 package com.zkyzn.project_manager.stories;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zkyzn.project_manager.models.ProjectDocument;
 import com.zkyzn.project_manager.models.ProjectInfo;
 import com.zkyzn.project_manager.models.ProjectPlan;
@@ -107,6 +108,21 @@ public class ProjectInfoStory {
      */
     public ProjectInfo getProjectByProjectNumber(String projectNumber) {
         return projectInfoService.getByProjectNumber(projectNumber);
+    }
+
+
+    /**
+     * 分页查询项目信息
+     * @param current 当前页
+     * @param size 分页大小
+     * @return 项目信息
+     */
+    public Page<ProjectInfo> pageProjectInfo(int current, int size) {
+        Page<ProjectInfo> page = new Page<>();
+        page.setCurrent(current);
+        page.setSize(size);
+
+        return projectInfoService.pageProject(page.getCurrent(), page.getSize(), null);
     }
 
     /**
