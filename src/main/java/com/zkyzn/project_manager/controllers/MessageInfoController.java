@@ -1,6 +1,5 @@
 package com.zkyzn.project_manager.controllers;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.zkyzn.project_manager.models.MessageInfo;
 import com.zkyzn.project_manager.services.MessageInfoService;
 import com.zkyzn.project_manager.so.Result;
@@ -42,7 +41,7 @@ public class MessageInfoController {
     }
 
     @GetMapping
-    @Operation(summary = "根据用户ID等条件查询消息列表")
+    @Operation(summary = "消息列表")
     public ResultList<MessageInfo> getByUserId(@RequestBody MsgReq req) {
         List<MessageInfo> infoList = messageInfoService.listByUserId(req);
         return ResUtil.list(infoList);
