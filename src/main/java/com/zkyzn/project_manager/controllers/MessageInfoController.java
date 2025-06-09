@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("/api/messages")
-@Tag(name = "消息接口")
+@Tag(name = "api/messages", description = "消息盒子")
 public class MessageInfoController {
 
     @Autowired

@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -17,9 +18,11 @@ import java.util.List;
 
 /**
  * 消息信息实体
+ * @author jiangsk
  */
 @Schema(name = "MessageInfo", description = "消息信息实体")
-@Data
+@Setter
+@Getter
 @EqualsAndHashCode(callSuper = false)
 @Builder
 @NoArgsConstructor
@@ -28,6 +31,7 @@ import java.util.List;
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class MessageInfo implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
 
