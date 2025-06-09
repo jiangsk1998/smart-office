@@ -21,7 +21,7 @@ public class MsgReq {
     private String userId;
 
     @Schema(description = "排序条件：createTime,readTime,updateTime")
-    private List<SortCondition> sorts; // 排序条件
+    private List<SortCondition> sorts;
 
     @Schema(description = "消息类型：1=通知，2=告警，3=附件")
     @TableField("message_type")

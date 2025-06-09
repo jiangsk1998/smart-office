@@ -113,3 +113,6 @@ CREATE TABLE `tab_message_info` (
                                     `is_deleted` TINYINT NOT NULL DEFAULT 0 COMMENT '逻辑删除标志：0=正常，1=删除'
 ) COMMENT='消息表';
 
+-- 添加全文索引
+ALTER TABLE message_info ADD FULLTEXT(title, content);
+
