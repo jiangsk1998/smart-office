@@ -1,5 +1,6 @@
 package com.zkyzn.project_manager.utils;
 
+import com.zkyzn.project_manager.models.ProjectInfo;
 import com.zkyzn.project_manager.models.ProjectPlan;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -21,7 +22,7 @@ public class ExcelUtil {
      * @param filePath Excel文件路径
      * @return 项目计划项列表
      */
-    public static List<ProjectPlan> parseProjectPlan(String filePath) {
+    public static List<ProjectPlan> parseProjectPlan(String filePath, Long projectId) {
         List<ProjectPlan> planItems = new ArrayList<>();
 
         try (FileInputStream file = new FileInputStream(filePath);
@@ -37,8 +38,9 @@ public class ExcelUtil {
                     continue;
                 }
 
-                ProjectPlan item = parseRow(row);
+                ProjectPlan item = parseProjectPlanRow(row);
                 if (item != null) {
+                    item.setProjectId(projectId);
                     planItems.add(item);
                 }
             }
@@ -50,9 +52,9 @@ public class ExcelUtil {
     }
 
     /**
-     * 解析单行数据
+     * 解析项目计划单行数据
      */
-    private static ProjectPlan parseRow(Row row) {
+    private static ProjectPlan parseProjectPlanRow(Row row) {
         // 跳过空行
         if (isRowEmpty(row)) {
             return null;
@@ -61,7 +63,7 @@ public class ExcelUtil {
         ProjectPlan projectPlan = new ProjectPlan();
 
         // 序号（A列）
-        projectPlan.setTaskOrder(getNumericValue(row));
+        projectPlan.setTaskOrder(getNumericValue(row, 0));
 
         // 任务包（B列）
         projectPlan.setTaskPackage(getStringValue(row, 1));
@@ -91,6 +93,78 @@ public class ExcelUtil {
         projectPlan.setIsMilestone(isMilestone(getStringValue(row, 9)));
 
         return projectPlan;
+    }
+
+    /**
+     * 解析项目信息导入表
+     * @param filePath Excel文件路径
+     * @return 项目信息列表
+     */
+    public static List<ProjectInfo> parseProjectInfoSheet(String filePath, Long creatorId) {
+        List<ProjectInfo> infoItems = new ArrayList<>();
+
+        try (FileInputStream file = new FileInputStream(filePath);
+             Workbook workbook = new XSSFWorkbook(file)) {
+
+            // 获取第一个工作表（项目计划）
+            Sheet sheet = workbook.getSheetAt(0);
+
+            // 从第二行开始读取（跳过表头）
+            for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+                Row row = sheet.getRow(i);
+                if (row == null) {
+                    continue;
+                }
+
+                ProjectInfo item = parseProjectInfoRow(row);
+                if (item != null) {
+                    item.setCreatorId(creatorId);
+                    infoItems.add(item);
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("解析Excel文件失败: " + e.getMessage(), e);
+        }
+
+        return infoItems;
+    }
+
+    /**
+     * 解析项目信息单行数据
+     */
+    private static ProjectInfo parseProjectInfoRow(Row row) {
+        // 跳过空行
+        if (isRowEmpty(row)) {
+            return null;
+        }
+
+        ProjectInfo projectInfo = new ProjectInfo();
+
+        // 项目工号（A列）
+        projectInfo.setProjectNumber(getStringValue(row, 0));
+
+        // 项目名称（B列）
+        projectInfo.setProjectName(getStringValue(row, 1));
+
+        // 所属科室（C列）
+        projectInfo.setDepartment(getStringValue(row, 2));
+
+        // 立项时间（D列）
+        projectInfo.setStartDate(getDateValue(row, 3));
+
+        // 结束时间（E列）
+        projectInfo.setEndDate(getDateValue(row, 4));
+
+        // 分管领导（F列）
+        projectInfo.setResponsibleLeaderId(getNumericLongValue(row, 5));
+
+        // 技术负责人（G列）
+        projectInfo.setTechnicalLeaderId(getNumericLongValue(row, 6));
+
+        // 计划主管（H列）
+        projectInfo.setPlanSupervisorId(getNumericLongValue(row, 7));
+
+        return projectInfo;
     }
 
     /**
@@ -127,14 +201,32 @@ public class ExcelUtil {
     /**
      * 获取数值
      */
-    private static Integer getNumericValue(Row row) {
-        Cell cell = row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
+    private static Integer getNumericValue(Row row, int columnIndex) {
+        Cell cell = row.getCell(columnIndex, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
 
         if (cell.getCellType() == CellType.NUMERIC) {
             return (int) cell.getNumericCellValue();
         } else if (cell.getCellType() == CellType.STRING) {
             try {
                 return Integer.parseInt(cell.getStringCellValue().trim());
+            } catch (NumberFormatException e) {
+                return null;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 获取数值
+     */
+    private static Long getNumericLongValue(Row row, int columnIndex) {
+        Cell cell = row.getCell(columnIndex, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
+
+        if (cell.getCellType() == CellType.NUMERIC) {
+            return (long) cell.getNumericCellValue();
+        } else if (cell.getCellType() == CellType.STRING) {
+            try {
+                return Long.parseLong(cell.getStringCellValue().trim());
             } catch (NumberFormatException e) {
                 return null;
             }

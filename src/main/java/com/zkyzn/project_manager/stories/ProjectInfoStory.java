@@ -1,6 +1,5 @@
 package com.zkyzn.project_manager.stories;
 
-
 import com.zkyzn.project_manager.models.ProjectDocument;
 import com.zkyzn.project_manager.models.ProjectInfo;
 import com.zkyzn.project_manager.models.ProjectPlan;
@@ -8,6 +7,7 @@ import com.zkyzn.project_manager.services.ProjectDocumentService;
 import com.zkyzn.project_manager.services.ProjectInfoService;
 import com.zkyzn.project_manager.services.ProjectPlanService;
 import com.zkyzn.project_manager.so.project_info.ProjectCreateReq;
+import com.zkyzn.project_manager.so.project_info.ProjectImportReq;
 import com.zkyzn.project_manager.utils.ExcelUtil;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
@@ -56,8 +56,6 @@ public class ProjectInfoStory {
                     .filter(projectDocument -> projectDocument.getProjectId() == null)
                     .forEach(projectDocument -> projectDocument.setProjectId(projectInfo.getProjectId()));
 
-            // 遍历projectDocumentList，获取filePath路径文件的
-
             insert = projectDocumentService.saveBatch(projectDocumentList, 100);
         }
 
@@ -69,11 +67,7 @@ public class ProjectInfoStory {
                         // 解析计划书，获取任务列表
                         // 根据文件路径获取计划书，计划书是excel格式，需要解析
                         String filePath = projectDocument.getFilePath();
-                        List<ProjectPlan> planList = ExcelUtil.parseProjectPlan(filePath);
-
-                        planList.stream()
-                                .filter(planItems -> planItems.getProjectId() == null)
-                                .forEach(planItems -> planItems.setProjectId(projectInfo.getProjectId()));
+                        List<ProjectPlan> planList = ExcelUtil.parseProjectPlan(filePath, projectInfo.getProjectId());
 
                         if (!planList.isEmpty()) {
                             projectPlanService.saveBatch(planList);
@@ -112,7 +106,6 @@ public class ProjectInfoStory {
      * @return 项目信息
      */
     public ProjectInfo getProjectByProjectNumber(String projectNumber) {
-
         return projectInfoService.getByProjectNumber(projectNumber);
     }
 
@@ -123,6 +116,20 @@ public class ProjectInfoStory {
      */
     public Boolean deleteProject(String projectNumber) {
         return projectInfoService.removeByProjectNumber(projectNumber);
+    }
+
+    /**
+     * 批量导入项目, 所有异常都会触发回滚
+     * @param req 项目请求参数
+     * @return 项目编号
+     */
+    public Boolean importProjectBatch(ProjectImportReq req) {
+        List<ProjectInfo> projectInfoList = ExcelUtil.parseProjectInfoSheet(req.getImportExcelFilePath(), req.getCreatorId());
+
+        // todo: 批量导入项目信息时如何考虑附件信息
+
+        //  批量插入项目信息数据表
+        return projectInfoService.saveBatch(projectInfoList);
     }
 
 }

@@ -3,6 +3,7 @@ package com.zkyzn.project_manager.controllers;
 import com.zkyzn.project_manager.models.ProjectInfo;
 import com.zkyzn.project_manager.so.Result;
 import com.zkyzn.project_manager.so.project_info.ProjectCreateReq;
+import com.zkyzn.project_manager.so.project_info.ProjectImportReq;
 import com.zkyzn.project_manager.stories.ProjectInfoStory;
 import com.zkyzn.project_manager.utils.ResUtil;
 import io.swagger.v3.oas.annotations.Operation;
@@ -31,6 +32,18 @@ public class ProjectInfoController {
             return ResUtil.fail("插入失败！");
         }
         return ResUtil.ok(projectId);
+    }
+
+    @Operation(summary = "批量导入项目")
+    @PostMapping(value = "/batch")
+    public Result<Boolean> importProjectBatch(
+            @RequestBody ProjectImportReq req
+    ) {
+        boolean success = projectInfoStory.importProjectBatch(req);
+        if (!success) {
+            return ResUtil.fail("导入失败！");
+        }
+        return ResUtil.ok(true);
     }
 
     @Operation(summary = "更新项目")
