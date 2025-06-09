@@ -41,9 +41,9 @@ public class MessageInfoService extends MPJBaseServiceImpl<MessageInfoDao, Messa
         // 2. 关键词搜索（安全OR条件）
         if (StringUtils.isNotBlank(req.getKeyword())) {
             queryWrapper.and(w -> w
-                    .like(MessageInfo::getTitle, req.getKeyword())
+                    .like(MessageInfo::getTitle, "%" + req.getKeyword() + "%")
                     .or()
-                    .like(MessageInfo::getContent, req.getKeyword())
+                    .like(MessageInfo::getContent, "%" + req.getKeyword() + "%")
             );
         }
 
