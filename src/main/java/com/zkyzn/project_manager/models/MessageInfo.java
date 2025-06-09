@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.zkyzn.project_manager.so.file.FileResp;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 import java.io.Serializable;
@@ -33,23 +34,27 @@ public class MessageInfo implements Serializable {
     @Schema(description = "主键ID（字符串ID，支持雪花算法/UUID）")
     @TableId(value = "message_id", type = IdType.INPUT)
     @JsonProperty("messageId")
+    @NotBlank(message = "主键ID不能为空")
     private String messageId;
 
 
     @Schema(description = "发送者用户ID（字符串）")
     @TableField("sender_id")
     @JsonProperty("senderId")
+    @NotBlank(message = "发送者用户ID不能为空")
     private String senderId;
 
 
     @Schema(description = "接收者用户ID（字符串）")
     @TableField("receiver_id")
     @JsonProperty("receiverId")
+    @NotBlank(message = "接收者用户ID不能为空")
     private String receiverId;
 
 
     @Schema(description = "消息标题")
     @TableField("title")
+    @NotBlank(message = "消息标题不能为空")
     private String title;
 
 
@@ -61,19 +66,20 @@ public class MessageInfo implements Serializable {
     @Schema(description = "消息类型：1=通知，2=告警，3=附件")
     @TableField("message_type")
     @JsonProperty("messageType")
+    @NotBlank(message = "消息类型不能为空")
     private Integer messageType;
 
 
     @Schema(description = "阅读状态：0=未读，1=已读")
     @TableField("read_status")
     @JsonProperty("readStatus")
-    private Integer readStatus;
+    private Integer readStatus = 0;
 
 
     @Schema(description = "是否置顶：0=否，1=是")
     @TableField("is_top")
     @JsonProperty("isTop")
-    private Integer isTop;
+    private Integer isTop = 0;
 
 
     @Schema(description = "是否有附件：0=无，1=有")
@@ -110,5 +116,5 @@ public class MessageInfo implements Serializable {
     @TableField("is_deleted")
     @TableLogic
     @JsonProperty("isDeleted")
-    private Integer isDeleted;
+    private Integer isDeleted = 0;
 }
