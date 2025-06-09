@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.zkyzn.project_manager.so.file.FileResp;
+import com.zkyzn.project_manager.so.message.BaseContent;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
@@ -64,7 +65,7 @@ public class MessageInfo implements Serializable {
 
     @Schema(description = "消息内容（JSON结构）")
     @TableField(value = "content",typeHandler = JacksonTypeHandler.class)
-    private HashMap<String,Object> content;
+    private BaseContent content;
 
 
     @Schema(description = "消息类型：1=通知，2=告警，3=附件")
