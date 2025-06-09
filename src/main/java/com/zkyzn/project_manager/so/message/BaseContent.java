@@ -16,8 +16,9 @@ import lombok.Setter;
         property = "type"
 )
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = ChangeNotice.class, name = "notice"),
-        @JsonSubTypes.Type(value = DueDateNotice.class, name = "dueDate"),
+        @JsonSubTypes.Type(value = ChangeNotice.class, name = "notice"), // 变更提醒
+        @JsonSubTypes.Type(value = DueDateNotice.class, name = "dueDate"), //即将到期提醒
+        @JsonSubTypes.Type(value = DelayAlert.class, name = "delay"), //延期风险告警
 })
 public class BaseContent {
 }
