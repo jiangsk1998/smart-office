@@ -11,8 +11,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
+/**
+ * @author Jiangsk
+ */
 @RestController
 @RequestMapping("/api/messages")
 @Tag(name = "消息接口")
@@ -23,28 +24,26 @@ public class MessageInfoController {
 
     @PostMapping
     @Operation(summary = "创建消息")
-    public boolean save(@RequestBody MessageInfo messageInfo) {
-        return messageInfoService.save(messageInfo);
+    public Result<MessageInfo> create(@RequestBody MessageInfo messageInfo) {
+        boolean success = messageInfoService.save(messageInfo);
+        return success ? ResUtil.ok(messageInfo) : ResUtil.fail("创建失败");
     }
 
-    @PutMapping("/read/{messageInfoId}")
-    @Operation(summary = "消息已读")
-    public Result<Boolean> read(@PathVariable String messageInfoId) {
-        Boolean read = messageInfoService.read(messageInfoId);
-        return ResUtil.ok(read);
+    @PatchMapping("/{id}/read-status") // 改为PATCH部分更新
+    @Operation(summary = "标记已读")
+    public Result<Boolean> markAsRead(@PathVariable String id) {
+        return ResUtil.ok(messageInfoService.read(id));
     }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "删除消息")
-    public boolean delete(@PathVariable String id) {
-        return messageInfoService.removeById(id);
+    public Result<Boolean> delete(@PathVariable String id) {
+        return ResUtil.ok(messageInfoService.removeById(id));
     }
 
-    @GetMapping
-    @Operation(summary = "消息列表")
-    public ResultList<MessageInfo> getByUserId(@RequestBody MsgReq req) {
-        List<MessageInfo> infoList = messageInfoService.listByUserId(req);
-        return ResUtil.list(infoList);
+    @PostMapping("/query")  // 改为 POST 方法接收复杂查询条件
+    @Operation(summary = "消息列表（条件查询）")
+    public ResultList<MessageInfo> queryMessages(@RequestBody MsgReq req) {
+        return ResUtil.list(messageInfoService.listByUserId(req));
     }
-
 }
