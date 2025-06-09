@@ -11,12 +11,12 @@ import lombok.Setter;
 import java.time.LocalDate;
 
 /**
- * 变更通知
+ * 即将到期通知
  * @author Jiangsk
  */
 @Getter
 @Setter
-public class ChangeNotice extends BaseContent{
+public class DueDateNotice extends BaseContent{
 
     @NotBlank(message = "项目工号不能为空")
     @Schema(description = "项目工号", requiredMode = Schema.RequiredMode.REQUIRED)

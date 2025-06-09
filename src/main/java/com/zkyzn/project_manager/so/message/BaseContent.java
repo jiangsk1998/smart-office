@@ -17,6 +17,7 @@ import lombok.Setter;
 )
 @JsonSubTypes({
         @JsonSubTypes.Type(value = ChangeNotice.class, name = "notice"),
+        @JsonSubTypes.Type(value = DueDateNotice.class, name = "dueDate"),
 })
 public class BaseContent {
 }
