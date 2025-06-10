@@ -24,7 +24,7 @@ import java.time.ZonedDateTime;
 public class UserInfo {
     @TableId(value = "user_id")
     @Schema(description = "用户名称")
-    private Integer userId;
+    private Long userId;
 
     @Schema(description = "用户账号")
     @TableField("user_account")

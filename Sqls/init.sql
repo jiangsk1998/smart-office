@@ -1,12 +1,12 @@
 CREATE TABLE tab_user_info
 (
-    user_id       int       NOT null comment '用户Id'
+    user_id       BIGINT       NOT null comment '用户Id'
         primary key,
-    user_account  int       null comment '用户账号',
-    user_password int       null comment '用户密码',
-    create_time   timestamp null comment '创建时间',
-    update_time   timestamp null comment '更新时间',
-    is_delete     int       null
+    user_account  INT       null comment '用户账号',
+    user_password INT       null comment '用户密码',
+    create_time   DATETIME null comment '创建时间',
+    update_time   DATETIME null comment '更新时间',
+    is_delete     INT       null
 ) comment '用户信息表';
 
 CREATE TABLE tab_project_info
@@ -17,17 +17,19 @@ CREATE TABLE tab_project_info
     department            VARCHAR(50)  NOT NULL COMMENT '所属科室',
     start_date            DATE         NOT NULL COMMENT '立项时间',
     end_date              DATE         NOT NULL COMMENT '结束时间',
-    responsible_leader_id BIGINT       NOT NULL COMMENT '分管领导ID',
-    technical_leader_id   BIGINT       NOT NULL COMMENT '技术负责人ID',
-    plan_supervisor_id    BIGINT       NOT NULL COMMENT '计划主管ID',
-    responsible_leader    VARCHAR(255) COMMENT '分管领导姓名',
-    technical_leader      VARCHAR(255) COMMENT '技术负责人姓名',
-    plan_supervisor       VARCHAR(255) COMMENT '计划主管姓名',
+    responsible_leader_id BIGINT       COMMENT '分管领导ID',
+    technical_leader_id   BIGINT       COMMENT '技术负责人ID',
+    plan_supervisor_id    BIGINT       COMMENT '计划主管ID',
+    responsible_leader    VARCHAR(50) COMMENT '分管领导姓名',
+    technical_leader      VARCHAR(50) COMMENT '技术负责人姓名',
+    plan_supervisor       VARCHAR(50) COMMENT '计划主管姓名',
     status                VARCHAR(50)  COMMENT '项目状态',
     current_phase         VARCHAR(50)  COMMENT '项目当前阶段',
-    creator_id            BIGINT       NOT NULL COMMENT '创建人ID',
+    creator_id            BIGINT       COMMENT '创建人ID',
+    creator_name          VARCHAR(50) COMMENT '创建人姓名',
     create_time           DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     updater_id            BIGINT COMMENT '最后修改人ID',
+    updater_name          VARCHAR(50) COMMENT '最后修改人姓名',
     update_time           DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间'
 ) COMMENT ='项目信息表';
 
@@ -47,9 +49,10 @@ CREATE TABLE tab_project_document
         )                            NOT NULL COMMENT '文档类型',
     document_name       VARCHAR(255) NOT NULL COMMENT '文档名称',
     file_path           VARCHAR(500) NOT NULL COMMENT '文件存储路径',
-    uploader            VARCHAR(100) NOT NULL COMMENT '上传人',
+    uploader_id         BIGINT       COMMENT '上传人ID',
+    upload_name         VARCHAR(50) COMMENT '上传人姓名',
     upload_time         DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '上传时间',
-    version             VARCHAR(20) COMMENT '文档版本',
+    version             VARCHAR(50) COMMENT '文档版本',
     description         TEXT COMMENT '文档描述',
     is_latest           BOOLEAN  DEFAULT TRUE COMMENT '是否最新版本',
 
@@ -63,13 +66,14 @@ CREATE TABLE tab_project_plan
     project_plan_id    BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '计划项唯一ID',
     project_id         BIGINT       NOT NULL COMMENT '关联项目ID',
     task_order         INT          NOT NULL COMMENT '任务序号',
-    task_package       VARCHAR(100) NOT NULL COMMENT '任务包',
+    task_package       VARCHAR(255) NOT NULL COMMENT '任务包',
     task_description   TEXT         NOT NULL COMMENT '任务内容',
     start_date         DATE         NOT NULL COMMENT '开始时间',
     end_date           DATE         NOT NULL COMMENT '结束时间',
     responsible_person VARCHAR(50)  NOT NULL COMMENT '责任人',
     department         VARCHAR(50)  NOT NULL COMMENT '科室',
-    deliverable        VARCHAR(255) COMMENT '成果',
+    deliverable        VARCHAR(255) NOT NULL COMMENT '成果',
+    deliverable_type   VARCHAR(50)  NOT NULL COMMENT '成果类型',
     is_milestone       BOOLEAN  DEFAULT FALSE COMMENT '是否里程碑任务',
     create_time        DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     update_time        DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
@@ -85,7 +89,7 @@ CREATE TABLE tab_drawing_plan
     project_id      BIGINT       NOT NULL COMMENT '关联项目ID',
     drawing_number  VARCHAR(50)  NOT NULL COMMENT '图号',
     drawing_name    VARCHAR(255) NOT NULL COMMENT '图纸名称',
-    approval_flow   VARCHAR(100) NOT NULL COMMENT '审签流程',
+    approval_flow   VARCHAR(255) NOT NULL COMMENT '审签流程',
     completion_date DATE         NOT NULL COMMENT '完成时间',
     department      VARCHAR(50)  NOT NULL COMMENT '部门',
     security_level  VARCHAR(50)  NOT NULL COMMENT '密级',

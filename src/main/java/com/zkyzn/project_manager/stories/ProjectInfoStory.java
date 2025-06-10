@@ -1,13 +1,13 @@
 package com.zkyzn.project_manager.stories;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.zkyzn.project_manager.models.ProjectDocument;
 import com.zkyzn.project_manager.models.ProjectInfo;
 import com.zkyzn.project_manager.models.ProjectPlan;
 import com.zkyzn.project_manager.services.ProjectDocumentService;
 import com.zkyzn.project_manager.services.ProjectInfoService;
 import com.zkyzn.project_manager.services.ProjectPlanService;
 import com.zkyzn.project_manager.so.project_info.ProjectCreateReq;
+import com.zkyzn.project_manager.so.project_info.ProjectDocumentReq;
 import com.zkyzn.project_manager.so.project_info.ProjectImportReq;
 import com.zkyzn.project_manager.utils.ExcelUtil;
 import jakarta.annotation.Resource;
@@ -45,35 +45,30 @@ public class ProjectInfoStory {
         }
 
         //  插入项目信息数据表
-        boolean insert = projectInfoService.save(req);
+        boolean insert = projectInfoService.saveProject(req);
 
-        // 将项目文档插入项目文档表
-        List<ProjectDocument> projectDocumentList = req.getProjectDocumentList();
-        ProjectInfo projectInfo = projectInfoService.getByProjectNumber(req.getProjectNumber());
+        List<ProjectDocumentReq> projectDocumentList = req.getProjectDocumentList();
         if (insert && !projectDocumentList.isEmpty()) {
 
-            // 创建项目时，projectDocumentList中projectId为空，需要将projectId设置为projectInfo的projectId
-            projectDocumentList.stream()
-                    .filter(projectDocument -> projectDocument.getProjectId() == null)
-                    .forEach(projectDocument -> projectDocument.setProjectId(projectInfo.getProjectId()));
+            // 将项目文档插入项目文档表，创建项目时，projectDocumentList中projectId为空，需要将projectDocument的projectId字段设置为projectInfo的projectId
+            ProjectInfo projectInfo = projectInfoService.getByProjectNumber(req.getProjectNumber());
+            Long projectId = projectInfo.getProjectId();
+            // 如果文档类型是计划书，需要解析其中的任务
+            projectDocumentList.forEach(projectDocument -> {
+                if (projectDocument.getProjectId() == null) {
+                    projectDocument.setProjectId(projectId);
+                    projectDocumentService.save(projectDocument);
+                }
+                if ("项目计划".equals(projectDocument.getDocumentType())) {
 
-            insert = projectDocumentService.saveBatch(projectDocumentList, 100);
-        }
-
-        // 如果文档类型是计划书，需要解析其中的任务
-        if (!projectDocumentList.isEmpty()) {
-            projectDocumentList.stream()
-                    .filter(projectDocument -> "项目计划".equals(projectDocument.getDocumentType()))
-                    .forEach(projectDocument -> {
-                        // 解析计划书，获取任务列表
-                        // 根据文件路径获取计划书，计划书是excel格式，需要解析
-                        String filePath = projectDocument.getFilePath();
-                        List<ProjectPlan> planList = ExcelUtil.parseProjectPlan(filePath, projectInfo.getProjectId());
-
-                        if (!planList.isEmpty()) {
-                            projectPlanService.saveBatch(planList);
-                        }
-                    });
+                    // 根据文件路径获取计划书，计划书是excel格式，需要解析计划书，获取任务列表
+                    String filePath = projectDocument.getFilePath();
+                    List<ProjectPlan> planList = ExcelUtil.parseProjectPlan(filePath, projectInfo.getProjectId());
+                    if (!planList.isEmpty()) {
+                        projectPlanService.saveBatch(planList);
+                    }
+                }
+            });
         }
 
         //  如果插入成功则返回项目编号
@@ -130,19 +125,19 @@ public class ProjectInfoStory {
      * @param projectNumber 项目编号
      * @return 是否删除成功
      */
-    public Boolean deleteProject(String projectNumber) {
+    public Boolean deleteProjectByProjectNumber(String projectNumber) {
         return projectInfoService.removeByProjectNumber(projectNumber);
     }
 
     /**
-     * 批量导入项目, 所有异常都会触发回滚
+     * 批量导入项目
      * @param req 项目请求参数
-     * @return 项目编号
+     * @return 是否导入成功
      */
     public Boolean importProjectBatch(ProjectImportReq req) {
-        List<ProjectInfo> projectInfoList = ExcelUtil.parseProjectInfoSheet(req.getImportExcelFilePath(), req.getCreatorId());
+        List<ProjectInfo> projectInfoList = ExcelUtil.parseProjectInfoSheet(req.getImportExcelFilePath(), "");
 
-        // todo: 批量导入项目信息时如何考虑附件信息
+        // todo: 输出错误文档
 
         //  批量插入项目信息数据表
         return projectInfoService.saveBatch(projectInfoList);

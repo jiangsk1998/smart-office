@@ -46,10 +46,13 @@ public class ProjectDocument {
     @TableField("file_path")
     private String filePath;
 
-    @NotBlank(message = "上传人不能为空")
-    @Schema(description = "上传人", requiredMode = Schema.RequiredMode.REQUIRED)
-    @TableField("uploader")
-    private String uploader;
+    @Schema(description = "上传人Id")
+    @TableField("uploader_id")
+    private String uploaderId;
+
+    @Schema(description = "上传人姓名")
+    @TableField("uploader_name")
+    private String uploaderName;
 
     @Schema(description = "上传时间")
     @TableField(value = "upload_time")

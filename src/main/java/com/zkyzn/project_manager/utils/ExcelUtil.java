@@ -98,9 +98,10 @@ public class ExcelUtil {
     /**
      * 解析项目信息导入表
      * @param filePath Excel文件路径
+     * @param creatorName 创建人姓名
      * @return 项目信息列表
      */
-    public static List<ProjectInfo> parseProjectInfoSheet(String filePath, Long creatorId) {
+    public static List<ProjectInfo> parseProjectInfoSheet(String filePath, String creatorName) {
         List<ProjectInfo> infoItems = new ArrayList<>();
 
         try (FileInputStream file = new FileInputStream(filePath);
@@ -118,7 +119,7 @@ public class ExcelUtil {
 
                 ProjectInfo item = parseProjectInfoRow(row);
                 if (item != null) {
-                    item.setCreatorId(creatorId);
+                    item.setCreatorName(creatorName);
                     infoItems.add(item);
                 }
             }

@@ -52,47 +52,48 @@ public class ProjectInfo {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate endDate;
 
-    @NotBlank(message = "项目状态不能为空")
-    @Schema(description = "项目状态", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "项目状态")
     @TableField("status")
     private String status;
 
-    @NotBlank(message = "项目当前阶段不能为空")
-    @Schema(description = "项目当前阶段", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "项目当前阶段")
     @TableField("current_phase")
     private String currentPhase;
 
-    @NotNull(message = "分管领导ID不能为空")
-    @Schema(description = "分管领导ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "分管领导ID")
     @TableField("responsible_leader_id")
     private Long responsibleLeaderId;
 
-    @NotNull(message = "技术负责人ID不能为空")
-    @Schema(description = "技术负责人ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "技术负责人ID")
     @TableField("technical_leader_id")
     private Long technicalLeaderId;
 
-    @NotNull(message = "计划主管ID不能为空")
-    @Schema(description = "计划主管ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "计划主管ID")
     @TableField("plan_supervisor_id")
     private Long planSupervisorId;
 
-    @Schema(description = "分管领导姓名")
+    @NotBlank(message = "分管领导不能为空")
+    @Schema(description = "分管领导姓名", requiredMode = Schema.RequiredMode.REQUIRED)
     @TableField("responsible_leader")
     private String responsibleLeader;
 
-    @Schema(description = "技术负责人姓名")
+    @NotBlank(message = "技术负责人不能为空")
+    @Schema(description = "技术负责人姓名", requiredMode = Schema.RequiredMode.REQUIRED)
     @TableField("technical_leader")
     private String technicalLeader;
 
-    @Schema(description = "计划主管姓名")
+    @NotBlank(message = "计划主管不能为空")
+    @Schema(description = "计划主管姓名", requiredMode = Schema.RequiredMode.REQUIRED)
     @TableField("plan_supervisor")
     private String planSupervisor;
 
-    @NotNull(message = "创建人ID不能为空")
-    @Schema(description = "创建人ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "创建人ID")
     @TableField("creator_id")
     private Long creatorId;
+
+    @Schema(description = "创建人姓名")
+    @TableField("creator_name")
+    private String creatorName;
 
     @Schema(description = "创建时间")
     @TableField(value = "create_time")
@@ -102,6 +103,10 @@ public class ProjectInfo {
     @Schema(description = "最后修改人ID")
     @TableField("updater_id")
     private Long updaterId;
+
+    @Schema(description = "最后修改人姓名")
+    @TableField("updater_name")
+    private String updaterName;
 
     @Schema(description = "修改时间")
     @TableField(value = "update_time")

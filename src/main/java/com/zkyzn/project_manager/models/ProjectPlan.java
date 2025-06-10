@@ -68,7 +68,7 @@ public class ProjectPlan {
     @TableField("department")
     private String department;
 
-    @Schema(description = "成果")
+    @Schema(description = "成果", requiredMode = Schema.RequiredMode.REQUIRED)
     @TableField("deliverable")
     private String deliverable;
 

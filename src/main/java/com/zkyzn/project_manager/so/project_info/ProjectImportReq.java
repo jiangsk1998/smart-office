@@ -15,6 +15,4 @@ public class ProjectImportReq {
     @Schema(description = "导入Excel文件路径")
     private String importExcelFilePath;
 
-    @Schema(description = "创建人ID")
-    private Long creatorId;
 }

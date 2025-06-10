@@ -3,6 +3,7 @@ package com.zkyzn.project_manager.controllers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zkyzn.project_manager.models.ProjectInfo;
 import com.zkyzn.project_manager.so.Result;
+import com.zkyzn.project_manager.so.ResultList;
 import com.zkyzn.project_manager.so.project_info.ProjectCreateReq;
 import com.zkyzn.project_manager.so.project_info.ProjectImportReq;
 import com.zkyzn.project_manager.stories.ProjectInfoStory;
@@ -61,9 +62,9 @@ public class ProjectInfoController {
         return ResUtil.ok(projectNumber);
     }
 
-    @Operation(summary = "获取项目详情")
+    @Operation(summary = "获取项目信息")
     @GetMapping("/{projectNumber}")
-    public Result<ProjectInfo> getProjectById(
+    public Result<ProjectInfo> getProjectByProjectNumber(
             @PathVariable("projectNumber") String projectNumber
     ) {
         ProjectInfo project = projectInfoStory.getProjectByProjectNumber(projectNumber);
@@ -72,20 +73,20 @@ public class ProjectInfoController {
 
     @Operation(summary = "分页查询项目信息")
     @GetMapping("")
-    public Result<Page<ProjectInfo>> pageProjectInfo(
+    public ResultList<ProjectInfo> pageProjectInfo(
             @RequestParam(value = "page", defaultValue = "1") Integer page,
-            @RequestParam(value = "size", defaultValue = "1") Integer size
+            @RequestParam(value = "size", defaultValue = "10") Integer size
     ) {
         Page<ProjectInfo> result = projectInfoStory.pageProjectInfo(page, size);
-        return ResUtil.ok(result);
+        return ResUtil.list(result);
     }
 
     @Operation(summary = "删除项目")
     @DeleteMapping("/{projectNumber}")
-    public Result<Boolean> deleteProject(
+    public Result<Boolean> deleteProjectByProjectNumber(
             @PathVariable("projectNumber") String projectNumber
     ) {
-        boolean success = projectInfoStory.deleteProject(projectNumber);
+        boolean success = projectInfoStory.deleteProjectByProjectNumber(projectNumber);
         return ResUtil.ok(success);
     }
 }
