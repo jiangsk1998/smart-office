@@ -5,6 +5,7 @@ import com.zkyzn.project_manager.services.MessageInfoService;
 import com.zkyzn.project_manager.so.Result;
 import com.zkyzn.project_manager.so.ResultList;
 import com.zkyzn.project_manager.so.message.MsgReq;
+import com.zkyzn.project_manager.stories.MessageInfoStory;
 import com.zkyzn.project_manager.utils.ResUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -29,11 +30,14 @@ public class MessageInfoController {
     @Resource
     private MessageInfoService messageInfoService;
 
+    @Resource
+    private MessageInfoStory messageInfoStory;
+
     @PostMapping
-    @Operation(summary = "创建消息")
-    public Result<MessageInfo> postCreateMessage(@RequestBody MessageInfo messageInfo) {
-        boolean success = messageInfoService.createMessage(messageInfo);
-        return success ? ResUtil.ok(messageInfo) : ResUtil.fail("创建失败");
+    @Operation(summary = "发送超期反馈")
+    public Result<MessageInfo> postSendFeedbackMessage(@RequestBody MessageInfo messageInfo) {
+        boolean success = messageInfoStory.postSendFeedbackMessage(messageInfo);
+        return success ? ResUtil.ok(messageInfo) : ResUtil.fail("发送失败");
     }
 
     @PutMapping("/{id}/read/status") // 改为PATCH部分更新
