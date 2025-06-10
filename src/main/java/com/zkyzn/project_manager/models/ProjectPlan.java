@@ -12,6 +12,7 @@ import lombok.EqualsAndHashCode;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 /**
  * @author Mr-ti
@@ -34,7 +35,7 @@ public class ProjectPlan {
     @NotNull(message = "任务序号不能为空")
     @Schema(description = "任务序号", requiredMode = Schema.RequiredMode.REQUIRED)
     @TableField("task_order")
-    private Integer taskOrder;
+    private  Float taskOrder;
 
     @NotBlank(message = "任务包不能为空")
     @Schema(description = "任务包", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -90,4 +91,18 @@ public class ProjectPlan {
     @TableField(value = "update_time")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime updateTime;
+
+    @Schema(description = "任务状态")
+    @TableField(value = "task_status")
+    private String taskStatus;
+
+    @Schema(description = "开始时间", requiredMode = Schema.RequiredMode.REQUIRED)
+    @TableField("real_start_date")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    private ZonedDateTime realStartDate;
+
+    @Schema(description = "结束时间", requiredMode = Schema.RequiredMode.REQUIRED)
+    @TableField("real_end_date")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    private ZonedDateTime realEndDate;
 }
