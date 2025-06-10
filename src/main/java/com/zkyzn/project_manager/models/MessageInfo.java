@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.zkyzn.project_manager.so.file.FileResp;
 import com.zkyzn.project_manager.so.message.BaseContent;
+import com.zkyzn.project_manager.so.message.MsgFile;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
@@ -92,7 +93,7 @@ public class MessageInfo {
 
     @Schema(description = "附件")
     @TableField(value = "attachment", typeHandler = JacksonTypeHandler.class)
-    private List<FileResp> attachment;
+    private List<MsgFile> attachment;
 
 
     @Schema(description = "创建时间")

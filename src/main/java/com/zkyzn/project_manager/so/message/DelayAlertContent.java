@@ -22,15 +22,17 @@ public class DelayAlertContent extends BaseContent{
 
     @NotBlank(message = "受影响任务名称不能为空")
     @Schema(description = "任务名称", requiredMode = Schema.RequiredMode.REQUIRED)
-    @JsonProperty("taskName")
+    @JsonProperty("task_name")
     private String taskName;
 
     @NotBlank(message = "当前进度")
     @Schema(description = "当前进度", requiredMode = Schema.RequiredMode.REQUIRED)
+    @JsonProperty("current_progress")
     private String currentProgress;
 
     @NotBlank(message = "原计划进度")
     @Schema(description = "原计划进度", requiredMode = Schema.RequiredMode.REQUIRED)
+    @JsonProperty("original_progress")
     private String originalProgress;
 
     @NotBlank(message = "告警原因")
@@ -39,8 +41,8 @@ public class DelayAlertContent extends BaseContent{
 
     @NotNull(message = "告警时间")
     @Schema(description = "告警时间", requiredMode = Schema.RequiredMode.REQUIRED)
-    @TableField("alertTime")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonProperty("alert_time")
     private LocalDateTime alertTime;
 
 }
