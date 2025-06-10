@@ -1,7 +1,6 @@
 package com.zkyzn.project_manager.so.message;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -16,7 +15,7 @@ import java.time.LocalDate;
  */
 @Getter
 @Setter
-public class DueDateNotice extends BaseContent{
+public class DueDateNoticeContent extends BaseContent{
 
     @NotBlank(message = "项目工号不能为空")
     @Schema(description = "项目工号", requiredMode = Schema.RequiredMode.REQUIRED)

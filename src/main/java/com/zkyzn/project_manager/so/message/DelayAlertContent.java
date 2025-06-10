@@ -9,7 +9,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -19,7 +18,7 @@ import java.util.List;
  */
 @Getter
 @Setter
-public class DelayAlert extends BaseContent{
+public class DelayAlertContent extends BaseContent{
 
     @NotBlank(message = "受影响任务名称不能为空")
     @Schema(description = "任务名称", requiredMode = Schema.RequiredMode.REQUIRED)
