@@ -6,7 +6,6 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.yulichang.base.MPJBaseServiceImpl;
 import com.zkyzn.project_manager.mappers.MessageInfoDao;
 import com.zkyzn.project_manager.models.MessageInfo;
-import com.zkyzn.project_manager.so.PageReq;
 import com.zkyzn.project_manager.so.message.MsgReq;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -52,10 +51,6 @@ public class MessageInfoService extends MPJBaseServiceImpl<MessageInfoDao, Messa
         return "%" + StringUtils.replaceEach(keyword,
                 new String[]{"%", "_"},
                 new String[]{"\\%", "\\_"}) + "%";
-    }
-
-    public boolean createMessage(MessageInfo messageInfo) {
-        return this.save(messageInfo);
     }
 
     public Boolean deleteMessageById(String id) {
