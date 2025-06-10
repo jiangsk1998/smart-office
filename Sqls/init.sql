@@ -50,7 +50,7 @@ CREATE TABLE tab_project_document
     document_name       VARCHAR(255) NOT NULL COMMENT '文档名称',
     file_path           VARCHAR(500) NOT NULL COMMENT '文件存储路径',
     uploader_id         BIGINT       COMMENT '上传人ID',
-    upload_name         VARCHAR(50) COMMENT '上传人姓名',
+    uploader_name       VARCHAR(50) COMMENT '上传人姓名',
     upload_time         DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '上传时间',
     version             VARCHAR(50) COMMENT '文档版本',
     description         TEXT COMMENT '文档描述',

@@ -6,6 +6,7 @@ import com.zkyzn.project_manager.so.Result;
 import com.zkyzn.project_manager.so.ResultList;
 import com.zkyzn.project_manager.so.project_info.ProjectCreateReq;
 import com.zkyzn.project_manager.so.project_info.ProjectImportReq;
+import com.zkyzn.project_manager.so.project_info.ProjectInfoResp;
 import com.zkyzn.project_manager.stories.ProjectInfoStory;
 import com.zkyzn.project_manager.utils.ResUtil;
 import io.swagger.v3.oas.annotations.Operation;
@@ -64,10 +65,10 @@ public class ProjectInfoController {
 
     @Operation(summary = "获取项目信息")
     @GetMapping("/{projectNumber}")
-    public Result<ProjectInfo> getProjectByProjectNumber(
+    public Result<ProjectInfoResp> getProjectByProjectNumber(
             @PathVariable("projectNumber") String projectNumber
     ) {
-        ProjectInfo project = projectInfoStory.getProjectByProjectNumber(projectNumber);
+        ProjectInfoResp project = projectInfoStory.getProjectByProjectNumber(projectNumber);
         return ResUtil.ok(project);
     }
 

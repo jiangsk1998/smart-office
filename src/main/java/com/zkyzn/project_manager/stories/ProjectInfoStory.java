@@ -9,8 +9,10 @@ import com.zkyzn.project_manager.services.ProjectPlanService;
 import com.zkyzn.project_manager.so.project_info.ProjectCreateReq;
 import com.zkyzn.project_manager.so.project_info.ProjectDocumentReq;
 import com.zkyzn.project_manager.so.project_info.ProjectImportReq;
+import com.zkyzn.project_manager.so.project_info.ProjectInfoResp;
 import com.zkyzn.project_manager.utils.ExcelUtil;
 import jakarta.annotation.Resource;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,6 +35,7 @@ public class ProjectInfoStory {
 
     /**
      * 创建项目, 所有异常都会触发回滚
+     *
      * @param req 项目请求参数
      * @return 项目编号
      */
@@ -78,6 +81,7 @@ public class ProjectInfoStory {
 
     /**
      * 更新项目
+     *
      * @param req 项目请求参数
      * @return 项目编号
      */
@@ -98,18 +102,29 @@ public class ProjectInfoStory {
 
     /**
      * 根据项目编号获取项目信息
+     *
      * @param projectNumber 项目编号
      * @return 项目信息
      */
-    public ProjectInfo getProjectByProjectNumber(String projectNumber) {
-        return projectInfoService.getByProjectNumber(projectNumber);
+    public ProjectInfoResp getProjectByProjectNumber(String projectNumber) {
+        ProjectInfoResp resp = new ProjectInfoResp();
+
+        ProjectInfo projectInfo = projectInfoService.getByProjectNumber(projectNumber);
+        if (projectInfo != null) {
+            //复制父类属性
+            BeanUtils.copyProperties(projectInfo, resp);
+            resp.setProjectDocumentList(projectDocumentService.listByProjectId(resp.getProjectId()));
+        }
+
+        return resp;
     }
 
 
     /**
      * 分页查询项目信息
+     *
      * @param current 当前页
-     * @param size 分页大小
+     * @param size    分页大小
      * @return 项目信息
      */
     public Page<ProjectInfo> pageProjectInfo(int current, int size) {
@@ -122,6 +137,7 @@ public class ProjectInfoStory {
 
     /**
      * 删除项目
+     *
      * @param projectNumber 项目编号
      * @return 是否删除成功
      */
@@ -131,6 +147,7 @@ public class ProjectInfoStory {
 
     /**
      * 批量导入项目
+     *
      * @param req 项目请求参数
      * @return 是否导入成功
      */
