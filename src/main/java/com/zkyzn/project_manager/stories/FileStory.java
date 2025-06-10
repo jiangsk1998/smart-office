@@ -34,6 +34,9 @@ import java.util.stream.Stream;
 @Service
 public class FileStory {
 
+    @Value("${file.base.url}")
+    private String baseUrl;
+
     @Value("${file.root.path:./}")
     private String fileRootPath;
 
@@ -182,7 +185,7 @@ public class FileStory {
                 file.setFileName(path.getFileName().toString());
                 file.setIsDirectory(path.toFile().isDirectory());
                 file.setSize(path.toFile().length());
-                file.setUri(Paths.get(absolutePath.toString(), file.getFileName()).toString());
+                file.setUri(Paths.get(baseUrl,relativeTempPath, file.getFileName()).toString());
                 return file;
             }).toList();
         }
