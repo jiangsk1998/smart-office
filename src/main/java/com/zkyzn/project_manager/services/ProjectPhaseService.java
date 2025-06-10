@@ -12,4 +12,12 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class ProjectPhaseService extends MPJBaseServiceImpl<ProjectPhaseDao, ProjectPhase> {
+
+    /**
+     * 根据项目id删除项目阶段
+     * @param projectId
+     */
+    public void removeByProjectId(Long projectId) {
+        this.lambdaUpdate().eq(ProjectPhase::getProjectId, projectId).remove();
+    }
 }

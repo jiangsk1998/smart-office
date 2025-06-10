@@ -50,7 +50,7 @@ public class ProjectInfoStory {
      * @param req 项目请求参数
      * @return 项目编号
      */
-    @Transactional(rollbackFor = Exception.class) //
+    @Transactional(rollbackFor = Exception.class)
     public String createProject(ProjectCreateReq req) {
 
         // 判断项目编号是否存在，如果存在则返回错误
@@ -62,7 +62,7 @@ public class ProjectInfoStory {
         boolean insert = projectInfoService.saveProject(req);
 
         List<ProjectDocumentReq> projectDocumentList = req.getProjectDocumentList();
-        if (insert && !projectDocumentList.isEmpty()) {
+        if (insert && null != projectDocumentList) {
 
             // 将项目文档插入项目文档表，创建项目时，projectDocumentList中projectId为空，需要将projectDocument的projectId字段设置为projectInfo的projectId
             ProjectInfo projectInfo = projectInfoService.getByProjectNumber(req.getProjectNumber());
@@ -75,16 +75,8 @@ public class ProjectInfoStory {
                 }
                 if (DocumentTypeEnum.PROJECT_PLAN.getChineseName().equals(projectDocument.getDocumentType())) {
 
-                    // 根据文件路径获取计划书，计划书是excel格式，需要解析计划书，获取任务列表
-                    String filePath = projectDocument.getFilePath();
-                    List<ProjectPlan> planList = ExcelUtil.parseProjectPlan(filePath, projectInfo.getProjectId());
-                    if (!planList.isEmpty()) {
-                        projectPlanService.saveBatch(planList);
-
-                        // 根据计划列表planList生成阶段列表
-                        List<ProjectPhase> phaseList = generatePhases(planList);
-                        projectPhaseService.saveBatch(phaseList);
-                    }
+                    //根据项目计划生成项目计划和项目阶段，插入相应的数据表中
+                    initPlanAndPhaseByDocument(projectDocument, projectInfo.getProjectId());
                 }
             });
         }
@@ -100,6 +92,7 @@ public class ProjectInfoStory {
      * @param req 项目请求参数
      * @return 项目编号
      */
+    @Transactional(rollbackFor = Exception.class)
     public String updateProject(ProjectCreateReq req) {
         // 判断项目编号是否存在，如果不存在则返回错误
         if (!projectInfoService.existsByProjectNumber(req.getProjectNumber())) {
@@ -111,19 +104,29 @@ public class ProjectInfoStory {
 
         // 更新tab_project_document表
         List<ProjectDocumentReq> projectDocumentReqList = req.getProjectDocumentList();
-        if (insert && !projectDocumentReqList.isEmpty()) {
+        if (insert && null != projectDocumentReqList) {
             for (ProjectDocumentReq projectDocumentReq : projectDocumentReqList) {
+
+                // 如果文档类型是计划书，需要解析其中的任务，把原有的项目阶段和项目任务删除
+                if (DocumentTypeEnum.PROJECT_PLAN.getChineseName().equals(projectDocumentReq.getDocumentType())) {
+
+                    // 删除项目相关的项目阶段
+                    projectPhaseService.removeByProjectId(req.getProjectId());
+
+                    // 删除项目相关的plan
+                    projectPlanService.removeByProjectId(req.getProjectId());
+
+                    // 根据项目计划生成项目计划和项目阶段，插入相应的数据表中
+                    initPlanAndPhaseByDocument(projectDocumentReq, req.getProjectId());
+                }
+
                 if (Operator.CREATE.equals(projectDocumentReq.getOperator())) {
                     projectDocumentService.save(projectDocumentReq);
-                }else if (Operator.UPDATE.equals(projectDocumentReq.getOperator())) {
-
                 }else if (Operator.DELETE.equals(projectDocumentReq.getOperator())) {
                     projectDocumentService.removeById(projectDocumentReq.getProjectDocumentId());
                 }
             }
         }
-
-        // todo: 处理项目文档
 
         //  如果插入成功则返回项目编号
         return insert ? req.getProjectNumber() : null;
@@ -143,6 +146,8 @@ public class ProjectInfoStory {
             //复制父类属性
             BeanUtils.copyProperties(projectInfo, resp);
             resp.setProjectDocumentList(projectDocumentService.listByProjectId(resp.getProjectId()));
+        }else {
+            return null;
         }
 
         return resp;
@@ -157,6 +162,7 @@ public class ProjectInfoStory {
      * @return 项目信息
      */
     public Page<ProjectInfo> pageProjectInfo(int current, int size) {
+
         Page<ProjectInfo> page = new Page<>();
         page.setCurrent(current);
         page.setSize(size);
@@ -171,6 +177,8 @@ public class ProjectInfoStory {
      * @return 是否删除成功
      */
     public Boolean deleteProjectByProjectNumber(String projectNumber) {
+        // todo: 删除项目时需要关联删除一些其他的表数据
+
         return projectInfoService.removeByProjectNumber(projectNumber);
     }
 
@@ -255,6 +263,25 @@ public class ProjectInfoStory {
         }
 
         return phaseList;
+    }
+
+
+    /**
+     * 根据项目计划生成项目计划和项目阶段，插入相应的数据表中
+     * @param projectDocumentReq
+     * @param projectId
+     */
+    private void initPlanAndPhaseByDocument(ProjectDocumentReq projectDocumentReq, Long projectId) {
+        // 根据文件路径获取计划书，计划书是excel格式，需要解析计划书，获取任务列表
+        String filePath = projectDocumentReq.getFilePath();
+        List<ProjectPlan> planList = ExcelUtil.parseProjectPlan(filePath, projectId);
+        if (!planList.isEmpty()) {
+            projectPlanService.saveBatch(planList);
+
+            // 根据计划列表planList生成阶段列表
+            List<ProjectPhase> phaseList = generatePhases(planList);
+            projectPhaseService.saveBatch(phaseList);
+        }
     }
 
 }

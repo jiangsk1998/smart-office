@@ -12,4 +12,10 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class ProjectPlanService extends MPJBaseServiceImpl<ProjectPlanDao, ProjectPlan> {
+    /**
+     * 根据项目id删除项目计划
+     */
+    public void removeByProjectId(Long projectId) {
+        this.lambdaUpdate().eq(ProjectPlan::getProjectId, projectId).remove();
+    }
 }

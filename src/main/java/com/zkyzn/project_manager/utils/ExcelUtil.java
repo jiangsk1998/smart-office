@@ -70,10 +70,14 @@ public class ExcelUtil {
 
             // 获取合并区域的第一个单元格（包含实际值）
             Row firstRow = sheet.getRow(region.getFirstRow());
-            if (firstRow == null) continue;
+            if (firstRow == null) {
+                continue;
+            }
 
             Cell firstCell = firstRow.getCell(region.getFirstColumn());
-            if (firstCell == null) continue;
+            if (firstCell == null) {
+                continue;
+            }
 
             // 获取单元格值
             String cellValue = getCellStringValue(firstCell);
@@ -90,7 +94,7 @@ public class ExcelUtil {
     }
 
     /**
-     * 解析项目计划单行数据（处理合并单元格）
+     * 解析项目计划单行数据（含处理合并单元格）
      */
     private static ProjectPlan parseProjectPlanRow(Row row, Map<String, String> mergedCellValues) {
         // 跳过空行
@@ -173,7 +177,7 @@ public class ExcelUtil {
     }
 
     /**
-     * 解析项目信息单行数据（处理合并单元格）
+     * 解析项目信息单行数据（含处理合并单元格）
      */
     private static ProjectInfo parseProjectInfoRow(Row row, Map<String, String> mergedCellValues) {
         // 跳过空行
@@ -246,7 +250,9 @@ public class ExcelUtil {
      * 获取单元格的字符串值
      */
     private static String getCellStringValue(Cell cell) {
-        if (cell == null) return "";
+        if (cell == null) {
+            return "";
+        }
 
         if (cell.getCellType() == CellType.STRING) {
             return cell.getStringCellValue().trim();
@@ -291,7 +297,9 @@ public class ExcelUtil {
      * 获取单元格的整数值
      */
     private static Integer getCellNumericValue(Cell cell) {
-        if (cell == null) return null;
+        if (cell == null) {
+            return null;
+        }
 
         if (cell.getCellType() == CellType.NUMERIC) {
             return (int) cell.getNumericCellValue();
@@ -335,7 +343,9 @@ public class ExcelUtil {
      * 获取单元格的长整型值
      */
     private static Long getCellLongValue(Cell cell) {
-        if (cell == null) return null;
+        if (cell == null) {
+            return null;
+        }
 
         if (cell.getCellType() == CellType.NUMERIC) {
             return (long) cell.getNumericCellValue();
@@ -374,7 +384,9 @@ public class ExcelUtil {
      * 获取单元格的日期值
      */
     private static LocalDate getCellDateValue(Cell cell) {
-        if (cell == null) return null;
+        if (cell == null) {
+            return null;
+        }
 
         if (cell.getCellType() == CellType.NUMERIC && DateUtil.isCellDateFormatted(cell)) {
             return cell.getDateCellValue().toInstant()
