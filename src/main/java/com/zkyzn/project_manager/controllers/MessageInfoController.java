@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
  * @author Jiangsk
  */
 @RestController
-@RequestMapping("/api/messages")
+@RequestMapping("/api/message")
 @Tag(name = "api/messages", description = "消息盒子")
 public class MessageInfoController {
 
@@ -29,10 +29,10 @@ public class MessageInfoController {
         return success ? ResUtil.ok(messageInfo) : ResUtil.fail("创建失败");
     }
 
-    @PatchMapping("/{id}/read-status") // 改为PATCH部分更新
+    @PutMapping("/{id}/read/status") // 改为PATCH部分更新
     @Operation(summary = "标记已读")
-    public Result<Boolean> markAsRead(@PathVariable String id) {
-        return ResUtil.ok(messageInfoService.read(id));
+    public Result<Boolean> markAsRead(@PathVariable Long id, @RequestParam Boolean read) {
+        return ResUtil.ok(messageInfoService.read(id, read));
     }
 
     @DeleteMapping("/{id}")

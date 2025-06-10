@@ -36,11 +36,11 @@ public class MessageInfo implements Serializable {
     private static final long serialVersionUID = 1L;
 
 
-    @Schema(description = "主键ID（字符串ID，支持雪花算法/UUID）")
+    @Schema(description = "主键ID")
     @TableId(value = "message_id", type = IdType.INPUT)
     @JsonProperty("messageId")
     @NotBlank(message = "主键ID不能为空")
-    private String messageId;
+    private Long messageId;
 
 
     @Schema(description = "发送者用户ID（字符串）")
@@ -75,22 +75,22 @@ public class MessageInfo implements Serializable {
     private Integer messageType;
 
 
-    @Schema(description = "阅读状态：0=未读，1=已读")
+    @Schema(description = "阅读状态")
     @TableField("read_status")
     @JsonProperty("readStatus")
-    private Integer readStatus = 0;
+    private Boolean readStatus = false;
 
 
     @Schema(description = "是否置顶：0=否，1=是")
     @TableField("is_top")
     @JsonProperty("isTop")
-    private Integer isTop = 0;
+    private Boolean isTop = false;
 
 
     @Schema(description = "是否有附件：0=无，1=有")
     @TableField("has_attachment")
     @JsonProperty("hasAttachment")
-    private Integer hasAttachment;
+    private Boolean hasAttachment;
 
 
     @Schema(description = "附件")

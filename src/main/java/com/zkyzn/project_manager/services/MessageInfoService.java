@@ -22,10 +22,10 @@ public class MessageInfoService extends MPJBaseServiceImpl<MessageInfoDao, Messa
      * @param messageInfoId 消息Id
      * @return
      */
-    public boolean read(String messageInfoId) {
+    public boolean read(Long messageInfoId, Boolean readStatus) {
         MessageInfo messageInfo = new MessageInfo();
         messageInfo.setMessageId(messageInfoId);
-        messageInfo.setReadStatus(1);
+        messageInfo.setReadStatus(readStatus);
         //Todo 只能已读当前会话用户的消息
         return updateById(messageInfo);
     }
