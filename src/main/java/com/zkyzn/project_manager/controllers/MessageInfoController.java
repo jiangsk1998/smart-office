@@ -1,6 +1,8 @@
 package com.zkyzn.project_manager.controllers;
 
 import com.zkyzn.project_manager.models.MessageInfo;
+import com.zkyzn.project_manager.models.message.BaseContent;
+import com.zkyzn.project_manager.models.message.DelayFeedbackContent;
 import com.zkyzn.project_manager.services.MessageInfoService;
 import com.zkyzn.project_manager.so.Result;
 import com.zkyzn.project_manager.so.ResultList;
@@ -13,10 +15,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
+import org.docx4j.com.google.common.collect.Sets;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -35,10 +39,23 @@ public class MessageInfoController {
 
     @PostMapping
     @Operation(summary = "发送超期反馈")
-    public Result<MessageInfo> postSendFeedbackMessage(@RequestBody MessageInfo messageInfo) {
-        boolean success = messageInfoStory.postSendFeedbackMessage(messageInfo);
-        return success ? ResUtil.ok(messageInfo) : ResUtil.fail("发送失败");
+    public Result<Boolean> postSendFeedbackMessage(@RequestBody MessageInfo messageInfo) {
+        messageInfo.setSenderId(1L);
+
+        BaseContent content = messageInfo.getContent();
+
+        if (content instanceof DelayFeedbackContent delayFeedbackContent) {
+            // Todo 获取当前超期反馈表消息接收人
+            Set<Long> userIdList = Sets.newHashSet();
+            userIdList.add(1L);
+            return ResUtil.ok(this.messageInfoStory.sendMessages(messageInfo, userIdList));
+
+        } else {
+            return ResUtil.fail("只允许发送超期反馈类型消息");
+
+        }
     }
+
 
     @PutMapping("/{id}/read/status") // 改为PATCH部分更新
     @Operation(summary = "已读状态变更")
@@ -63,7 +80,7 @@ public class MessageInfoController {
                     description = "排序参数格式: '字段1,asc|字段2,desc'，支持的字段包括: createTime, readTime, updateTime",
                     schema = @Schema(type = "动态排序")
             )
-            @RequestParam(required = false ,defaultValue = "createTime,asc") String sorts,  // 排序参数格式: "createTime,asc|readTime,desc"
+            @RequestParam(required = false, defaultValue = "createTime,asc") String sorts,  // 排序参数格式: "createTime,asc|readTime,desc"
             @RequestParam(required = false, defaultValue = "0") Integer pageNo,   // 分页参数
             @RequestParam(required = false, defaultValue = "50") Integer pageSize) {  // 分页参数
 

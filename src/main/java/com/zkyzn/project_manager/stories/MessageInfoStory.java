@@ -24,8 +24,6 @@ public class MessageInfoStory {
     @Resource
     private MessageInfoService messageInfoService;
 
-    private static final Logger log = LoggerFactory.getLogger(MessageInfoStory.class);
-
     /**
      * 批量发送消息给多个用户
      *
@@ -34,11 +32,8 @@ public class MessageInfoStory {
      * @return true=全部发送成功, false=全部失败
      */
     public boolean sendMessages(MessageInfo message, Set<Long> userIdList) {
-        // 参数校验防御性编程
-        if (message == null) {
-            return false;
-        }
-        if (CollectionUtils.isEmpty(userIdList)) {
+        // 参数校验
+        if (message == null || CollectionUtils.isEmpty(userIdList)) {
             return false;
         }
 
@@ -83,25 +78,11 @@ public class MessageInfoStory {
      */
     @Transactional(rollbackFor = Exception.class)
     public boolean sendMessage(MessageInfo message) {
-        // 参数校验防御性编程
-        if (message == null) {
-            log.warn("消息内容不能为空");
-            return false;
-        }
-        if (message.getReceiverId() == null) {
-            log.warn("接收用户不能为空");
+        // 参数校验
+        if (message == null || message.getReceiverId() == null) {
             return false;
         }
         return this.messageInfoService.save(message);
     }
 
-    public Boolean postSendFeedbackMessage(MessageInfo messageInfo) {
-        Set<Long> userIdList = getUserIdListByMessage(messageInfo);
-        return this.sendMessages(messageInfo, userIdList);
-    }
-
-    private Set<Long> getUserIdListByMessage(MessageInfo message) {
-        // Todo 获取所有接收者ID
-        return Sets.newHashSet();
-    }
 }
