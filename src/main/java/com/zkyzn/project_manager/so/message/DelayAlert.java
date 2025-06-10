@@ -28,17 +28,14 @@ public class DelayAlert extends BaseContent{
 
     @NotBlank(message = "当前进度")
     @Schema(description = "当前进度", requiredMode = Schema.RequiredMode.REQUIRED)
-    @JsonProperty("currentProgress")
     private String currentProgress;
 
     @NotBlank(message = "原计划进度")
     @Schema(description = "原计划进度", requiredMode = Schema.RequiredMode.REQUIRED)
-    @JsonProperty("originalProgress")
     private String originalProgress;
 
     @NotBlank(message = "告警原因")
     @Schema(description = "告警原因", requiredMode = Schema.RequiredMode.REQUIRED)
-    @JsonProperty("reasons")
     private List<String> reasons;
 
     @NotNull(message = "告警时间")
