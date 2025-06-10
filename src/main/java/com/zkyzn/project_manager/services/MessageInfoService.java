@@ -2,15 +2,15 @@ package com.zkyzn.project_manager.services;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.yulichang.base.MPJBaseServiceImpl;
 import com.zkyzn.project_manager.mappers.MessageInfoDao;
 import com.zkyzn.project_manager.models.MessageInfo;
+import com.zkyzn.project_manager.so.PageReq;
 import com.zkyzn.project_manager.so.message.MsgReq;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class MessageInfoService extends MPJBaseServiceImpl<MessageInfoDao, MessageInfo> {
@@ -27,45 +27,6 @@ public class MessageInfoService extends MPJBaseServiceImpl<MessageInfoDao, Messa
         messageInfo.setMessageId(messageInfoId);
         messageInfo.setReadStatus(readStatus);
         return updateById(messageInfo);
-    }
-
-    public List<MessageInfo> listByUserId(MsgReq req) {
-        // 1. 使用单表查询Wrapper
-        LambdaQueryWrapper<MessageInfo> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(MessageInfo::getReceiverId, req.getUserId())
-                .eq(MessageInfo::getIsDeleted, 0)
-                .eq(req.getReadStatus() != null, MessageInfo::getReadStatus, req.getReadStatus());
-
-
-        // 2. 消息类型IN查询
-        if (CollectionUtils.isNotEmpty(req.getMessageTypes())) {
-            queryWrapper.in(MessageInfo::getMessageType, req.getMessageTypes());
-        } else {
-            queryWrapper.apply("1=1");
-        }
-
-        // 3. 关键词搜索（安全OR条件）
-        if (StringUtils.isNotBlank(req.getKeyword())) {
-            String safeKeyword = escapeLike(req.getKeyword());
-            queryWrapper.and(w -> w
-                    .like(MessageInfo::getTitle, safeKeyword)
-                    .or()
-                    .like(MessageInfo::getContent, safeKeyword)
-            );
-        }
-
-        // 4. 动态排序（字段白名单）
-        if (CollectionUtils.isNotEmpty(req.getSorts())) {
-            req.getSorts().forEach(sort -> {
-                SFunction<MessageInfo, ?> field = getSortField(sort.getField());
-                queryWrapper.orderBy(true, sort.isAsc(), field);
-            });
-        } else {
-            queryWrapper.orderByDesc(MessageInfo::getCreateTime);
-        }
-
-        // 5. 返回结果
-        return list(queryWrapper);
     }
 
     /**
@@ -99,5 +60,42 @@ public class MessageInfoService extends MPJBaseServiceImpl<MessageInfoDao, Messa
 
     public Boolean deleteMessageById(String id) {
         return this.removeById(id);
+    }
+
+    public Page<MessageInfo> getMessageByPage(MsgReq req) {
+
+        // 创建分页对象
+        Page<MessageInfo> page = new Page<>(req.getPageNo(), req.getPageSize());
+
+        // 使用单表查询Wrapper
+        LambdaQueryWrapper<MessageInfo> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(MessageInfo::getReceiverId, req.getUserId())
+                .eq(MessageInfo::getIsDeleted, 0)
+                .eq(req.getReadStatus() != null, MessageInfo::getReadStatus, req.getReadStatus())
+                .in(CollectionUtils.isNotEmpty(req.getMessageTypes()), MessageInfo::getMessageType, req.getMessageTypes());
+
+
+        // 关键词搜索（安全OR条件）
+        if (StringUtils.isNotBlank(req.getKeyword())) {
+            String safeKeyword = escapeLike(req.getKeyword());
+            queryWrapper.and(w -> w
+                    .like(MessageInfo::getTitle, safeKeyword)
+                    .or()
+                    .like(MessageInfo::getContent, safeKeyword)
+            );
+        }
+
+        // 动态排序（字段白名单）
+        if (CollectionUtils.isNotEmpty(req.getSorts())) {
+            req.getSorts().forEach(sort -> {
+                SFunction<MessageInfo, ?> field = getSortField(sort.getField());
+                queryWrapper.orderBy(true, sort.isAsc(), field);
+            });
+        } else {
+            queryWrapper.orderByDesc(MessageInfo::getCreateTime);
+        }
+
+        // 分页查询
+        return this.page(page, queryWrapper);
     }
 }
