@@ -24,21 +24,21 @@ public class MessageInfoController {
 
     @PostMapping
     @Operation(summary = "创建消息")
-    public Result<MessageInfo> create(@RequestBody MessageInfo messageInfo) {
-        boolean success = messageInfoService.save(messageInfo);
+    public Result<MessageInfo> postCreateMessage(@RequestBody MessageInfo messageInfo) {
+        boolean success = messageInfoService.createMessage(messageInfo);
         return success ? ResUtil.ok(messageInfo) : ResUtil.fail("创建失败");
     }
 
     @PutMapping("/{id}/read/status") // 改为PATCH部分更新
-    @Operation(summary = "标记已读")
-    public Result<Boolean> markAsRead(@PathVariable Long id, @RequestParam Boolean read) {
-        return ResUtil.ok(messageInfoService.read(id, read));
+    @Operation(summary = "已读状态变更")
+    public Result<Boolean> putReadStatus(@PathVariable Long id, @RequestParam Boolean readStatus) {
+        return ResUtil.ok(messageInfoService.updateReadStatusByMessageId(id, readStatus));
     }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "删除消息")
-    public Result<Boolean> delete(@PathVariable String id) {
-        return ResUtil.ok(messageInfoService.removeById(id));
+    public Result<Boolean> deleteMessageById(@PathVariable String id) {
+        return ResUtil.ok(messageInfoService.deleteMessageById(id));
     }
 
     @PostMapping("/query")  // 改为 POST 方法接收复杂查询条件
