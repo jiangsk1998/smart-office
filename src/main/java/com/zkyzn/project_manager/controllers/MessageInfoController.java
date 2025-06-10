@@ -40,6 +40,7 @@ public class MessageInfoController {
     @PostMapping
     @Operation(summary = "发送超期反馈")
     public Result<Boolean> postSendFeedbackMessage(@RequestBody MessageInfo messageInfo) {
+        // Todo 获取当前用户
         messageInfo.setSenderId(1L);
 
         BaseContent content = messageInfo.getContent();
@@ -73,14 +74,14 @@ public class MessageInfoController {
     @Operation(summary = "消息列表（分页查询）")
     public ResultList<MessageInfo> getMessagesByPage(
             @RequestParam(required = false) List<Integer> messageTypes,
-            @RequestParam(required = false) Boolean readStatus,
+            @RequestParam(required = false, defaultValue = "false") Boolean readStatus,
             @RequestParam(required = false) String keyword,
             @Parameter(
                     example = "createTime,asc|readTime,desc",
                     description = "排序参数格式: '字段1,asc|字段2,desc'，支持的字段包括: createTime, readTime, updateTime",
                     schema = @Schema(type = "动态排序")
             )
-            @RequestParam(required = false, defaultValue = "createTime,asc") String sorts,  // 排序参数格式: "createTime,asc|readTime,desc"
+            @RequestParam(required = false, defaultValue = "createTime,desc") String sorts,  // 排序参数格式: "createTime,asc|readTime,desc"
             @RequestParam(required = false, defaultValue = "0") Integer pageNo,   // 分页参数
             @RequestParam(required = false, defaultValue = "50") Integer pageSize) {  // 分页参数
 
