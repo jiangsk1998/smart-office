@@ -2,20 +2,15 @@ package com.zkyzn.project_manager.models;
 
 import com.baomidou.mybatisplus.annotation.*;
 import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import com.zkyzn.project_manager.so.file.FileResp;
-import com.zkyzn.project_manager.so.message.BaseContent;
-import com.zkyzn.project_manager.so.message.MsgFile;
+import com.zkyzn.project_manager.models.message.BaseContent;
+import com.zkyzn.project_manager.models.message.MsgFile;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
-import java.io.Serial;
-import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
 
 /**

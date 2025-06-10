@@ -1,4 +1,4 @@
-package com.zkyzn.project_manager.so.message;
+package com.zkyzn.project_manager.models.message;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;

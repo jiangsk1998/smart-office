@@ -1,4 +1,4 @@
-package com.zkyzn.project_manager.so.message;
+package com.zkyzn.project_manager.models.message;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -11,12 +11,12 @@ import lombok.Setter;
 import java.time.LocalDate;
 
 /**
- * 变更通知
+ * 即将到期通知
  * @author Jiangsk
  */
 @Getter
 @Setter
-public class DelayFeedbackContent extends BaseContent{
+public class DueDateNoticeContent extends BaseContent{
 
     @NotBlank(message = "项目工号不能为空")
     @Schema(description = "项目工号", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -44,7 +44,7 @@ public class DelayFeedbackContent extends BaseContent{
     @JsonProperty("current_phase")
     private String currentPhase;
 
-    @NotBlank(message = "延期原因不能为空")
-    @Schema(description = "延期原因", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "变更内容不能为空")
+    @Schema(description = "变更内容", requiredMode = Schema.RequiredMode.REQUIRED)
     private String content;
 }
