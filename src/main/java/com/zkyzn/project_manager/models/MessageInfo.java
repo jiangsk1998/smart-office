@@ -11,6 +11,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 /**
@@ -85,21 +86,21 @@ public class MessageInfo {
 
     @Schema(description = "创建时间")
     @TableField(value = "create_time", fill = FieldFill.INSERT)
-    private LocalDateTime createTime;
+    private ZonedDateTime createTime;
 
 
     @Schema(description = "阅读时间")
     @TableField("read_time")
-    private LocalDateTime readTime;
+    private ZonedDateTime readTime;
 
 
     @Schema(description = "最后更新时间")
     @TableField(value = "update_time", fill = FieldFill.INSERT_UPDATE)
-    private LocalDateTime updateTime;
+    private ZonedDateTime updateTime;
 
 
     @Schema(description = "逻辑删除标志：0=正常，1=删除")
     @TableField("is_deleted")
     @TableLogic
-    private Integer isDeleted = 0;
+    private Boolean isDeleted = false;
 }
