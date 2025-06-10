@@ -117,21 +117,23 @@ CREATE TABLE tab_drawing_plan
 
 ) COMMENT '项目图纸计划表';
 
-CREATE TABLE `tab_message_info`
-(
-    `message_id`     VARCHAR(32) PRIMARY KEY COMMENT '主键ID',
-    `sender_id`      VARCHAR(32) NOT NULL COMMENT '发送者用户ID（字符串）',
-    `receiver_id`    VARCHAR(32) NOT NULL COMMENT '接收者用户ID（字符串）',
-    `title`          VARCHAR(200)         DEFAULT NULL COMMENT '消息标题',
-    `content`        JSON        NOT NULL COMMENT '消息内容（JSON结构）',
-    `message_type`   TINYINT     NOT NULL DEFAULT 1 COMMENT '消息类型：1=通知，2=告警，3=系统消息，4=私信',
-    `read_status`    TINYINT     NOT NULL DEFAULT 0 COMMENT '阅读状态：0=未读，1=已读',
-    `is_top`         TINYINT     NOT NULL DEFAULT 0 COMMENT '是否置顶：0=否，1=是',
-    `has_attachment` TINYINT     NOT NULL DEFAULT 0 COMMENT '是否有附件：0=无，1=有',
-    `attachment_url` JSON                 DEFAULT NULL COMMENT '附件地址（JSON数组）',
-    `create_time`    DATETIME             DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    `read_time`      DATETIME             DEFAULT NULL COMMENT '阅读时间',
-    `update_time`    DATETIME             DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
-    `is_deleted`     TINYINT     NOT NULL DEFAULT 0 COMMENT '逻辑删除标志：0=正常，1=删除'
-) COMMENT ='消息表';
+CREATE TABLE `tab_message_info` (
+                                    `message_id` VARCHAR(32) PRIMARY KEY COMMENT '主键ID',
+                                    `sender_id` VARCHAR(32) NOT NULL COMMENT '发送者用户ID（字符串）',
+                                    `receiver_id` VARCHAR(32) NOT NULL COMMENT '接收者用户ID（字符串）',
+                                    `title` VARCHAR(200) DEFAULT NULL COMMENT '消息标题',
+                                    `content` JSON NOT NULL COMMENT '消息内容（JSON结构）',
+                                    `message_type` TINYINT NOT NULL DEFAULT 1 COMMENT '消息类型：0=附件通知，1=变更通知，2=即将到期通知，3=延期通知,4=延期反馈，5=延期风险告警',
+                                    `read_status` TINYINT NOT NULL DEFAULT 0 COMMENT '阅读状态：0=未读，1=已读',
+                                    `is_top` TINYINT NOT NULL DEFAULT 0 COMMENT '是否置顶：0=否，1=是',
+                                    `has_attachment` TINYINT NOT NULL DEFAULT 0 COMMENT '是否有附件：0=无，1=有',
+                                    `attachment` JSON DEFAULT NULL COMMENT '附件',
+                                    `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+                                    `read_time` DATETIME DEFAULT NULL COMMENT '阅读时间',
+                                    `update_time` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
+                                    `is_deleted` TINYINT NOT NULL DEFAULT 0 COMMENT '逻辑删除标志：0=正常，1=删除'
+) COMMENT='消息表';
+
+-- 添加全文索引
+ALTER TABLE tab_message_info ADD FULLTEXT(title, content);
 
