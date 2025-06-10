@@ -16,6 +16,6 @@ public class ProjectDocumentReq extends ProjectDocument {
     /**
      * 文档操作指令
      */
-    @Schema(description = "操作指令 C:创建 U:修改 D:删除", defaultValue = "C")
+    @Schema(description = "操作指令 C:创建 U:修改 D:删除， 除其他外，同一个文档类型只能有一个文档，如果没有就是创建，有就是更新或者删除", defaultValue = "C")
     private String operator;
 }

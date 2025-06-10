@@ -1,10 +1,14 @@
 package com.zkyzn.project_manager.stories;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.zkyzn.project_manager.enums.DocumentTypeEnum;
+import com.zkyzn.project_manager.enums.Operator;
 import com.zkyzn.project_manager.models.ProjectInfo;
+import com.zkyzn.project_manager.models.ProjectPhase;
 import com.zkyzn.project_manager.models.ProjectPlan;
 import com.zkyzn.project_manager.services.ProjectDocumentService;
 import com.zkyzn.project_manager.services.ProjectInfoService;
+import com.zkyzn.project_manager.services.ProjectPhaseService;
 import com.zkyzn.project_manager.services.ProjectPlanService;
 import com.zkyzn.project_manager.so.project_info.ProjectCreateReq;
 import com.zkyzn.project_manager.so.project_info.ProjectDocumentReq;
@@ -16,7 +20,11 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author Mr-ti
@@ -32,6 +40,9 @@ public class ProjectInfoStory {
 
     @Resource
     private ProjectPlanService projectPlanService;
+
+    @Resource
+    private ProjectPhaseService projectPhaseService;
 
     /**
      * 创建项目, 所有异常都会触发回滚
@@ -62,13 +73,17 @@ public class ProjectInfoStory {
                     projectDocument.setProjectId(projectId);
                     projectDocumentService.save(projectDocument);
                 }
-                if ("项目计划".equals(projectDocument.getDocumentType())) {
+                if (DocumentTypeEnum.PROJECT_PLAN.getChineseName().equals(projectDocument.getDocumentType())) {
 
                     // 根据文件路径获取计划书，计划书是excel格式，需要解析计划书，获取任务列表
                     String filePath = projectDocument.getFilePath();
                     List<ProjectPlan> planList = ExcelUtil.parseProjectPlan(filePath, projectInfo.getProjectId());
                     if (!planList.isEmpty()) {
                         projectPlanService.saveBatch(planList);
+
+                        // 根据计划列表planList生成阶段列表
+                        List<ProjectPhase> phaseList = generatePhases(planList);
+                        projectPhaseService.saveBatch(phaseList);
                     }
                 }
             });
@@ -88,11 +103,25 @@ public class ProjectInfoStory {
     public String updateProject(ProjectCreateReq req) {
         // 判断项目编号是否存在，如果不存在则返回错误
         if (!projectInfoService.existsByProjectNumber(req.getProjectNumber())) {
-            return "项目编号已存在";
+            return "项目编号不存在";
         }
 
-        //  插入数据库 todo: 是否需要改成按照项目编号更新
+        // 更新tab_project_info表
         boolean insert = projectInfoService.updateById(req);
+
+        // 更新tab_project_document表
+        List<ProjectDocumentReq> projectDocumentReqList = req.getProjectDocumentList();
+        if (insert && !projectDocumentReqList.isEmpty()) {
+            for (ProjectDocumentReq projectDocumentReq : projectDocumentReqList) {
+                if (Operator.CREATE.equals(projectDocumentReq.getOperator())) {
+                    projectDocumentService.save(projectDocumentReq);
+                }else if (Operator.UPDATE.equals(projectDocumentReq.getOperator())) {
+
+                }else if (Operator.DELETE.equals(projectDocumentReq.getOperator())) {
+                    projectDocumentService.removeById(projectDocumentReq.getProjectDocumentId());
+                }
+            }
+        }
 
         // todo: 处理项目文档
 
@@ -158,6 +187,74 @@ public class ProjectInfoStory {
 
         //  批量插入项目信息数据表
         return projectInfoService.saveBatch(projectInfoList);
+    }
+
+    /**
+     * 根据解析的计划列表生成阶段列表
+     * @param planList
+     * @return
+     */
+    public List<ProjectPhase> generatePhases(List<ProjectPlan> planList) {
+        // 1. 按任务包分组
+        Map<String, List<ProjectPlan>> plansByPackage = planList.stream()
+                .collect(Collectors.groupingBy(ProjectPlan::getTaskPackage));
+
+        List<ProjectPhase> phaseList = new ArrayList<>();
+
+        // 2. 遍历每个任务包分组
+        for (Map.Entry<String, List<ProjectPlan>> entry : plansByPackage.entrySet()) {
+            String taskPackage = entry.getKey();
+            List<ProjectPlan> plansInPackage = entry.getValue();
+
+            // 3. 获取第一个项目的项目ID（所有任务属于同一项目）
+            Long projectId = plansInPackage.get(0).getProjectId();
+
+            // 4. 获取时间范围：最早开始时间和最晚结束时间
+            LocalDate startDate = plansInPackage.stream()
+                    .map(ProjectPlan::getStartDate)
+                    .min(LocalDate::compareTo)
+                    .orElse(null);
+
+            LocalDate endDate = plansInPackage.stream()
+                    .map(ProjectPlan::getEndDate)
+                    .max(LocalDate::compareTo)
+                    .orElse(null);
+
+            // 5. 合并责任人（去重）
+            String responsiblePerson = plansInPackage.stream()
+                    .map(ProjectPlan::getResponsiblePerson)
+                    .distinct()
+                    .collect(Collectors.joining(", "));
+
+            // 6. 合并成果（去重并过滤空值）
+            String deliverable = plansInPackage.stream()
+                    .map(ProjectPlan::getDeliverable)
+                    .filter(d -> d != null && !d.isBlank())
+                    .distinct()
+                    .collect(Collectors.joining(", "));
+
+            // 7. 合并成果类型（去重并过滤空值）
+            String deliverableType = plansInPackage.stream()
+                    .map(ProjectPlan::getDeliverableType)
+                    .filter(dt -> dt != null && !dt.isBlank())
+                    .distinct()
+                    .collect(Collectors.joining(", "));
+
+            // 8. 创建阶段对象
+            ProjectPhase phase = new ProjectPhase();
+            phase.setProjectId(projectId);
+            phase.setPhaseName(taskPackage);
+            phase.setStartDate(startDate);
+            phase.setEndDate(endDate);
+            phase.setResponsiblePerson(responsiblePerson);
+            phase.setDeliverable(deliverable);
+            phase.setDeliverableType(deliverableType);
+            phase.setPhaseStatus("未开始"); // 默认状态
+
+            phaseList.add(phase);
+        }
+
+        return phaseList;
     }
 
 }

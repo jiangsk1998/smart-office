@@ -37,7 +37,8 @@ public class ProjectDocument {
     private String documentType;
 
     @NotBlank(message = "文档名称不能为空")
-    @Schema(description = "文档名称", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "文档名称，文档名称需要以文档类型为结尾，如[某某项目计划.excel]",
+            requiredMode = Schema.RequiredMode.REQUIRED)
     @TableField("document_name")
     private String documentName;
 

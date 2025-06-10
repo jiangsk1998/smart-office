@@ -82,7 +82,7 @@ public class ProjectInfo {
     @TableField("technical_leader")
     private String technicalLeader;
 
-    @NotBlank(message = "计划主管不能为空")
+    @NotBlank(message = "计划主管不能为空，可以有多个人，使用逗号分隔")
     @Schema(description = "计划主管姓名", requiredMode = Schema.RequiredMode.REQUIRED)
     @TableField("plan_supervisor")
     private String planSupervisor;

@@ -55,7 +55,11 @@ public class ProjectInfoController {
             @PathVariable("projectNumber") String projectNumber,
             @RequestBody ProjectCreateReq req
     ) {
-        req.setProjectNumber(projectNumber);
+        // 如果projectNumber参数和req中的projectNumber不一致，则更新失败
+        if (!projectNumber.equals(req.getProjectNumber())) {
+            return ResUtil.fail("项目编号不一致！");
+        }
+
         String projectId = projectInfoStory.updateProject(req);
         if (projectId == null) {
             return ResUtil.fail("更新失败！");
