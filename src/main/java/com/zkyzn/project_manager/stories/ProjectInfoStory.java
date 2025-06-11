@@ -68,17 +68,24 @@ public class ProjectInfoStory {
             ProjectInfo projectInfo = projectInfoService.getByProjectNumber(req.getProjectNumber());
             Long projectId = projectInfo.getProjectId();
             // 如果文档类型是计划书，需要解析其中的任务
-            projectDocumentList.forEach(projectDocument -> {
+            for (ProjectDocumentReq projectDocument : projectDocumentList) {
                 if (projectDocument.getProjectId() == null) {
                     projectDocument.setProjectId(projectId);
                     projectDocumentService.save(projectDocument);
                 }
                 if (DocumentTypeEnum.PROJECT_PLAN.getChineseName().equals(projectDocument.getDocumentType())) {
 
+                    // 创建一个列表用于收集项目参与人信息
+                    List<String> responsiblePersons = new ArrayList<>();
+
                     //根据项目计划生成项目计划和项目阶段，插入相应的数据表中
-                    initPlanAndPhaseByDocument(projectDocument, projectInfo.getProjectId());
+                    initPlanAndPhaseByDocument(projectDocument, projectInfo.getProjectId(), responsiblePersons);
+
+                    // 更新项目参与人信息，将responsiblePersons列表中的字符串以逗号分隔拼接
+                    projectInfo.setProjectParticipants(String.join(",", responsiblePersons));
+                    insert = projectInfoService.updateById(req);
                 }
-            });
+            }
         }
 
         //  如果插入成功则返回项目编号
@@ -99,12 +106,9 @@ public class ProjectInfoStory {
             return "项目编号不存在";
         }
 
-        // 更新tab_project_info表
-        boolean insert = projectInfoService.updateById(req);
-
         // 更新tab_project_document表
         List<ProjectDocumentReq> projectDocumentReqList = req.getProjectDocumentList();
-        if (insert && null != projectDocumentReqList) {
+        if (null != projectDocumentReqList) {
             for (ProjectDocumentReq projectDocumentReq : projectDocumentReqList) {
 
                 // 如果文档类型是计划书，需要解析其中的任务，把原有的项目阶段和项目任务删除
@@ -116,8 +120,15 @@ public class ProjectInfoStory {
                     // 删除项目相关的plan
                     projectPlanService.removeByProjectId(req.getProjectId());
 
+                    // 创建一个列表用于收集项目参与人信息
+                    List<String> responsiblePersons = new ArrayList<>();
+
                     // 根据项目计划生成项目计划和项目阶段，插入相应的数据表中
-                    initPlanAndPhaseByDocument(projectDocumentReq, req.getProjectId());
+                    initPlanAndPhaseByDocument(projectDocumentReq, req.getProjectId(), responsiblePersons);
+
+                    // 更新项目参与人信息，将responsiblePersons列表中的字符串以逗号分隔拼接
+                    req.setProjectParticipants(String.join(",", responsiblePersons));
+                    projectInfoService.updateById(req);
                 }
 
                 if (Operator.CREATE.equals(projectDocumentReq.getOperator())) {
@@ -127,6 +138,8 @@ public class ProjectInfoStory {
                 }
             }
         }
+        // 更新tab_project_info表
+        boolean insert = projectInfoService.updateById(req);
 
         //  如果插入成功则返回项目编号
         return insert ? req.getProjectNumber() : null;
@@ -271,10 +284,10 @@ public class ProjectInfoStory {
      * @param projectDocumentReq
      * @param projectId
      */
-    private void initPlanAndPhaseByDocument(ProjectDocumentReq projectDocumentReq, Long projectId) {
+    private void initPlanAndPhaseByDocument(ProjectDocumentReq projectDocumentReq, Long projectId, List<String> responsiblePersons) {
         // 根据文件路径获取计划书，计划书是excel格式，需要解析计划书，获取任务列表
         String filePath = projectDocumentReq.getFilePath();
-        List<ProjectPlan> planList = ExcelUtil.parseProjectPlan(filePath, projectId);
+        List<ProjectPlan> planList = ExcelUtil.parseProjectPlan(filePath, projectId, responsiblePersons);
         if (!planList.isEmpty()) {
             projectPlanService.saveBatch(planList);
 

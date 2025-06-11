@@ -23,6 +23,7 @@ CREATE TABLE tab_project_info
     responsible_leader    VARCHAR(50) COMMENT '分管领导姓名',
     technical_leader      VARCHAR(50) COMMENT '技术负责人姓名',
     plan_supervisor       VARCHAR(50) COMMENT '计划主管姓名',
+    project_participants  VARCHAR(50) COMMENT '项目参与人',
     status                VARCHAR(50) COMMENT '项目状态',
     current_phase         VARCHAR(50) COMMENT '项目当前阶段',
     creator_id            BIGINT COMMENT '创建人ID',
@@ -105,7 +106,6 @@ create table tab_project_plan
     comment '项目计划表';
 
 
-
 CREATE TABLE tab_drawing_plan
 (
     drawing_plan_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '图纸唯一ID',
@@ -155,8 +155,4 @@ CREATE TABLE `tab_message_info`
     `update_time`    DATETIME             DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
     `is_deleted`     TINYINT     NOT NULL DEFAULT 0 COMMENT '逻辑删除标志：0=正常，1=删除'
 ) COMMENT ='消息表';
-
--- 添加全文索引
-ALTER TABLE tab_message_info
-    ADD FULLTEXT (title, content);
 

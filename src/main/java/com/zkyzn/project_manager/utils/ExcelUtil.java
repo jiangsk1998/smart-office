@@ -9,10 +9,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import java.io.FileInputStream;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author: Mr-ti
@@ -25,8 +22,10 @@ public class ExcelUtil {
      * @param filePath Excel文件路径
      * @return 项目计划项列表
      */
-    public static List<ProjectPlan> parseProjectPlan(String filePath, Long projectId) {
+    public static List<ProjectPlan> parseProjectPlan(String filePath, Long projectId, List<String> responsiblePersons) {
         List<ProjectPlan> planItems = new ArrayList<>();
+        // 使用 Set 进行临时去重
+        Set<String> uniquePersons = new HashSet<>();
 
         try (FileInputStream file = new FileInputStream(filePath);
              Workbook workbook = new XSSFWorkbook(file)) {
@@ -48,7 +47,20 @@ public class ExcelUtil {
                 if (item != null) {
                     item.setProjectId(projectId);
                     planItems.add(item);
+
+                    // 收集责任人（F列）
+                    String person = item.getResponsiblePerson();
+                    if (person != null && !person.isEmpty()) {
+                        uniquePersons.add(person);
+                    }
                 }
+            }
+
+            // 将去重后的责任人添加到传入的列表
+            if (responsiblePersons != null) {
+                responsiblePersons.addAll(uniquePersons);
+                // 对列表进行排序
+                Collections.sort(responsiblePersons);
             }
         } catch (Exception e) {
             throw new RuntimeException("解析Excel文件失败: " + e.getMessage(), e);

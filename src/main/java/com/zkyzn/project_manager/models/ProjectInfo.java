@@ -87,6 +87,10 @@ public class ProjectInfo {
     @TableField("plan_supervisor")
     private String planSupervisor;
 
+    @Schema(description = "项目参与人")
+    @TableField("project_participants")
+    private String projectParticipants;
+
     @Schema(description = "创建人ID")
     @TableField("creator_id")
     private Long creatorId;
