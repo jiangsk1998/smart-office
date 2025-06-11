@@ -1,8 +1,10 @@
 package com.zkyzn.project_manager.stories;
 
 
+import com.zkyzn.project_manager.enums.ProjectStatusEnum;
 import com.zkyzn.project_manager.models.ProjectInfo;
 import com.zkyzn.project_manager.models.ProjectPhase;
+import com.zkyzn.project_manager.services.ProjectInfoService;
 import com.zkyzn.project_manager.services.ProjectPhaseService;
 import com.zkyzn.project_manager.utils.ProjectPhaseOrTaskChangeNoticeUtils;
 import jakarta.annotation.Resource;
@@ -10,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZonedDateTime;
+import java.util.List;
 
 @Service
 public class ProjectPhaseStory {
@@ -23,6 +26,8 @@ public class ProjectPhaseStory {
     private ProjectPhaseService projectPhaseService;
     @Resource
     private ProjectPhaseOrTaskChangeNoticeUtils noticeUtils;
+    @Resource
+    private ProjectInfoService projectInfoService;
 
     @Transactional(rollbackFor = Exception.class)
     public Boolean createPhase(ProjectPhase projectPhase, Long operatorId) {
@@ -61,6 +66,8 @@ public class ProjectPhaseStory {
         if (!projectPhaseService.updateById(updateEntity)) {
             return false;
         }
+
+        analyzeProjectStatus(currentPhase.getProjectId());
 
         return noticeUtils.sendNotification(projectInfo,
                 NOTIFY_TITLE_STATUS_CHANGE,
@@ -137,4 +144,23 @@ public class ProjectPhaseStory {
 
         return changes.toString();
     }
+
+
+    private void analyzeProjectStatus(Long projectId) {
+        // 1. 获取项目所有阶段
+        List<ProjectPhase> phases = projectPhaseService.listByProjectId(projectId);
+
+        // 2. 检查是否全部完成（假设完成状态为"COMPLETED"）
+        boolean allCompleted = !phases.isEmpty() &&
+                phases.stream().allMatch(phase -> "已完成".equals(phase.getPhaseStatus()));
+
+        // 3. 更新项目状态
+        if (allCompleted) {
+            ProjectInfo projectUpdate = new ProjectInfo();
+            projectUpdate.setProjectId(projectId);
+            projectUpdate.setStatus(ProjectStatusEnum.COMPLETED.name()); // 项目状态字段
+            projectInfoService.updateById(projectUpdate);
+        }
+    }
+
 }
