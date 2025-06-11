@@ -14,7 +14,7 @@ public class UserInfoService extends MPJBaseServiceImpl<UserInfoDao, UserInfo> {
      * @param userId 用户Id
      * @return 用户信息
      */
-    public UserInfo GetByUserId(Integer userId){
+    public UserInfo GetByUserId(Long userId){
         return baseMapper.selectById(userId);
     }
 

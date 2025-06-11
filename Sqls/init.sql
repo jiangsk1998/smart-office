@@ -2,8 +2,8 @@ create table project_manager.tab_user_info
 (
     user_id       bigint   not null comment '用户Id'
         primary key,
-    user_account  int      null comment '用户账号',
-    user_password int      null comment '用户密码',
+    user_account  varchar(50)       null comment '用户账号',
+    user_password varchar(50)       null comment '用户密码',
     create_time   datetime null comment '创建时间',
     update_time   datetime null comment '更新时间',
     is_delete     int      null

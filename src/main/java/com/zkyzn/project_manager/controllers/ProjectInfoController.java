@@ -14,6 +14,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * @author Mr-ti
  */
@@ -104,6 +107,15 @@ public class ProjectInfoController {
     ) {
         boolean success = projectInfoStory.favoriteProject(projectNumber, req);
         return ResUtil.ok(success);
+    }
+
+    // 获取所属科室的接口
+    @Operation(summary = "获取所有科室信息")
+    @GetMapping("/department")
+    public ResultList<String> getDepartment() {
+        // 写死一个科室返回给前端
+        List<String> departments = Arrays.asList("科室1");
+        return ResUtil.list(departments);
     }
 }
 
