@@ -1,8 +1,6 @@
 package com.zkyzn.project_manager.stories;
 
 
-import com.github.yulichang.base.MPJBaseServiceImpl;
-import com.zkyzn.project_manager.mappers.ProjectPhaseDao;
 import com.zkyzn.project_manager.models.MessageInfo;
 import com.zkyzn.project_manager.models.ProjectInfo;
 import com.zkyzn.project_manager.models.ProjectPhase;
@@ -10,7 +8,6 @@ import com.zkyzn.project_manager.models.message.ChangeNoticeContent;
 import com.zkyzn.project_manager.services.ProjectInfoService;
 import com.zkyzn.project_manager.services.ProjectPhaseService;
 import jakarta.annotation.Resource;
-import org.apache.commons.compress.utils.Sets;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -63,7 +60,7 @@ public class ProjectPhaseStory {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public Boolean changePhaseStatus(Long id, String status, Long operatorId) {
+    public Boolean changePhaseStatusById(Long id, String status, Long operatorId) {
         ProjectPhase currentPhase = projectPhaseService.getById(id);
         if (currentPhase == null) return false;
         if (status.equals(currentPhase.getPhaseStatus())) return true;
