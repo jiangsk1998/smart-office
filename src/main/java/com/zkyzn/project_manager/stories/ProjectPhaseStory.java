@@ -9,6 +9,8 @@ import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.ZonedDateTime;
+
 @Service
 public class ProjectPhaseStory {
 
@@ -27,6 +29,10 @@ public class ProjectPhaseStory {
         if (!projectPhaseService.save(projectPhase)) {
             return false;
         }
+
+        ZonedDateTime now = ZonedDateTime.now();
+        projectPhase.setCreateTime(now);
+        projectPhase.setUpdateTime(now);
 
         ProjectInfo projectInfo = noticeUtils.getProjectInfoSafely(projectPhase.getProjectId());
         if (projectInfo == null) {
@@ -51,6 +57,7 @@ public class ProjectPhaseStory {
         ProjectPhase updateEntity = new ProjectPhase();
         updateEntity.setPhaseId(id);
         updateEntity.setPhaseStatus(status);
+        updateEntity.setUpdateTime(ZonedDateTime.now());
         if (!projectPhaseService.updateById(updateEntity)) {
             return false;
         }
@@ -90,6 +97,7 @@ public class ProjectPhaseStory {
         if (originalPhase == null) return false;
 
         projectPhase.setPhaseStatus(null);
+        projectPhase.setUpdateTime(ZonedDateTime.now());
 
         if (!projectPhaseService.updateById(projectPhase)) {
             return false;

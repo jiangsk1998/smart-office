@@ -8,6 +8,9 @@ import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+
 
 @Service
 public class ProjectTaskStory {
@@ -26,6 +29,10 @@ public class ProjectTaskStory {
     public Boolean createPlan(ProjectPlan projectPlan, Long operatorId) {
         if (!projectPlanService.save(projectPlan)) return false;
 
+        LocalDateTime now = LocalDateTime.now();
+        projectPlan.setCreateTime(now);
+        projectPlan.setUpdateTime(now);
+
         ProjectInfo projectInfo = noticeUtils.getProjectInfoSafely(projectPlan.getProjectId());
         if (projectInfo == null) return true;
 
@@ -39,6 +46,9 @@ public class ProjectTaskStory {
     public Boolean updatePlanById(ProjectPlan projectPlan, Long operatorId) {
         ProjectPlan originalPlan = projectPlanService.getById(projectPlan.getProjectPlanId());
         if (originalPlan == null) return false;
+
+        projectPlan.setTaskStatus(null);
+        projectPlan.setUpdateTime(LocalDateTime.now());
 
         if (!projectPlanService.updateById(projectPlan)) return false;
 
@@ -60,6 +70,7 @@ public class ProjectTaskStory {
         boolean success = projectPlanService.lambdaUpdate()
                 .eq(ProjectPlan::getProjectPlanId, id)
                 .set(ProjectPlan::getTaskStatus, status)
+                .set(ProjectPlan::getUpdateTime, ZonedDateTime.now())
                 .update();
 
         if (!success) return false;
