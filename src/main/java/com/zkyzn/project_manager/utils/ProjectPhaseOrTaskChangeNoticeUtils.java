@@ -15,13 +15,13 @@ import java.util.Optional;
 import java.util.Set;
 
 @Component
-public class NotificationUtils {
+public class ProjectPhaseOrTaskChangeNoticeUtils {
 
     private final ProjectInfoService projectInfoService;
     private final MessageInfoStory messageInfoStory;
 
-    public NotificationUtils(ProjectInfoService projectInfoService,
-                             MessageInfoStory messageInfoStory) {
+    public ProjectPhaseOrTaskChangeNoticeUtils(ProjectInfoService projectInfoService,
+                                               MessageInfoStory messageInfoStory) {
         this.projectInfoService = projectInfoService;
         this.messageInfoStory = messageInfoStory;
     }

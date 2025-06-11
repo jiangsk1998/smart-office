@@ -3,7 +3,7 @@ package com.zkyzn.project_manager.stories;
 import com.zkyzn.project_manager.models.ProjectInfo;
 import com.zkyzn.project_manager.models.ProjectPlan;
 import com.zkyzn.project_manager.services.ProjectPlanService;
-import com.zkyzn.project_manager.utils.NotificationUtils;
+import com.zkyzn.project_manager.utils.ProjectPhaseOrTaskChangeNoticeUtils;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,16 +20,16 @@ public class ProjectTaskStory {
     @Resource
     private ProjectPlanService projectPlanService;
     @Resource
-    private NotificationUtils notificationUtils;
+    private ProjectPhaseOrTaskChangeNoticeUtils noticeUtils;
 
     @Transactional(rollbackFor = Exception.class)
     public Boolean createPlan(ProjectPlan projectPlan, Long operatorId) {
         if (!projectPlanService.save(projectPlan)) return false;
 
-        ProjectInfo projectInfo = notificationUtils.getProjectInfoSafely(projectPlan.getProjectId());
+        ProjectInfo projectInfo = noticeUtils.getProjectInfoSafely(projectPlan.getProjectId());
         if (projectInfo == null) return true;
 
-        return notificationUtils.sendNotification(projectInfo,
+        return noticeUtils.sendNotification(projectInfo,
                 NOTIFY_TITLE_CREATE,
                 buildCreateNoticeContent(projectPlan),
                 operatorId);
@@ -42,10 +42,10 @@ public class ProjectTaskStory {
 
         if (!projectPlanService.updateById(projectPlan)) return false;
 
-        ProjectInfo projectInfo = notificationUtils.getProjectInfoSafely(projectPlan.getProjectId());
+        ProjectInfo projectInfo = noticeUtils.getProjectInfoSafely(projectPlan.getProjectId());
         if (projectInfo == null) return true;
 
-        return notificationUtils.sendNotification(projectInfo,
+        return noticeUtils.sendNotification(projectInfo,
                 NOTIFY_TITLE_UPDATE,
                 buildUpdateNoticeContent(originalPlan, projectPlan),
                 operatorId);
@@ -64,10 +64,10 @@ public class ProjectTaskStory {
 
         if (!success) return false;
 
-        ProjectInfo projectInfo = notificationUtils.getProjectInfoSafely(currentPlan.getProjectId());
+        ProjectInfo projectInfo = noticeUtils.getProjectInfoSafely(currentPlan.getProjectId());
         if (projectInfo == null) return false;
 
-        return notificationUtils.sendNotification(projectInfo,
+        return noticeUtils.sendNotification(projectInfo,
                 NOTIFY_TITLE_STATUS_CHANGE,
                 String.format("任务状态已从 [%s] 更新为: [%s]",
                         currentPlan.getTaskStatus(), status),
@@ -85,10 +85,10 @@ public class ProjectTaskStory {
 
         if (!deleteSuccess) return false;
 
-        ProjectInfo projectInfo = notificationUtils.getProjectInfoSafely(plan.getProjectId());
+        ProjectInfo projectInfo = noticeUtils.getProjectInfoSafely(plan.getProjectId());
         if (projectInfo == null) return true;
 
-        return notificationUtils.sendNotification(projectInfo,
+        return noticeUtils.sendNotification(projectInfo,
                 NOTIFY_TITLE_DELETE,
                 String.format("任务 [%s] 已被删除", plan.getTaskDescription()),
                 operatorId);
@@ -96,22 +96,22 @@ public class ProjectTaskStory {
 
     private String buildCreateNoticeContent(ProjectPlan plan) {
         return String.format("新增任务: %s\n- 责任人: %s\n- 计划时间: %s 至 %s\n- 交付物: %s",
-                notificationUtils.formatValue(plan.getTaskDescription()),
-                notificationUtils.formatValue(plan.getResponsiblePerson()),
-                notificationUtils.formatDate(plan.getStartDate()),
-                notificationUtils.formatDate(plan.getEndDate()),
-                notificationUtils.formatValue(plan.getDeliverable()));
+                noticeUtils.formatValue(plan.getTaskDescription()),
+                noticeUtils.formatValue(plan.getResponsiblePerson()),
+                noticeUtils.formatDate(plan.getStartDate()),
+                noticeUtils.formatDate(plan.getEndDate()),
+                noticeUtils.formatValue(plan.getDeliverable()));
     }
 
     private String buildUpdateNoticeContent(ProjectPlan original, ProjectPlan updated) {
         StringBuilder changes = new StringBuilder("任务变更内容:\n");
 
-        notificationUtils.addChangeIfDifferent(changes, "任务描述", original.getTaskDescription(), updated.getTaskDescription());
-        notificationUtils.addChangeIfDifferent(changes, "责任人", original.getResponsiblePerson(), updated.getResponsiblePerson());
-        notificationUtils.addDateChangeIfDifferent(changes, "开始日期", original.getStartDate(), updated.getStartDate());
-        notificationUtils.addDateChangeIfDifferent(changes, "结束日期", original.getEndDate(), updated.getEndDate());
-        notificationUtils.addChangeIfDifferent(changes, "交付物", original.getDeliverable(), updated.getDeliverable());
-        notificationUtils.addChangeIfDifferent(changes, "科室", original.getDepartment(), updated.getDepartment());
+        noticeUtils.addChangeIfDifferent(changes, "任务描述", original.getTaskDescription(), updated.getTaskDescription());
+        noticeUtils.addChangeIfDifferent(changes, "责任人", original.getResponsiblePerson(), updated.getResponsiblePerson());
+        noticeUtils.addDateChangeIfDifferent(changes, "开始日期", original.getStartDate(), updated.getStartDate());
+        noticeUtils.addDateChangeIfDifferent(changes, "结束日期", original.getEndDate(), updated.getEndDate());
+        noticeUtils.addChangeIfDifferent(changes, "交付物", original.getDeliverable(), updated.getDeliverable());
+        noticeUtils.addChangeIfDifferent(changes, "科室", original.getDepartment(), updated.getDepartment());
 
         return changes.length() > 0 ? changes.toString() : "无字段变更";
     }
