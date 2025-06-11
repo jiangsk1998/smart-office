@@ -20,14 +20,17 @@ public class ProjectPhaseController {
     @PostMapping
     @Operation(summary = "新增项目阶段")
     public Result<Boolean> postCreatePhase(@RequestBody ProjectPhase projectPhase) {
-        return ResUtil.ok(projectPhaseStory.createPhase(projectPhase));
+
+        // Todo 获取当前操作用户
+        return ResUtil.ok(projectPhaseStory.createPhase(projectPhase,1L));
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "编辑项目阶段")
     public Result<Boolean> updatePhase(@PathVariable Long id, @RequestBody ProjectPhase projectPhase) {
         projectPhase.setPhaseId(id);
-        return ResUtil.ok(projectPhaseStory.updatePhaseById(projectPhase));
+        // Todo 获取当前操作用户
+        return ResUtil.ok(projectPhaseStory.updatePhaseById(projectPhase ,1L));
     }
 
     @PutMapping("/{id}/status")

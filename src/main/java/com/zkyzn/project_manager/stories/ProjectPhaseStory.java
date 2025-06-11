@@ -39,18 +39,36 @@ public class ProjectPhaseStory {
 
 
 
-    public Boolean createPhase(ProjectPhase projectPhase) {
-        return this.projectPhaseService.save(projectPhase);
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean createPhase(ProjectPhase projectPhase, Long operatorId) {
+        // 1. 保存阶段
+        boolean saveSuccess = projectPhaseService.save(projectPhase);
+        if (!saveSuccess) {
+            return false;
+        }
+
+        // 2. 获取关联项目信息
+        ProjectInfo projectInfo = projectInfoService.getByProjectId(projectPhase.getProjectId());
+        if (projectInfo == null) {
+            return true; // 创建成功但项目不存在时不发通知
+        }
+
+        // 3. 构建通知内容
+        ChangeNoticeContent content = buildCreateNotice(projectInfo, projectPhase);
+
+        // 4. 创建消息对象
+        MessageInfo messageInfo = new MessageInfo();
+        messageInfo.setSenderId(operatorId);
+        messageInfo.setTitle("新增项目阶段通知");
+        messageInfo.setMessageType(1); // 通知类型
+        messageInfo.setContent(content);
+        messageInfo.setReadStatus(false);
+
+        // 5. 获取接收人并发送通知
+        Set<Long> userIdList = getNotifyRecipients(projectInfo);
+        return messageInfoStory.sendMessages(messageInfo, userIdList);
     }
 
-    /**
-     * 改变更不产生状态变更
-     * @param projectPhase
-     * @return
-     */
-    public Boolean updatePhaseById(ProjectPhase projectPhase) {
-        return this.projectPhaseService.updateById(projectPhase);
-    }
 
     @Transactional(rollbackFor = Exception.class)
     public Boolean changePhaseStatus(Long id, String status, Long operatorId) {
@@ -317,6 +335,31 @@ public class ProjectPhaseStory {
      */
     private String formatDate(LocalDate date) {
         return date != null ? date.toString() : "未设置";
+    }
+
+    /**
+     * 构建阶段创建通知内容
+     */
+    private ChangeNoticeContent buildCreateNotice(ProjectInfo projectInfo, ProjectPhase phase) {
+        ChangeNoticeContent content = new ChangeNoticeContent();
+        content.setProjectNumber(projectInfo.getProjectNumber());
+        content.setProjectName(projectInfo.getProjectName());
+        content.setStartDate(projectInfo.getStartDate());
+        content.setEndDate(projectInfo.getEndDate());
+        content.setCurrentPhase(phase.getPhaseName());
+
+        // 动态生成通知内容
+        StringBuilder sb = new StringBuilder("新增项目阶段：");
+        sb.append("\n- 阶段名称: ").append(formatValue(phase.getPhaseName()));
+        sb.append("\n- 负责人: ").append(formatValue(phase.getResponsiblePerson()));
+        sb.append("\n- 计划时间: ")
+                .append(formatDate(phase.getStartDate()))
+                .append(" 至 ")
+                .append(formatDate(phase.getEndDate()));
+        sb.append("\n- 交付物: ").append(formatValue(phase.getDeliverable()));
+
+        content.setContent(sb.toString());
+        return content;
     }
 
 }
