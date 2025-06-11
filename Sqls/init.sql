@@ -26,6 +26,7 @@ CREATE TABLE tab_project_info
     project_participants  VARCHAR(50) COMMENT '项目参与人',
     status                VARCHAR(50) COMMENT '项目状态',
     current_phase         VARCHAR(50) COMMENT '项目当前阶段',
+    is_favorite           BOOLEAN DEFAULT FALSE COMMENT '是否被收藏',
     creator_id            BIGINT COMMENT '创建人ID',
     creator_name          VARCHAR(50) COMMENT '创建人姓名',
     create_time           DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',

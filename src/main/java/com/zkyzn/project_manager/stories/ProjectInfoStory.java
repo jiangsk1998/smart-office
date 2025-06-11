@@ -10,7 +10,7 @@ import com.zkyzn.project_manager.services.ProjectDocumentService;
 import com.zkyzn.project_manager.services.ProjectInfoService;
 import com.zkyzn.project_manager.services.ProjectPhaseService;
 import com.zkyzn.project_manager.services.ProjectPlanService;
-import com.zkyzn.project_manager.so.project_info.ProjectCreateReq;
+import com.zkyzn.project_manager.so.project_info.ProjectInfoReq;
 import com.zkyzn.project_manager.so.project_info.ProjectDocumentReq;
 import com.zkyzn.project_manager.so.project_info.ProjectImportReq;
 import com.zkyzn.project_manager.so.project_info.ProjectInfoResp;
@@ -51,7 +51,7 @@ public class ProjectInfoStory {
      * @return 项目编号
      */
     @Transactional(rollbackFor = Exception.class)
-    public String createProject(ProjectCreateReq req) {
+    public String createProject(ProjectInfoReq req) {
 
         // 判断项目编号是否存在，如果存在则返回错误
         if (projectInfoService.existsByProjectNumber(req.getProjectNumber())) {
@@ -100,7 +100,7 @@ public class ProjectInfoStory {
      * @return 项目编号
      */
     @Transactional(rollbackFor = Exception.class)
-    public String updateProject(ProjectCreateReq req) {
+    public String updateProject(ProjectInfoReq req) {
         // 判断项目编号是否存在，如果不存在则返回错误
         if (!projectInfoService.existsByProjectNumber(req.getProjectNumber())) {
             return "项目编号不存在";
@@ -109,8 +109,19 @@ public class ProjectInfoStory {
         // 更新tab_project_document表
         List<ProjectDocumentReq> projectDocumentReqList = req.getProjectDocumentList();
         if (null != projectDocumentReqList) {
-            for (ProjectDocumentReq projectDocumentReq : projectDocumentReqList) {
 
+            // 根据Operator字段排序，D在前面，C在后面，确保先删除，再创建
+            projectDocumentReqList.sort((o1, o2) -> {
+                if (Operator.DELETE.getCode().equals(o1.getOperator()) && Operator.CREATE.getCode().equals(o2.getOperator())) {
+                    return -1;
+                } else if (Operator.CREATE.getCode().equals(o1.getOperator()) && Operator.DELETE.getCode().equals(o2.getOperator())) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            });
+
+            for (ProjectDocumentReq projectDocumentReq : projectDocumentReqList) {
                 // 如果文档类型是计划书，需要解析其中的任务，把原有的项目阶段和项目任务删除
                 if (DocumentTypeEnum.PROJECT_PLAN.getChineseName().equals(projectDocumentReq.getDocumentType())) {
 
@@ -120,21 +131,24 @@ public class ProjectInfoStory {
                     // 删除项目相关的plan
                     projectPlanService.removeByProjectId(req.getProjectId());
 
-                    // 创建一个列表用于收集项目参与人信息
-                    List<String> responsiblePersons = new ArrayList<>();
+                    if (Operator.CREATE.getCode().equals(projectDocumentReq.getOperator())) {
+                        // 创建一个列表用于收集项目参与人信息
+                        List<String> responsiblePersons = new ArrayList<>();
 
-                    // 根据项目计划生成项目计划和项目阶段，插入相应的数据表中
-                    initPlanAndPhaseByDocument(projectDocumentReq, req.getProjectId(), responsiblePersons);
+                        // 根据项目计划生成项目计划和项目阶段，插入相应的数据表中
+                        initPlanAndPhaseByDocument(projectDocumentReq, req.getProjectId(), responsiblePersons);
 
-                    // 更新项目参与人信息，将responsiblePersons列表中的字符串以逗号分隔拼接
-                    req.setProjectParticipants(String.join(",", responsiblePersons));
-                    projectInfoService.updateById(req);
+                        // 更新项目参与人信息，将responsiblePersons列表中的字符串以逗号分隔拼接
+                        req.setProjectParticipants(String.join(",", responsiblePersons));
+                        projectInfoService.updateById(req);
+                    }
                 }
 
-                if (Operator.CREATE.equals(projectDocumentReq.getOperator())) {
+                if (Operator.CREATE.getCode().equals(projectDocumentReq.getOperator())) {
+                    projectDocumentReq.setProjectId(req.getProjectId());
                     projectDocumentService.save(projectDocumentReq);
-                }else if (Operator.DELETE.equals(projectDocumentReq.getOperator())) {
-                    projectDocumentService.removeById(projectDocumentReq.getProjectDocumentId());
+                }else if (Operator.DELETE.getCode().equals(projectDocumentReq.getOperator())) {
+                    projectDocumentService.removeByProjectType(projectDocumentReq.getDocumentType());
                 }
             }
         }
@@ -193,6 +207,24 @@ public class ProjectInfoStory {
         // todo: 删除项目时需要关联删除一些其他的表数据
 
         return projectInfoService.removeByProjectNumber(projectNumber);
+    }
+
+
+    /**
+     * 更新项目信息表中的收藏状态
+     *
+     * @param projectNumber 项目编号
+     * @param req    请求参数，主要提取是否收藏状态
+     * @return 是否收藏成功
+     */
+    public Boolean favoriteProject(String projectNumber, ProjectInfoReq req) {
+
+        ProjectInfo projectInfo = projectInfoService.getByProjectNumber(projectNumber);
+        if (projectInfo == null) {
+            return false;
+        }
+        projectInfo.setIsFavorite(req.getIsFavorite());
+        return projectInfoService.updateById(projectInfo);
     }
 
     /**

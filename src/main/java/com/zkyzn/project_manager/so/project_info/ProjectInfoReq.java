@@ -10,9 +10,9 @@ import java.util.List;
  * 创建项目请求体
  * @author Mr-ti
  */
-@Schema(description = "创建项目请求")
+@Schema(description = "项目信息请求")
 @Data
-public class ProjectCreateReq extends ProjectInfo {
+public class ProjectInfoReq extends ProjectInfo {
 
     /**
      * 项目文档列表

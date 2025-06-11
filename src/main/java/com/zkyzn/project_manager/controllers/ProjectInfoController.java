@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zkyzn.project_manager.models.ProjectInfo;
 import com.zkyzn.project_manager.so.Result;
 import com.zkyzn.project_manager.so.ResultList;
-import com.zkyzn.project_manager.so.project_info.ProjectCreateReq;
+import com.zkyzn.project_manager.so.project_info.ProjectInfoReq;
 import com.zkyzn.project_manager.so.project_info.ProjectImportReq;
 import com.zkyzn.project_manager.so.project_info.ProjectInfoResp;
 import com.zkyzn.project_manager.stories.ProjectInfoStory;
@@ -28,7 +28,7 @@ public class ProjectInfoController {
     @Operation(summary = "创建项目")
     @PostMapping()
     public Result<String> createProject(
-            @RequestBody ProjectCreateReq req
+            @RequestBody ProjectInfoReq req
     ) {
         String projectId = projectInfoStory.createProject(req);
         if (projectId == null) {
@@ -53,7 +53,7 @@ public class ProjectInfoController {
     @PutMapping(value = "/{projectNumber}")
     public Result<String> updateProject(
             @PathVariable("projectNumber") String projectNumber,
-            @RequestBody ProjectCreateReq req
+            @RequestBody ProjectInfoReq req
     ) {
         // 如果projectNumber参数和req中的projectNumber不一致，则更新失败
         if (!projectNumber.equals(req.getProjectNumber())) {
@@ -92,6 +92,17 @@ public class ProjectInfoController {
             @PathVariable("projectNumber") String projectNumber
     ) {
         boolean success = projectInfoStory.deleteProjectByProjectNumber(projectNumber);
+        return ResUtil.ok(success);
+    }
+
+    //添加一个收藏项目的方法
+    @Operation(summary = "收藏项目")
+    @PutMapping("/{projectNumber}/favorite")
+    public Result<Boolean> favoriteProject(
+            @PathVariable("projectNumber") String projectNumber,
+            @RequestBody ProjectInfoReq req
+    ) {
+        boolean success = projectInfoStory.favoriteProject(projectNumber, req);
         return ResUtil.ok(success);
     }
 }

@@ -215,13 +215,13 @@ public class ExcelUtil {
         projectInfo.setEndDate(getDateValue(row, 4, mergedCellValues));
 
         // 分管领导（F列）
-        projectInfo.setResponsibleLeaderId(getNumericLongValue(row, 5, mergedCellValues));
+        projectInfo.setResponsibleLeader(getStringValue(row, 5, mergedCellValues));
 
         // 技术负责人（G列）
-        projectInfo.setTechnicalLeaderId(getNumericLongValue(row, 6, mergedCellValues));
+        projectInfo.setTechnicalLeader(getStringValue(row, 6, mergedCellValues));
 
         // 计划主管（H列）
-        projectInfo.setPlanSupervisorId(getNumericLongValue(row, 7, mergedCellValues));
+        projectInfo.setPlanSupervisor(getStringValue(row, 7, mergedCellValues));
 
         return projectInfo;
     }

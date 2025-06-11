@@ -91,6 +91,10 @@ public class ProjectInfo {
     @TableField("project_participants")
     private String projectParticipants;
 
+    @Schema(description = "是否收藏")
+    @TableField("is_favorite")
+    private Boolean isFavorite;
+
     @Schema(description = "创建人ID")
     @TableField("creator_id")
     private Long creatorId;
