@@ -150,7 +150,7 @@ public class ProjectPhaseStory {
         // 1. 获取项目所有阶段
         List<ProjectPhase> phases = projectPhaseService.listByProjectId(projectId);
 
-        // 2. 检查是否全部完成（假设完成状态为"COMPLETED"）
+        // 2. 检查是否全部完成
         boolean allCompleted = !phases.isEmpty() &&
                 phases.stream().allMatch(phase -> "已完成".equals(phase.getPhaseStatus()));
 
@@ -158,7 +158,7 @@ public class ProjectPhaseStory {
         if (allCompleted) {
             ProjectInfo projectUpdate = new ProjectInfo();
             projectUpdate.setProjectId(projectId);
-            projectUpdate.setStatus(ProjectStatusEnum.COMPLETED.name()); // 项目状态字段
+            projectUpdate.setStatus(ProjectStatusEnum.COMPLETED.name());
             projectInfoService.updateById(projectUpdate);
         }
     }
