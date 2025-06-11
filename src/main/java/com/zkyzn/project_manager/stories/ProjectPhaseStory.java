@@ -127,7 +127,6 @@ public class ProjectPhaseStory {
                 operatorId);
     }
 
-    //============= 重构后的通知方法 =============//
 
     /**
      * 发送通知消息（统一入口）
@@ -161,7 +160,6 @@ public class ProjectPhaseStory {
         return content;
     }
 
-    //============= 通知内容构建方法 =============//
 
     private String buildCreateNoticeContent(ProjectPhase phase) {
         return String.format("新增项目阶段 [%s]：" +
@@ -219,7 +217,7 @@ public class ProjectPhaseStory {
         }
     }
 
-    //============= 辅助方法 =============//
+
 
     private ProjectInfo getProjectInfoSafely(Long projectId) {
         return projectInfoService.getByProjectId(projectId);
