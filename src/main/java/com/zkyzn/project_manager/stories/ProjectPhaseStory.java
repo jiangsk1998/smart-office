@@ -11,10 +11,13 @@ import com.zkyzn.project_manager.services.ProjectInfoService;
 import com.zkyzn.project_manager.services.ProjectPhaseService;
 import jakarta.annotation.Resource;
 import org.apache.commons.compress.utils.Sets;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -186,6 +189,134 @@ public class ProjectPhaseStory {
         }
 
         return deleteSuccess;
+    }
+
+    /**
+     * 修改阶段信息（非状态变更）并发送通知
+     * @param projectPhase 更新后的阶段对象
+     * @param operatorId 操作人ID
+     * @return 是否成功
+     */
+    public Boolean updatePhaseById(ProjectPhase projectPhase, Long operatorId) {
+        // 1. 获取原始阶段数据
+        ProjectPhase originalPhase = projectPhaseService.getById(projectPhase.getPhaseId());
+        if (originalPhase == null) {
+            return false; // 阶段不存在
+        }
+
+        // 2. 禁止修改状态字段（确保变更不包含状态）
+        projectPhase.setPhaseStatus(null);
+
+        // 3. 执行更新操作
+        boolean updateSuccess = projectPhaseService.updateById(projectPhase);
+        if (!updateSuccess) {
+            return false;
+        }
+
+        // 4. 获取项目信息
+        ProjectInfo projectInfo = projectInfoService.getByProjectId(originalPhase.getProjectId());
+        if (projectInfo == null) {
+            return true; // 更新成功但项目不存在时不发通知
+        }
+
+        // 5. 构建通知内容
+        ChangeNoticeContent content = buildUpdateNotice(projectInfo, originalPhase, projectPhase);
+
+
+        // 6. 创建消息对象
+        MessageInfo messageInfo = new MessageInfo();
+        messageInfo.setSenderId(operatorId);
+        messageInfo.setTitle("项目阶段信息更新通知");
+        messageInfo.setMessageType(1); // 通知类型
+        messageInfo.setContent(content);
+        messageInfo.setReadStatus(false);
+
+        // 7. 获取接收人并发送通知
+        Set<Long> userIdList = getNotifyRecipients(projectInfo);
+        messageInfoStory.sendMessages(messageInfo, userIdList);
+
+        return true;
+    }
+
+    /**
+     * 构建阶段更新通知内容（包含具体变更字段）
+     */
+    private ChangeNoticeContent buildUpdateNotice(ProjectInfo projectInfo,
+                                                  ProjectPhase originalPhase,
+                                                  ProjectPhase updatedPhase) {
+        ChangeNoticeContent content = new ChangeNoticeContent();
+        content.setProjectNumber(projectInfo.getProjectNumber());
+        content.setProjectName(projectInfo.getProjectName());
+        content.setStartDate(projectInfo.getStartDate());
+        content.setEndDate(projectInfo.getEndDate());
+        content.setCurrentPhase(originalPhase.getPhaseName());
+
+        // 构建变更详情
+        StringBuilder changes = new StringBuilder("项目阶段基础信息已更新：\n");
+
+        // 比较阶段名称
+        if (!Objects.equals(originalPhase.getPhaseName(), updatedPhase.getPhaseName())) {
+            changes.append(String.format("- 阶段名称: [%s] → [%s]\n",
+                    formatValue(originalPhase.getPhaseName()),
+                    formatValue(updatedPhase.getPhaseName())));
+        }
+
+        // 比较开始日期
+        if (!Objects.equals(originalPhase.getStartDate(), updatedPhase.getStartDate())) {
+            changes.append(String.format("- 开始日期: [%s] → [%s]\n",
+                    formatDate(originalPhase.getStartDate()),
+                    formatDate(updatedPhase.getStartDate())));
+        }
+
+        // 比较结束日期
+        if (!Objects.equals(originalPhase.getEndDate(), updatedPhase.getEndDate())) {
+            changes.append(String.format("- 结束日期: [%s] → [%s]\n",
+                    formatDate(originalPhase.getEndDate()),
+                    formatDate(updatedPhase.getEndDate())));
+        }
+
+        // 比较负责人
+        if (!StringUtils.equals(originalPhase.getResponsiblePerson(), updatedPhase.getResponsiblePerson())) {
+            changes.append(String.format("- 负责人: [%s] → [%s]\n",
+                    formatValue(originalPhase.getResponsiblePerson()),
+                    formatValue(updatedPhase.getResponsiblePerson())));
+        }
+
+        // 比较成果描述
+        if (!StringUtils.equals(originalPhase.getDeliverable(), updatedPhase.getDeliverable())) {
+            changes.append(String.format("- 成果描述: [%s] → [%s]\n",
+                    formatValue(originalPhase.getDeliverable()),
+                    formatValue(updatedPhase.getDeliverable())));
+        }
+
+        // 比较成果类型
+        if (!StringUtils.equals(originalPhase.getDeliverableType(), updatedPhase.getDeliverableType())) {
+            changes.append(String.format("- 成果类型: [%s] → [%s]\n",
+                    formatValue(originalPhase.getDeliverableType()),
+                    formatValue(updatedPhase.getDeliverableType())));
+        }
+
+        // 如果没有检测到变更（理论上不会发生）
+        if (changes.toString().equals("项目阶段基础信息已更新：\n")) {
+            changes.append("无字段变更");
+        }
+
+        content.setContent(changes.toString());
+        return content;
+    }
+
+    /**
+     * 格式化值（处理null）
+     */
+    private String formatValue(String value) {
+        return value != null ? value : "空";
+    }
+
+    /**
+     * 格式化日期
+     */
+    private String formatDate(LocalDate date) {
+        return date != null ? date.toString() : "未设置";
     }
 
 }
