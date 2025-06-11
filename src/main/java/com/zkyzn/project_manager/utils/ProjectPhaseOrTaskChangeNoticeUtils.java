@@ -52,6 +52,7 @@ public class ProjectPhaseOrTaskChangeNoticeUtils {
     }
 
     public Set<Long> getNotifyRecipients(ProjectInfo projectInfo) {
+        // TODO 获取项目负责人、技术负责人、计划负责人
         Set<Long> recipients = new HashSet<>(3);
         Optional.ofNullable(projectInfo.getResponsibleLeaderId()).ifPresent(recipients::add);
         Optional.ofNullable(projectInfo.getTechnicalLeaderId()).ifPresent(recipients::add);
