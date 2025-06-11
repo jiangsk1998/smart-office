@@ -78,27 +78,33 @@ CREATE TABLE tab_project_phase
         REFERENCES tab_project_info (project_id) ON DELETE CASCADE
 ) COMMENT '项目阶段表';
 
-CREATE TABLE tab_project_plan
+create table tab_project_plan
 (
-    project_plan_id    BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '计划项唯一ID',
-    project_id         BIGINT       NOT NULL COMMENT '关联项目ID',
-    task_order         INT          NOT NULL COMMENT '任务序号',
-    task_package       VARCHAR(255) NOT NULL COMMENT '任务包',
-    task_description   TEXT         NOT NULL COMMENT '任务内容',
-    start_date         DATE         NOT NULL COMMENT '开始时间',
-    end_date           DATE         NOT NULL COMMENT '结束时间',
-    responsible_person VARCHAR(50)  NOT NULL COMMENT '责任人',
-    department         VARCHAR(50)  NOT NULL COMMENT '科室',
-    deliverable        VARCHAR(255) NOT NULL COMMENT '成果',
-    deliverable_type   VARCHAR(50)  NOT NULL COMMENT '成果类型',
-    is_milestone       BOOLEAN  DEFAULT FALSE COMMENT '是否里程碑任务',
-    create_time        DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    update_time        DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
+    project_plan_id    bigint auto_increment comment '计划项唯一ID'
+        primary key,
+    project_id         bigint                               not null comment '关联项目ID',
+    task_order         float                                not null comment '任务序号',
+    task_package       varchar(255)                         not null comment '任务包',
+    task_description   text                                 not null comment '任务内容',
+    start_date         date                                 not null comment '开始时间',
+    end_date           date                                 not null comment '结束时间',
+    responsible_person varchar(50)                          not null comment '责任人',
+    department         varchar(50)                          not null comment '科室',
+    deliverable        varchar(255)                         not null comment '成果',
+    deliverable_type   varchar(50)                          not null comment '成果类型',
+    is_milestone       tinyint(1) default 0                 null comment '是否里程碑任务',
+    create_time        datetime   default CURRENT_TIMESTAMP null comment '创建时间',
+    update_time        datetime   default CURRENT_TIMESTAMP null on update CURRENT_TIMESTAMP comment '修改时间',
+    task_status        varchar(16)                          null comment '任务状态',
+    real_start_date    date                                 null comment '实际开始时间',
+    real_end_date      date                                 null comment '实际结束时间',
+    constraint fk_plan_project
+        foreign key (project_id) references project_manager.tab_project_info (project_id)
+            on delete cascade
+)
+    comment '项目计划表';
 
-    CONSTRAINT fk_plan_project FOREIGN KEY (project_id)
-        REFERENCES tab_project_info (project_id) ON DELETE CASCADE
 
-) COMMENT '项目计划表';
 
 CREATE TABLE tab_drawing_plan
 (
@@ -117,23 +123,40 @@ CREATE TABLE tab_drawing_plan
 
 ) COMMENT '项目图纸计划表';
 
-CREATE TABLE `tab_message_info` (
-                                    `message_id` VARCHAR(32) PRIMARY KEY COMMENT '主键ID',
-                                    `sender_id` VARCHAR(32) NOT NULL COMMENT '发送者用户ID（字符串）',
-                                    `receiver_id` VARCHAR(32) NOT NULL COMMENT '接收者用户ID（字符串）',
-                                    `title` VARCHAR(200) DEFAULT NULL COMMENT '消息标题',
-                                    `content` JSON NOT NULL COMMENT '消息内容（JSON结构）',
-                                    `message_type` TINYINT NOT NULL DEFAULT 1 COMMENT '消息类型：0=附件通知，1=变更通知，2=即将到期通知，3=延期通知,4=延期反馈，5=延期风险告警',
-                                    `read_status` TINYINT NOT NULL DEFAULT 0 COMMENT '阅读状态：0=未读，1=已读',
-                                    `is_top` TINYINT NOT NULL DEFAULT 0 COMMENT '是否置顶：0=否，1=是',
-                                    `has_attachment` TINYINT NOT NULL DEFAULT 0 COMMENT '是否有附件：0=无，1=有',
-                                    `attachment` JSON DEFAULT NULL COMMENT '附件',
-                                    `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-                                    `read_time` DATETIME DEFAULT NULL COMMENT '阅读时间',
-                                    `update_time` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
-                                    `is_deleted` TINYINT NOT NULL DEFAULT 0 COMMENT '逻辑删除标志：0=正常，1=删除'
-) COMMENT='消息表';
+CREATE TABLE tab_project_favorite
+(
+    favorite_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '收藏唯一ID',
+    user_id     BIGINT NOT NULL COMMENT '用户ID',
+    project_id  BIGINT NOT NULL COMMENT '项目ID',
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '收藏时间',
+    order_index INT      DEFAULT 0 COMMENT '排序序号（用于自定义排序）',
+
+    UNIQUE KEY uk_user_project (user_id, project_id),
+    CONSTRAINT fk_favorite_user FOREIGN KEY (user_id)
+        REFERENCES tab_user_info (user_id) ON DELETE CASCADE,
+    CONSTRAINT fk_favorite_project FOREIGN KEY (project_id)
+        REFERENCES tab_project_info (project_id) ON DELETE CASCADE
+) COMMENT '项目收藏表';
+
+CREATE TABLE `tab_message_info`
+(
+    `message_id`     VARCHAR(32) PRIMARY KEY COMMENT '主键ID',
+    `sender_id`      VARCHAR(32) NOT NULL COMMENT '发送者用户ID（字符串）',
+    `receiver_id`    VARCHAR(32) NOT NULL COMMENT '接收者用户ID（字符串）',
+    `title`          VARCHAR(200)         DEFAULT NULL COMMENT '消息标题',
+    `content`        JSON        NOT NULL COMMENT '消息内容（JSON结构）',
+    `message_type`   TINYINT     NOT NULL DEFAULT 1 COMMENT '消息类型：0=附件通知，1=变更通知，2=即将到期通知，3=延期通知,4=延期反馈，5=延期风险告警',
+    `read_status`    TINYINT     NOT NULL DEFAULT 0 COMMENT '阅读状态：0=未读，1=已读',
+    `is_top`         TINYINT     NOT NULL DEFAULT 0 COMMENT '是否置顶：0=否，1=是',
+    `has_attachment` TINYINT     NOT NULL DEFAULT 0 COMMENT '是否有附件：0=无，1=有',
+    `attachment`     JSON                 DEFAULT NULL COMMENT '附件',
+    `create_time`    DATETIME             DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `read_time`      DATETIME             DEFAULT NULL COMMENT '阅读时间',
+    `update_time`    DATETIME             DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
+    `is_deleted`     TINYINT     NOT NULL DEFAULT 0 COMMENT '逻辑删除标志：0=正常，1=删除'
+) COMMENT ='消息表';
 
 -- 添加全文索引
-ALTER TABLE tab_message_info ADD FULLTEXT(title, content);
+ALTER TABLE tab_message_info
+    ADD FULLTEXT (title, content);
 

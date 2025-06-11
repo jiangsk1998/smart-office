@@ -283,5 +283,4 @@ public class ProjectInfoStory {
             projectPhaseService.saveBatch(phaseList);
         }
     }
-
 }
