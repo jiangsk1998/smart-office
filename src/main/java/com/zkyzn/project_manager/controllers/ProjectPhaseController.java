@@ -33,7 +33,8 @@ public class ProjectPhaseController {
     @PutMapping("/{id}/status")
     @Operation(summary = "变更项目阶段状态")
     public Result<Boolean> putChangePhaseStatus(@PathVariable Long id, @RequestParam String status) {
-        return ResUtil.ok(projectPhaseStory.changePhaseStatus(id, status));
+        // Todo 获取当前操作用户
+        return ResUtil.ok(projectPhaseStory.changePhaseStatus(id, status,1L));
     }
 
     @DeleteMapping("/{id}")

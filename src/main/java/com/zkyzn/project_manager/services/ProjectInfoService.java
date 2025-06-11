@@ -23,6 +23,11 @@ public class ProjectInfoService extends MPJBaseServiceImpl<ProjectInfoDao, Proje
         return baseMapper.selectById(projectId);
     }
 
+    public ProjectInfo getByProjectId(Long projectId) {
+        return baseMapper.selectById(projectId);
+    }
+
+
     /**
      * 根据项目工号查询项目
      *
