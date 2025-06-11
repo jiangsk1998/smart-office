@@ -19,10 +19,6 @@ public class ProjectInfoService extends MPJBaseServiceImpl<ProjectInfoDao, Proje
      *
      * @param projectId 项目Id（VARCHAR类型）
      */
-    public ProjectInfo getByProjectId(String projectId) {
-        return baseMapper.selectById(projectId);
-    }
-
     public ProjectInfo getByProjectId(Long projectId) {
         return baseMapper.selectById(projectId);
     }
