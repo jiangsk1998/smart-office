@@ -40,6 +40,7 @@ public class ProjectPhaseController {
     @DeleteMapping("/{id}")
     @Operation(summary = "删除项目阶段")
     public Result<Boolean> deletePhaseById(@PathVariable Long id) {
-        return ResUtil.ok(projectPhaseStory.deletePhaseById(id));
+        // Todo 获取当前操作用户
+        return ResUtil.ok(projectPhaseStory.deletePhaseById(id,1L));
     }
 }

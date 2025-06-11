@@ -40,6 +40,11 @@ public class ProjectPhaseStory {
         return this.projectPhaseService.save(projectPhase);
     }
 
+    /**
+     * 改变更不产生状态变更
+     * @param projectPhase
+     * @return
+     */
     public Boolean updatePhaseById(ProjectPhase projectPhase) {
         return this.projectPhaseService.updateById(projectPhase);
     }
@@ -60,8 +65,10 @@ public class ProjectPhaseStory {
 
         //  获取项目信息
         ProjectInfo projectInfo = Optional.ofNullable(projectInfoService.getByProjectId(currentPhase.getProjectId()))
-                .orElseThrow(() -> new IllegalArgumentException("项目不存在"));
-
+                .orElse(null);
+        if (projectInfo == null) {
+            return false; // 项目不存在
+        }
 
         String oldStatus = currentPhase.getPhaseStatus();
 
@@ -113,6 +120,23 @@ public class ProjectPhaseStory {
         return content;
     }
 
+    /**
+     * 构建阶段删除通知内容
+     */
+    private ChangeNoticeContent buildDeleteNotice(ProjectInfo projectInfo, ProjectPhase phase) {
+        ChangeNoticeContent content = new ChangeNoticeContent();
+        content.setProjectNumber(projectInfo.getProjectNumber());
+        content.setProjectName(projectInfo.getProjectName());
+        content.setStartDate(projectInfo.getStartDate());
+        content.setEndDate(projectInfo.getEndDate());
+        content.setCurrentPhase(phase.getPhaseName());
+        content.setContent(String.format(
+                "项目阶段 [%s] 已被永久删除",
+                phase.getPhaseName()
+        ));
+        return content;
+    }
+
 
     private Set<Long> getNotifyRecipients(ProjectInfo projectInfo) {
         Set<Long> recipients = new HashSet<>(3);
@@ -122,8 +146,46 @@ public class ProjectPhaseStory {
         return recipients;
     }
 
-    public Boolean deletePhaseById(Long id) {
-        return this.projectPhaseService.lambdaUpdate().eq(ProjectPhase::getPhaseId, id).remove();
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean deletePhaseById(Long id, Long operatorId) {
+        // 1. 获取阶段信息
+        ProjectPhase phase = projectPhaseService.getById(id);
+        if (phase == null) {
+            return false; // 阶段不存在
+        }
+
+        // 2. 获取关联项目信息
+        ProjectInfo projectInfo = Optional.ofNullable(projectInfoService.getByProjectId(phase.getProjectId()))
+                .orElse(null);
+        if (projectInfo == null) {
+            return false; // 项目不存在
+        }
+
+        // 3. 构建删除通知内容
+        ChangeNoticeContent content = buildDeleteNotice(projectInfo, phase);
+
+        // 4. 构建消息对象
+        MessageInfo messageInfo = new MessageInfo();
+        messageInfo.setSenderId(operatorId);
+        messageInfo.setTitle("项目阶段删除通知");
+        messageInfo.setMessageType(1);
+        messageInfo.setContent(content);
+        messageInfo.setReadStatus(false);
+
+        // 5. 获取通知接收人（复用现有逻辑）
+        Set<Long> userIdList = getNotifyRecipients(projectInfo);
+
+        // 6. 删除阶段
+        boolean deleteSuccess = projectPhaseService.lambdaUpdate()
+                .eq(ProjectPhase::getPhaseId, id)
+                .remove();
+
+        // 7. 删除成功后发送通知
+        if (deleteSuccess) {
+            messageInfoStory.sendMessages(messageInfo, userIdList);
+        }
+
+        return deleteSuccess;
     }
 
 }
