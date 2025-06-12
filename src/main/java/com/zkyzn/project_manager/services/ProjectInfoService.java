@@ -8,6 +8,8 @@ import com.zkyzn.project_manager.models.ProjectInfo;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.time.LocalDate;
+
 /**
  * @author Mr-ti
  */
@@ -115,17 +117,18 @@ public class ProjectInfoService extends MPJBaseServiceImpl<ProjectInfoDao, Proje
      * @param projectInfo 查询条件（可选）
      * @return 分页结果
      */
-    public Page<ProjectInfo> pageProject(Long pageNum, Long pageSize, ProjectInfo projectInfo) {
-        // 创建分页对象
+    public Page<ProjectInfo> pageProject(
+            Long pageNum,
+            Long pageSize,
+            ProjectInfo projectInfo,
+            LocalDate startDateBegin,
+            LocalDate startDateEnd
+    ) {
         Page<ProjectInfo> page = new Page<>(pageNum, pageSize);
-
-        // 构建查询条件
         MPJLambdaQueryWrapper<ProjectInfo> wrapper = new MPJLambdaQueryWrapper<>();
-
-        // 明确指定 SELECT 字段（至少选择一个字段）
         wrapper.selectAll(ProjectInfo.class);
 
-        // 添加动态查询条件
+        // 添加基础条件
         if (projectInfo != null) {
             if (StringUtils.hasText(projectInfo.getProjectNumber())) {
                 wrapper.like(ProjectInfo::getProjectNumber, projectInfo.getProjectNumber());
@@ -142,18 +145,20 @@ public class ProjectInfoService extends MPJBaseServiceImpl<ProjectInfoDao, Proje
             if (StringUtils.hasText(projectInfo.getCurrentPhase())) {
                 wrapper.eq(ProjectInfo::getCurrentPhase, projectInfo.getCurrentPhase());
             }
-            if (projectInfo.getStartDate() != null) {
-                wrapper.ge(ProjectInfo::getStartDate, projectInfo.getStartDate());
-            }
-            if (projectInfo.getEndDate() != null) {
-                wrapper.le(ProjectInfo::getEndDate, projectInfo.getEndDate());
+            if (projectInfo.getIsFavorite() != null) {
+                wrapper.eq(ProjectInfo::getIsFavorite, projectInfo.getIsFavorite());
             }
         }
 
-        // 默认按创建时间倒序排序
-        wrapper.orderByDesc(ProjectInfo::getCreateTime);
+        // 添加日期范围条件
+        if (startDateBegin != null) {
+            wrapper.ge(ProjectInfo::getStartDate, startDateBegin);
+        }
+        if (startDateEnd != null) {
+            wrapper.le(ProjectInfo::getStartDate, startDateEnd);
+        }
 
-        // 执行分页查询
+        wrapper.orderByDesc(ProjectInfo::getCreateTime);
         return baseMapper.selectPage(page, wrapper);
     }
 }

@@ -188,13 +188,20 @@ public class ProjectInfoStory {
      * @param size    分页大小
      * @return 项目信息
      */
-    public Page<ProjectInfo> pageProjectInfo(int current, int size) {
-
-        Page<ProjectInfo> page = new Page<>();
-        page.setCurrent(current);
-        page.setSize(size);
-
-        return projectInfoService.pageProject(page.getCurrent(), page.getSize(), null);
+    public Page<ProjectInfo> pageProjectInfo(
+            int current,
+            int size,
+            ProjectInfo condition,
+            LocalDate startDateBegin,
+            LocalDate startDateEnd
+    ) {
+        return projectInfoService.pageProject(
+                (long) current,
+                (long) size,
+                condition,
+                startDateBegin,
+                startDateEnd
+        );
     }
 
     /**

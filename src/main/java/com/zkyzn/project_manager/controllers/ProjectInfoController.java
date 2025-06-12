@@ -12,8 +12,10 @@ import com.zkyzn.project_manager.utils.ResUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 
@@ -83,9 +85,25 @@ public class ProjectInfoController {
     @GetMapping("")
     public ResultList<ProjectInfo> pageProjectInfo(
             @RequestParam(value = "page", defaultValue = "1") Integer page,
-            @RequestParam(value = "size", defaultValue = "10") Integer size
+            @RequestParam(value = "size", defaultValue = "10") Integer size,
+            @RequestParam(value = "project_name", required = false) String projectName,
+            @RequestParam(value = "status", required = false) String status,
+            @RequestParam(value = "is_favorite", required = false) Boolean isFavorite,
+            @RequestParam(value = "department", required = false) String department,
+            @RequestParam(value = "current_phase", required = false) String currentPhase,
+            @RequestParam(value = "start_date_begin", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDateBegin,
+            @RequestParam(value = "start_date_end", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDateEnd
     ) {
-        Page<ProjectInfo> result = projectInfoStory.pageProjectInfo(page, size);
+        ProjectInfo condition = new ProjectInfo();
+        condition.setProjectName(projectName);
+        condition.setStatus(status);
+        condition.setIsFavorite(isFavorite);
+        condition.setDepartment(department);
+        condition.setCurrentPhase(currentPhase);
+
+        Page<ProjectInfo> result = projectInfoStory.pageProjectInfo(
+                page, size, condition, startDateBegin, startDateEnd
+        );
         return ResUtil.list(result);
     }
 
