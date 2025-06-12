@@ -107,8 +107,9 @@ public class ProjectTaskStory {
         updateEntity.setProjectPlanId(id);
         updateEntity.setTaskStatus(status);
         updateEntity.setUpdateTime(LocalDateTime.now());
-
         boolean success = projectPlanService.updateById(updateEntity);
+
+        updateEntity.setProjectId(currentPlan.getProjectId());
 
         if (success) {
              // 发布“状态变更”事件

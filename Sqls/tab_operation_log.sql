@@ -15,3 +15,6 @@ CREATE TABLE `tab_operation_log` (
                                      KEY `idx_project` (`project_id`),
                                      KEY `idx_target` (`operate_target`,`target_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='操作日志表';
+
+ALTER TABLE `tab_operation_log`
+    MODIFY COLUMN `target_id` bigint NULL COMMENT '对象ID' AFTER `operate_target`;

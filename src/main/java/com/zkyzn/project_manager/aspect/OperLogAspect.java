@@ -8,6 +8,8 @@ import com.zkyzn.project_manager.services.OperationLogService;
 import com.zkyzn.project_manager.services.ProjectInfoService;
 import com.zkyzn.project_manager.services.ProjectPhaseService;
 import com.zkyzn.project_manager.services.ProjectPlanService;
+import com.zkyzn.project_manager.so.phase.ProjectPhaseReq;
+import com.zkyzn.project_manager.so.task.ProjectTaskReq;
 import jakarta.annotation.Resource;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
@@ -124,6 +126,12 @@ public class OperLogAspect {
     }
 
     private Long getProjectIdFromObject(Object dataObject) {
+        if (dataObject instanceof ProjectPhaseReq) {
+            return ((ProjectPhaseReq) dataObject).getProjectId();
+        }
+        if (dataObject instanceof ProjectTaskReq) {
+            return ((ProjectTaskReq) dataObject).getProjectId();
+        }
         if (dataObject instanceof ProjectPhase) {
             return ((ProjectPhase) dataObject).getProjectId();
         }

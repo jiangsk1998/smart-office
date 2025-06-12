@@ -32,10 +32,10 @@ public class ProjectPlan {
     @TableField("project_id")
     private Long projectId;
 
-    @NotNull(message = "任务序号不能为空")
-    @Schema(description = "任务序号", requiredMode = Schema.RequiredMode.REQUIRED)
-    @TableField("task_order")
-    private  Float taskOrder;
+//    @NotNull(message = "任务序号不能为空")
+//    @Schema(description = "任务序号", requiredMode = Schema.RequiredMode.REQUIRED)
+//    @TableField("task_order")
+//    private  Float taskOrder;
 
     @NotBlank(message = "任务包不能为空")
     @Schema(description = "任务包", requiredMode = Schema.RequiredMode.REQUIRED)

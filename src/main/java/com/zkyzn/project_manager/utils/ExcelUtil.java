@@ -119,7 +119,7 @@ public class ExcelUtil {
         int rowNum = row.getRowNum();
 
         // 序号（A列）
-        projectPlan.setTaskOrder(Float.valueOf(getNumericValue(row, 0, mergedCellValues)));
+//        projectPlan.setTaskOrder(Float.valueOf(getNumericValue(row, 0, mergedCellValues)));
 
         // 任务包（B列）- 重点处理合并单元格
         projectPlan.setTaskPackage(getStringValue(row, 1, mergedCellValues));
