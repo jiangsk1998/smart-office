@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import com.zkyzn.project_manager.enums.TaskStatusEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -73,8 +74,11 @@ public class ProjectTaskReq {
     @JsonProperty("is_milestone")
     private Boolean isMilestone = false;
 
-    @Schema(description = "任务状态")
-    @JsonProperty(value = "task_status",defaultValue = "未开始")
-    private String taskStatus = "未开始";
+    @NotNull(message = "任务状态不能为空")
+    @Schema(description = "任务状态",
+            requiredMode = Schema.RequiredMode.REQUIRED,
+            implementation = TaskStatusEnum.class) // 关键修改
+    @JsonProperty(value = "task_status")
+    private TaskStatusEnum taskStatus;
 
 }

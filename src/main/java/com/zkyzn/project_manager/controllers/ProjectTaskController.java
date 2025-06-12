@@ -2,6 +2,7 @@ package com.zkyzn.project_manager.controllers;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.zkyzn.project_manager.annotation.OperLog;
+import com.zkyzn.project_manager.enums.TaskStatusEnum;
 import com.zkyzn.project_manager.models.ProjectPlan;
 import com.zkyzn.project_manager.so.task.ProjectTaskReq;
 import com.zkyzn.project_manager.stories.ProjectTaskStory;
@@ -46,8 +47,8 @@ public class ProjectTaskController {
     @PutMapping("/{id}/status")
     @Operation(summary = "变更项目任务状态")
     @OperLog(type = "UPDATE", desc = "变更项目任务状态", targetType = ProjectPlan.class, idPosition = 0, recordOriginal = true)
-    public Result<Boolean> putChangePlanStatus(@PathVariable Long id, @RequestParam String status) {
-        return ResUtil.ok(projectTaskStory.changePlanStatus(id, status, SecurityUtil.getCurrentUserId()));
+    public Result<Boolean> putChangePlanStatus(@PathVariable Long id, @RequestParam TaskStatusEnum status) {
+        return ResUtil.ok(projectTaskStory.changePlanStatus(id, status.toString(), SecurityUtil.getCurrentUserId()));
     }
 
     @DeleteMapping("/{id}")
