@@ -12,6 +12,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import jakarta.annotation.Resource;
+
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Objects;
@@ -29,7 +30,7 @@ public class ProjectTaskChangeListener {
     @EventListener
     public void handleTaskChangeEvent(ProjectTaskChangeEvent event) {
         Long operatorId = event.getOperatorId();
-        ProjectPlan plan = event.getUpdatedPlan() != null ? event.getUpdatedPlan() : event.getOriginalPlan();
+        ProjectPlan plan = event.getOriginalPlan() != null ? event.getOriginalPlan() : event.getUpdatedPlan();
         if (plan == null) return;
 
         ProjectInfo projectInfo = projectInfoService.getByProjectId(plan.getProjectId());
