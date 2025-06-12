@@ -2,7 +2,7 @@ package com.zkyzn.project_manager.utils;
 
 import com.zkyzn.project_manager.models.ProjectInfo;
 import com.zkyzn.project_manager.models.ProjectPlan;
-import com.zkyzn.project_manager.models.UserInfo;
+import com.zkyzn.project_manager.models.User;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -224,14 +224,14 @@ public class ExcelUtil {
         // 计划主管（H列）: 多个名字以空格分隔
         String supervisorsStr = getStringValue(row, 7, mergedCellValues);
         if (supervisorsStr != null && !supervisorsStr.trim().isEmpty()) {
-            List<UserInfo> supervisorList = new ArrayList<>();
+            List<User> supervisorList = new ArrayList<>();
             // 按空格分割并去除空值
             String[] names = supervisorsStr.split("\\s+");
             for (String name : names) {
                 if (!name.trim().isEmpty()) {
-                    UserInfo user = new UserInfo();
+                    User user = new User();
                     // 仅设置用户账号（姓名）
-                    user.setUserAccount(name.trim());
+                    user.setUserName(name.trim());
                     supervisorList.add(user);
                 }
             }

@@ -83,7 +83,7 @@ public class ProjectInfoStory {
 
                     // 更新项目参与人信息，将responsiblePersons列表中的字符串以逗号分隔拼接
                     projectInfo.setProjectParticipants(String.join(",", responsiblePersons));
-                    insert = projectInfoService.updateById(req);
+                    insert = projectInfoService.updateById(projectInfo);
                 }
             }
         }

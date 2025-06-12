@@ -20,7 +20,7 @@ import java.util.List;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-@TableName("tab_project_info")
+@TableName(value = "tab_project_info", autoResultMap = true)
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class ProjectInfo {
 
@@ -84,10 +84,10 @@ public class ProjectInfo {
     @TableField("technical_leader")
     private String technicalLeader;
 
-    @NotBlank(message = "计划主管不能为空，可以有多个人，使用逗号分隔")
+    @NotBlank(message = "计划主管不能为空")
     @Schema(description = "计划主管姓名", requiredMode = Schema.RequiredMode.REQUIRED)
     @TableField(value = "plan_supervisors", typeHandler = JacksonTypeHandler.class)
-    private List<UserInfo> planSupervisors;
+    private List<User> planSupervisors;
 
     @Schema(description = "项目参与人")
     @TableField("project_participants")
