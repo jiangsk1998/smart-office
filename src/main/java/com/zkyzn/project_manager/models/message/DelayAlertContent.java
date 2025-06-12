@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 /**
@@ -42,6 +43,6 @@ public class DelayAlertContent extends BaseContent{
     @Schema(description = "告警时间", requiredMode = Schema.RequiredMode.REQUIRED)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     @JsonProperty("alert_time")
-    private LocalDateTime alertTime;
+    private String alertTime;
 
 }

@@ -70,8 +70,8 @@ public class OperLogAspect {
         Object[] args = joinPoint.getArgs();
 
         Long targetId = getArgument(args, operLog.idPosition(), Long.class);
-        Long projectId = getArgument(args, operLog.projectIdPosition(), Long.class);
 
+        // 从 @Before 阶段存储的数据中获取原始对象
         Object originalData = null;
         Map<String, Object> context = threadLocal.get();
         if (context != null) {
@@ -79,23 +79,30 @@ public class OperLogAspect {
             threadLocal.remove();
         }
 
+        Long projectId = getProjectIdFromObject(originalData);
+
         Object updatedData = null;
         Object entity = (args.length > 0) ? args[0] : null;
 
+        // 根据操作类型，处理 targetId 和 updatedData
         if ("CREATE".equals(operLog.type())) {
             updatedData = entity;
             if (entity instanceof ProjectPhase) {
                 targetId = ((ProjectPhase) entity).getPhaseId();
+                // 对于创建操作，projectId 从新实体中获取
+                projectId = ((ProjectPhase) entity).getProjectId();
             } else if (entity instanceof ProjectPlan) {
                 targetId = ((ProjectPlan) entity).getProjectPlanId();
+                projectId = ((ProjectPlan) entity).getProjectId();
             }
         } else if (targetId != null && !"DELETE".equals(operLog.type())) {
+            // 对于更新和删除，获取操作后的数据用于记录
             updatedData = getOriginalData(operLog.targetType(), targetId);
         }
-
+        
+        // 如果 projectId 仍然为空 (例如在创建时实体没有 projectId)，尝试从更新后的数据中再次获取
         if (projectId == null) {
-            Object dataObject = (updatedData != null) ? updatedData : originalData;
-            projectId = getProjectIdFromObject(dataObject);
+            projectId = getProjectIdFromObject(updatedData);
         }
 
         operationLogService.logOperation(
