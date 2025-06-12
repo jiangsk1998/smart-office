@@ -373,7 +373,7 @@ public class ProjectInfoStory {
      * @return
      */
     private ProjectDetailResp.RiskItem calculateDelayedItems(Long projectId) {
-        Long delayedCount = projectPlanService.countDelayedTasks(projectId);
+        long delayedCount = projectPlanService.countDelayedTasks(projectId);
 
         // 获取昨天的拖期项数量
         LocalDate yesterday = LocalDate.now().minusDays(1);
@@ -402,7 +402,9 @@ public class ProjectInfoStory {
      * @return
      */
     private BigDecimal calculateRate(Long numerator, Long denominator) {
-        if (denominator == 0) return BigDecimal.ZERO;
+        if (denominator == 0) {
+            return BigDecimal.ZERO;
+        }
         return BigDecimal.valueOf(numerator)
                 .divide(BigDecimal.valueOf(denominator), 4, RoundingMode.HALF_UP)
                 .multiply(BigDecimal.valueOf(100));
@@ -585,7 +587,8 @@ public class ProjectInfoStory {
             phase.setResponsiblePerson(responsiblePerson);
             phase.setDeliverable(deliverable);
             phase.setDeliverableType(deliverableType);
-            phase.setPhaseStatus("未开始"); // 默认状态
+            // 默认状态
+            phase.setPhaseStatus("未开始");
 
             phaseList.add(phase);
         }
