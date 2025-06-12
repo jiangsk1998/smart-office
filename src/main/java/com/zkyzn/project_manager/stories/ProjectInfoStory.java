@@ -10,8 +10,10 @@ import com.zkyzn.project_manager.models.ProjectPlan;
 import com.zkyzn.project_manager.services.*;
 import com.zkyzn.project_manager.so.project_info.*;
 import com.zkyzn.project_manager.utils.ExcelUtil;
+import com.zkyzn.project_manager.utils.FileUtil;
 import jakarta.annotation.Resource;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,6 +49,9 @@ public class ProjectInfoStory {
 
     @Resource
     private ProgressHistoryStory progressHistoryService;
+
+    @Value("/opt/software/file")
+    private String fileRootPath;
 
     /**
      * 创建项目, 所有异常都会触发回滚
@@ -606,6 +611,7 @@ public class ProjectInfoStory {
     private void initPlanAndPhaseByDocument(ProjectDocumentReq projectDocumentReq, Long projectId, List<String> responsiblePersons) {
         // 根据文件路径获取计划书，计划书是excel格式，需要解析计划书，获取任务列表
         String filePath = projectDocumentReq.getFilePath();
+        filePath = FileUtil.getAbsolutePathByUrlAndRootPath(filePath, fileRootPath);
         List<ProjectPlan> planList = ExcelUtil.parseProjectPlan(filePath, projectId, responsiblePersons);
         if (!planList.isEmpty()) {
             projectPlanService.saveBatch(planList);

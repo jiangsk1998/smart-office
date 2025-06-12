@@ -23,6 +23,17 @@ public class FileUtil {
     }
 
     /**
+     * 通过全路径Url得到本地目录的绝对路径
+     * @param url Uri地址
+     * @return 返回数据
+     */
+    public static String getAbsolutePathByUrlAndRootPath(String url, String rootPath){
+        // TODO: 可能会有部分越权的内容 需要过滤部分非法字符
+        String absUri = url.replaceFirst("^.*?/api/file", rootPath);
+        return URLDecoder.decode(absUri, StandardCharsets.UTF_8);
+    }
+
+    /**
      * 通过完整路径访问得到文件流
      * @param uri 文件访问地址
      * @return 文件访问流
