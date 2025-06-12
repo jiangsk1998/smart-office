@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zkyzn.project_manager.models.ProjectInfo;
 import com.zkyzn.project_manager.so.Result;
 import com.zkyzn.project_manager.so.ResultList;
+import com.zkyzn.project_manager.so.project_info.ProjectDetailResp;
 import com.zkyzn.project_manager.so.project_info.ProjectInfoReq;
 import com.zkyzn.project_manager.so.project_info.ProjectImportReq;
 import com.zkyzn.project_manager.so.project_info.ProjectInfoResp;
@@ -134,6 +135,15 @@ public class ProjectInfoController {
         // 写死一个科室返回给前端
         List<String> departments = Arrays.asList("科室1");
         return ResUtil.list(departments);
+    }
+
+    @Operation(summary = "获取项目详细信息")
+    @GetMapping("/{projectNumber}/detail")
+    public Result<ProjectDetailResp> getProjectDetail(
+            @PathVariable("projectNumber") String projectNumber
+    ) {
+        ProjectDetailResp detail = projectInfoStory.getProjectDetail(projectNumber);
+        return ResUtil.ok(detail);
     }
 }
 

@@ -6,21 +6,21 @@ import com.zkyzn.project_manager.enums.Operator;
 import com.zkyzn.project_manager.models.ProjectInfo;
 import com.zkyzn.project_manager.models.ProjectPhase;
 import com.zkyzn.project_manager.models.ProjectPlan;
-import com.zkyzn.project_manager.services.ProjectDocumentService;
-import com.zkyzn.project_manager.services.ProjectInfoService;
-import com.zkyzn.project_manager.services.ProjectPhaseService;
-import com.zkyzn.project_manager.services.ProjectPlanService;
-import com.zkyzn.project_manager.so.project_info.ProjectInfoReq;
-import com.zkyzn.project_manager.so.project_info.ProjectDocumentReq;
-import com.zkyzn.project_manager.so.project_info.ProjectImportReq;
-import com.zkyzn.project_manager.so.project_info.ProjectInfoResp;
+import com.zkyzn.project_manager.services.*;
+import com.zkyzn.project_manager.so.project_info.*;
 import com.zkyzn.project_manager.utils.ExcelUtil;
 import jakarta.annotation.Resource;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.YearMonth;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +43,9 @@ public class ProjectInfoStory {
 
     @Resource
     private ProjectPhaseService projectPhaseService;
+
+    @Resource
+    private ProgressHistoryStory progressHistoryService;
 
     /**
      * 创建项目, 所有异常都会触发回滚
@@ -247,6 +250,279 @@ public class ProjectInfoStory {
 
         //  批量插入项目信息数据表
         return projectInfoService.saveBatch(projectInfoList);
+    }
+
+    /**
+     * 获取项目详情
+     *
+     * @param projectNumber 项目编号
+     * @return 项目详情
+     */
+    public ProjectDetailResp getProjectDetail(String projectNumber) {
+        ProjectDetailResp resp = new ProjectDetailResp();
+
+        // 获取项目基本信息
+        ProjectInfo projectInfo = projectInfoService.getByProjectNumber(projectNumber);
+        if (projectInfo == null) {
+            return null;
+        }
+
+        resp.setProjectInfo(projectInfo);
+        Long projectId = projectInfo.getProjectId();
+
+        // 1. 全周期进度
+        resp.setOverallProgress(calculateOverallProgress(projectId));
+
+        // 2. 月进度
+        resp.setMonthlyProgress(calculateMonthlyProgress(projectId));
+
+        // 3. 周进度
+        resp.setWeeklyProgress(calculateWeeklyProgress(projectId));
+
+        // 4. 上周完成项数量
+        resp.setLastWeekCompletedCount(projectPlanService.countLastWeekCompleted(projectId));
+
+        // 5. 项目拖期项
+        resp.setDelayedItems(calculateDelayedItems(projectId));
+
+        // 6. 项目进度明细
+        resp.setPhaseProgressList(projectPhaseService.getPhaseProgressDetails(projectId));
+
+        // 7. 科室月进度
+        resp.setDepartmentProgressList(convertDepartmentProgress(
+                projectPlanService.getDepartmentProgress(projectId)
+        ));
+
+        // 8. 主要风险项 (示例数据)
+        resp.setRiskItems(getRiskItems(projectId));
+
+        // 9. 回款计划 (示例数据)
+        resp.setPaymentPlans(getPaymentPlans(projectId));
+
+        // 10. 代办事项列表
+        resp.setUpcomingTasks(convertUpcomingTasks(
+                projectPlanService.getUpcomingTasks(projectId, 7)
+        ));
+
+        // 11. 计划变更清单
+        resp.setChangeRecords(projectPlanService.getChangeRecords(projectId));
+
+        // 13. 项目的阶段信息列表
+        resp.setPhases(projectPhaseService.getPhasesByProjectId(projectId));
+
+        return resp;
+    }
+
+    /**
+     * 计算项目进度
+     * @param projectId
+     * @return
+     */
+    private ProjectDetailResp.Progress calculateOverallProgress(Long projectId) {
+        Long totalTasks = projectPlanService.countByProjectId(projectId);
+        Long completedTasks = projectPlanService.countByProjectIdAndStatus(projectId, "已完成");
+
+        ProjectDetailResp.Progress progress = new ProjectDetailResp.Progress();
+        progress.setCurrentRate(calculateRate(completedTasks, totalTasks));
+        progress.setDailyChangeRate(calculateDailyChange(projectId, "overall"));
+        return progress;
+    }
+
+    /**
+     * 计算月度进度
+     * @param projectId
+     * @return
+     */
+    private ProjectDetailResp.Progress calculateMonthlyProgress(Long projectId) {
+        LocalDate now = LocalDate.now();
+        YearMonth thisMonth = YearMonth.from(now);
+        LocalDate firstDayOfMonth = thisMonth.atDay(1);
+        LocalDate lastDayOfMonth = thisMonth.atEndOfMonth();
+
+        Long monthlyTasks = projectPlanService.countByDateRange(projectId, firstDayOfMonth, lastDayOfMonth);
+        Long monthlyCompleted = projectPlanService.countCompletedByDateRange(projectId, firstDayOfMonth, lastDayOfMonth);
+
+        ProjectDetailResp.Progress progress = new ProjectDetailResp.Progress();
+        progress.setCurrentRate(calculateRate(monthlyCompleted, monthlyTasks));
+        progress.setDailyChangeRate(calculateDailyChange(projectId, "monthly"));
+        return progress;
+    }
+
+    /**
+     * 计算周进度
+     * @param projectId
+     * @return
+     */
+    private ProjectDetailResp.Progress calculateWeeklyProgress(Long projectId) {
+        LocalDate now = LocalDate.now();
+        LocalDate startOfWeek = now.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        LocalDate endOfWeek = now.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
+
+        Long weeklyTasks = projectPlanService.countByDateRange(projectId, startOfWeek, endOfWeek);
+        Long weeklyCompleted = projectPlanService.countCompletedByDateRange(projectId, startOfWeek, endOfWeek);
+
+        ProjectDetailResp.Progress progress = new ProjectDetailResp.Progress();
+        progress.setCurrentRate(calculateRate(weeklyCompleted, weeklyTasks));
+        progress.setDailyChangeRate(calculateDailyChange(projectId, "weekly"));
+        return progress;
+    }
+
+    /**
+     * 计算延期数量
+     * @param projectId
+     * @return
+     */
+    private ProjectDetailResp.RiskItem calculateDelayedItems(Long projectId) {
+        Long delayedCount = projectPlanService.countDelayedTasks(projectId);
+
+        // 获取昨天的拖期项数量
+        LocalDate yesterday = LocalDate.now().minusDays(1);
+        BigDecimal yesterdayDelayed = progressHistoryService.getProgressRate(projectId, "delayed", yesterday);
+
+        ProjectDetailResp.RiskItem item = new ProjectDetailResp.RiskItem();
+        item.setCount(delayedCount);
+
+        if (yesterdayDelayed != null && yesterdayDelayed.compareTo(BigDecimal.ZERO) > 0) {
+            BigDecimal change = BigDecimal.valueOf(delayedCount)
+                    .subtract(yesterdayDelayed)
+                    .divide(yesterdayDelayed, 4, RoundingMode.HALF_UP)
+                    .multiply(BigDecimal.valueOf(100));
+            item.setRiskDetail("较昨日变化: " + change.setScale(2, RoundingMode.HALF_UP) + "%");
+        } else {
+            item.setRiskDetail("无昨日对比数据");
+        }
+
+        return item;
+    }
+
+    /**
+     * 计算科室月进度
+     * @param numerator
+     * @param denominator
+     * @return
+     */
+    private BigDecimal calculateRate(Long numerator, Long denominator) {
+        if (denominator == 0) return BigDecimal.ZERO;
+        return BigDecimal.valueOf(numerator)
+                .divide(BigDecimal.valueOf(denominator), 4, RoundingMode.HALF_UP)
+                .multiply(BigDecimal.valueOf(100));
+    }
+
+    /**
+     * 计算每日变化率
+     * @param projectId
+     * @param type
+     * @return
+     */
+    private BigDecimal calculateDailyChange(Long projectId, String type) {
+        LocalDate yesterday = LocalDate.now().minusDays(1);
+
+        // 获取昨天的进度值
+        BigDecimal yesterdayRate = progressHistoryService.getProgressRate(projectId, type, yesterday);
+
+        // 获取今天的进度值
+        BigDecimal todayRate = progressHistoryService.getProgressRate(projectId, type, LocalDate.now());
+
+        if (yesterdayRate == null || yesterdayRate.compareTo(BigDecimal.ZERO) == 0) {
+            return BigDecimal.ZERO;
+        }
+
+        // 计算变化率
+        return todayRate.subtract(yesterdayRate)
+                .divide(yesterdayRate, 4, RoundingMode.HALF_UP)
+                .multiply(BigDecimal.valueOf(100));
+    }
+
+    /**
+     * 计算科室进度
+     * @param progressMap
+     * @return
+     */
+    private List<ProjectDetailResp.DepartmentProgress> convertDepartmentProgress(
+            Map<String, BigDecimal> progressMap) {
+
+        return progressMap.entrySet().stream()
+                .map(entry -> {
+                    ProjectDetailResp.DepartmentProgress dp = new ProjectDetailResp.DepartmentProgress();
+                    dp.setDepartment(entry.getKey());
+                    dp.setProgressRate(entry.getValue());
+                    return dp;
+                })
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 计算计划变更清单
+     * @param plans
+     * @return
+     */
+    private List<ProjectDetailResp.UpcomingTask> convertUpcomingTasks(List<ProjectPlan> plans) {
+        return plans.stream()
+                .map(plan -> {
+                    ProjectDetailResp.UpcomingTask task = new ProjectDetailResp.UpcomingTask();
+                    task.setTaskContent(plan.getTaskDescription());
+                    task.setResponsiblePerson(plan.getResponsiblePerson());
+                    task.setEndDate(plan.getEndDate());
+                    // 根据结束时间计算优先级
+                    long daysUntilDue = ChronoUnit.DAYS.between(LocalDate.now(), plan.getEndDate());
+                    if (daysUntilDue <= 1) {
+                        task.setPriority("高");
+                    } else if (daysUntilDue <= 3) {
+                        task.setPriority("中");
+                    } else {
+                        task.setPriority("低");
+                    }
+                    return task;
+                })
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 获取风险项
+     * @param projectId
+     * @return
+     */
+    private List<ProjectDetailResp.RiskItem> getRiskItems(Long projectId) {
+        // todo: 实际项目中应从风险表中获取
+        List<ProjectDetailResp.RiskItem> risks = new ArrayList<>();
+
+        ProjectDetailResp.RiskItem risk1 = new ProjectDetailResp.RiskItem();
+        risk1.setRiskName("技术风险");
+        risk1.setRiskDetail("关键技术难点尚未突破");
+        risks.add(risk1);
+
+        ProjectDetailResp.RiskItem risk2 = new ProjectDetailResp.RiskItem();
+        risk2.setRiskName("资源风险");
+        risk2.setRiskDetail("关键技术人员短缺");
+        risks.add(risk2);
+
+        return risks;
+    }
+
+    /**
+     * 获取回款计划
+     * @param projectId
+     * @return
+     */
+    private List<ProjectDetailResp.PaymentPlan> getPaymentPlans(Long projectId) {
+        // todo: 实际项目中应从回款表中获取
+        List<ProjectDetailResp.PaymentPlan> payments = new ArrayList<>();
+
+        ProjectDetailResp.PaymentPlan plan1 = new ProjectDetailResp.PaymentPlan();
+        plan1.setItemName("首付款");
+        plan1.setPlannedAmount(new BigDecimal("100000.00"));
+        plan1.setActualAmount(new BigDecimal("100000.00"));
+        plan1.setPlannedDate(LocalDate.now().minusMonths(1));
+        payments.add(plan1);
+
+        ProjectDetailResp.PaymentPlan plan2 = new ProjectDetailResp.PaymentPlan();
+        plan2.setItemName("中期款");
+        plan2.setPlannedAmount(new BigDecimal("150000.00"));
+        plan2.setActualAmount(null);
+        plan2.setPlannedDate(LocalDate.now().plusMonths(1));
+        payments.add(plan2);
+
+        return payments;
     }
 
     /**
