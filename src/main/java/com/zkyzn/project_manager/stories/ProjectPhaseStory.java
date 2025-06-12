@@ -8,6 +8,7 @@ import com.zkyzn.project_manager.services.ProjectInfoService;
 import com.zkyzn.project_manager.services.ProjectPhaseService;
 import com.zkyzn.project_manager.utils.ProjectPhaseOrTaskChangeNoticeUtils;
 import jakarta.annotation.Resource;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,11 +54,17 @@ public class ProjectPhaseStory {
     @Transactional(rollbackFor = Exception.class)
     public Boolean changePhaseStatusById(Long id, String status, Long operatorId) {
         ProjectPhase currentPhase = projectPhaseService.getById(id);
-        if (currentPhase == null) return false;
-        if (status.equals(currentPhase.getPhaseStatus())) return true;
+        if (currentPhase == null) {
+            return false;
+        }
+        if (status.equals(currentPhase.getPhaseStatus())) {
+            return true;
+        }
 
         ProjectInfo projectInfo = noticeUtils.getProjectInfoSafely(currentPhase.getProjectId());
-        if (projectInfo == null) return false;
+        if (projectInfo == null) {
+            return false;
+        }
 
         ProjectPhase updateEntity = new ProjectPhase();
         updateEntity.setPhaseId(id);
@@ -79,10 +86,14 @@ public class ProjectPhaseStory {
     @Transactional(rollbackFor = Exception.class)
     public Boolean deletePhaseById(Long id, Long operatorId) {
         ProjectPhase phase = projectPhaseService.getById(id);
-        if (phase == null) return false;
+        if (phase == null) {
+            return false;
+        }
 
         ProjectInfo projectInfo = noticeUtils.getProjectInfoSafely(phase.getProjectId());
-        if (projectInfo == null) return false;
+        if (projectInfo == null) {
+            return false;
+        }
 
         boolean deleteSuccess = projectPhaseService.lambdaUpdate()
                 .eq(ProjectPhase::getPhaseId, id)
@@ -101,7 +112,9 @@ public class ProjectPhaseStory {
     @Transactional(rollbackFor = Exception.class)
     public Boolean updatePhaseById(ProjectPhase projectPhase, Long operatorId) {
         ProjectPhase originalPhase = projectPhaseService.getById(projectPhase.getPhaseId());
-        if (originalPhase == null) return false;
+        if (originalPhase == null) {
+            return false;
+        }
 
         projectPhase.setPhaseStatus(null);
         projectPhase.setUpdateTime(ZonedDateTime.now());
@@ -111,7 +124,9 @@ public class ProjectPhaseStory {
         }
 
         ProjectInfo projectInfo = noticeUtils.getProjectInfoSafely(originalPhase.getProjectId());
-        if (projectInfo == null) return true;
+        if (projectInfo == null) {
+            return true;
+        }
 
         return noticeUtils.sendNotification(projectInfo,
                 NOTIFY_TITLE_UPDATE,
@@ -138,7 +153,7 @@ public class ProjectPhaseStory {
         noticeUtils.addChangeIfDifferent(changes, "成果描述", original.getDeliverable(), updated.getDeliverable());
         noticeUtils.addChangeIfDifferent(changes, "成果类型", original.getDeliverableType(), updated.getDeliverableType());
 
-        if (changes.toString().equals("项目阶段信息更新：\n")) {
+        if (StringUtils.equals(original.getPhaseStatus(), updated.getPhaseStatus())) {
             changes.append("无字段变更");
         }
 
