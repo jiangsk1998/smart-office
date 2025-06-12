@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/project/phase")
-@Tag(name = "项目阶段管理")
+@Tag(name = "/api/project/phase",description = "项目阶段管理")
 public class ProjectPhaseController {
 
     @Resource

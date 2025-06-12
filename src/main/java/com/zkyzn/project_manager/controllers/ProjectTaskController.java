@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("/api/project/task")
-@Tag(name = "项目任务管理")
+@Tag(name = "/api/project/task",description = "项目任务管理")
 public class ProjectTaskController {
 
     @Resource
