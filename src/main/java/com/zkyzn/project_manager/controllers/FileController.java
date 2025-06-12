@@ -7,6 +7,7 @@ import com.zkyzn.project_manager.so.file.MergeFileReq;
 import com.zkyzn.project_manager.stories.FileStory;
 import com.zkyzn.project_manager.utils.FileUtil;
 import com.zkyzn.project_manager.utils.ResUtil;
+import com.zkyzn.project_manager.utils.UrlUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
@@ -23,10 +24,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 @RestController
 @Tag(name = "api/file", description = "文件相关")
@@ -45,7 +46,8 @@ public class FileController {
             @RequestParam("file") MultipartFile formFile
     ) throws IOException {
         var relativePathStr = fileStory.saveToAiTemp(formFile);
-        return ResUtil.ok(Paths.get(baseUrl, relativePathStr).toString());
+        URI uri = UrlUtil.getUrlByRelativePath(baseUrl, relativePathStr);
+        return ResUtil.ok(uri.toString());
     }
 
     @Operation(summary = "上传至个人空间附件")
@@ -54,7 +56,8 @@ public class FileController {
             @RequestParam("file") MultipartFile formFile
     ) throws IOException {
         var relativePathStr = fileStory.saveToPerson(1, formFile);
-        return ResUtil.ok(Paths.get(baseUrl, relativePathStr).toString());
+        URI uri = UrlUtil.getUrlByRelativePath(baseUrl, relativePathStr);
+        return ResUtil.ok(uri.toString());
     }
 
     @Operation(summary = "上传至项目临时空间附件")
@@ -63,7 +66,8 @@ public class FileController {
             @RequestParam("file") MultipartFile formFile
     ) throws IOException {
         var relativePathStr = fileStory.saveToProjectTemp(formFile);
-        return ResUtil.ok(Paths.get(baseUrl, relativePathStr).toString());
+        URI uri = UrlUtil.getUrlByRelativePath(baseUrl, relativePathStr);
+        return ResUtil.ok(uri.toString());
     }
 
     @Operation(summary = "获取文件")
@@ -106,7 +110,8 @@ public class FileController {
     ) throws Exception {
         // TODO: 需要完善检查路径是否符合规范 以及是否符合合并要求的后缀
         var relativePathStr = fileStory.mergeDocs(mergeFileReq.getFiles());
-        return ResUtil.ok(Paths.get(baseUrl, relativePathStr).toString());
+        URI uri = UrlUtil.getUrlByRelativePath(baseUrl, relativePathStr);
+        return ResUtil.ok(uri.toString());
     }
 
     @Operation(summary = "获取个人空间下文件")

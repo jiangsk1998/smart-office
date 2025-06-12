@@ -4,7 +4,6 @@ package com.zkyzn.project_manager.utils;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URLDecoder;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -28,7 +27,7 @@ public class FileUtil {
      * @param uri 文件访问地址
      * @return 文件访问流
      */
-    public FileInputStream getFileInputStreamByUri(String uri) throws IOException {
+    public static FileInputStream getFileInputStreamByUri(String uri) throws IOException {
         String absolutePath = getRelativePathByUri(uri);
         return new FileInputStream(getRelativePathByUri(absolutePath));
     }
