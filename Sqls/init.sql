@@ -26,7 +26,7 @@ create table project_manager.tab_project_info
     plan_supervisor_id    bigint                             null comment '计划主管ID',
     responsible_leader    varchar(50)                        null comment '分管领导姓名',
     technical_leader      varchar(50)                        null comment '技术负责人姓名',
-    plan_supervisor       varchar(50)                        null comment '计划主管姓名',
+    plan_supervisors      json                        null comment '计划主管列表',
     project_participants  VARCHAR(50) COMMENT '项目参与人',
     status                varchar(50)                        null comment '项目状态',
     current_phase         varchar(50)                        null comment '项目当前阶段',

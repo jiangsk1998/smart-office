@@ -2,6 +2,7 @@ package com.zkyzn.project_manager.utils;
 
 import com.zkyzn.project_manager.models.ProjectInfo;
 import com.zkyzn.project_manager.models.ProjectPlan;
+import com.zkyzn.project_manager.models.UserInfo;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -220,8 +221,24 @@ public class ExcelUtil {
         // 技术负责人（G列）
         projectInfo.setTechnicalLeader(getStringValue(row, 6, mergedCellValues));
 
-        // 计划主管（H列）
-        projectInfo.setPlanSupervisor(getStringValue(row, 7, mergedCellValues));
+        // 计划主管（H列）: 多个名字以空格分隔
+        String supervisorsStr = getStringValue(row, 7, mergedCellValues);
+        if (supervisorsStr != null && !supervisorsStr.trim().isEmpty()) {
+            List<UserInfo> supervisorList = new ArrayList<>();
+            // 按空格分割并去除空值
+            String[] names = supervisorsStr.split("\\s+");
+            for (String name : names) {
+                if (!name.trim().isEmpty()) {
+                    UserInfo user = new UserInfo();
+                    // 仅设置用户账号（姓名）
+                    user.setUserAccount(name.trim());
+                    supervisorList.add(user);
+                }
+            }
+            projectInfo.setPlanSupervisors(supervisorList);
+        } else {
+            projectInfo.setPlanSupervisors(Collections.emptyList());
+        }
 
         return projectInfo;
     }

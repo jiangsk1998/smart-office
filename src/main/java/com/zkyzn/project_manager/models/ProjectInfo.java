@@ -1,6 +1,7 @@
 package com.zkyzn.project_manager.models;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
@@ -12,6 +13,7 @@ import lombok.EqualsAndHashCode;
 
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
+import java.util.List;
 
 /**
  * @author Mr-ti
@@ -84,8 +86,8 @@ public class ProjectInfo {
 
     @NotBlank(message = "计划主管不能为空，可以有多个人，使用逗号分隔")
     @Schema(description = "计划主管姓名", requiredMode = Schema.RequiredMode.REQUIRED)
-    @TableField("plan_supervisor")
-    private String planSupervisor;
+    @TableField(value = "plan_supervisors", typeHandler = JacksonTypeHandler.class)
+    private List<UserInfo> planSupervisors;
 
     @Schema(description = "项目参与人")
     @TableField("project_participants")
