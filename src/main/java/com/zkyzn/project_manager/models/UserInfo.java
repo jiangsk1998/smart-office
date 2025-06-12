@@ -26,13 +26,17 @@ import java.time.ZonedDateTime;
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class UserInfo {
     @TableId(value = "user_id")
-    @Schema(description = "用户名称")
+    @Schema(description = "用户Id")
     private Long userId;
 
     @Schema(description = "用户账号")
     @TableField("user_account")
-    @NotBlank
     private String userAccount;
+
+    @Schema(description = "用户名称")
+    @TableField("user_name")
+    @NotBlank
+    private String userName;
 
     @Schema(description = "用户密码")
     @TableField("user_password")
