@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import com.zkyzn.project_manager.enums.PhaseStatusEnum;
+import com.zkyzn.project_manager.enums.TaskStatusEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -32,10 +34,9 @@ public class ProjectPhaseReq {
     @JsonProperty("phase_name")
     private String phaseName;
 
-    @Schema(description = "阶段状态（未开始/进行中/已完成/已延期/已取消）",
-            defaultValue = "未开始")
+    @Schema(description = "阶段状态（未开始/进行中/已完成/中止）", implementation = PhaseStatusEnum.class)
     @JsonProperty("phase_status")
-    private String phaseStatus = "未开始";
+    private PhaseStatusEnum phaseStatus = PhaseStatusEnum.NOT_STARTED;
 
     @NotNull(message = "开始时间不能为空")
     @Schema(description = "开始时间", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -61,5 +62,5 @@ public class ProjectPhaseReq {
     @Schema(description = "成果类型")
     @JsonProperty("deliverable_type")
     private String deliverableType;
-    
+
 }
