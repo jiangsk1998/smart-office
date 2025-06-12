@@ -12,6 +12,7 @@ import com.zkyzn.project_manager.utils.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -28,7 +29,7 @@ public class ProjectTaskController {
     @PostMapping
     @Operation(summary = "新增项目任务")
     @OperLog(type = "CREATE", desc = "新增项目任务", targetType = ProjectPlan.class)
-    public Result<Boolean> postCreatePlan(@RequestBody ProjectTaskReq task) {
+    public Result<Boolean> postCreatePlan(@RequestBody @Valid ProjectTaskReq task) {
         ProjectPlan projectPlan = new ProjectPlan();
         BeanUtil.copyProperties(task, projectPlan);
         return ResUtil.ok(projectTaskStory.createPlan(projectPlan,SecurityUtil.getCurrentUserId()));
@@ -37,7 +38,7 @@ public class ProjectTaskController {
     @PutMapping("/{id}")
     @Operation(summary = "编辑项目任务")
     @OperLog(type = "UPDATE", desc = "编辑项目任务", targetType = ProjectPlan.class, idPosition = 0, recordOriginal = true)
-    public Result<Boolean> updatePlan(@PathVariable Long id, @RequestBody ProjectTaskReq task) {
+    public Result<Boolean> updatePlan(@PathVariable Long id, @RequestBody @Valid ProjectTaskReq task) {
         ProjectPlan projectPlan = new ProjectPlan();
         BeanUtil.copyProperties(task, projectPlan);
         projectPlan.setProjectPlanId(id);

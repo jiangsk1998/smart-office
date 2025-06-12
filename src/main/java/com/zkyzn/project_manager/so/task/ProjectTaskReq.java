@@ -23,7 +23,7 @@ import java.time.LocalDate;
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class ProjectTaskReq {
 
-    @NotBlank(message = "关联的项目ID不能为空")
+    @NotNull(message = "关联的项目ID不能为空")
     @Schema(description = "关联的项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @JsonProperty("project_id")
     private Long projectId;

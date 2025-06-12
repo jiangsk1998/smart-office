@@ -26,12 +26,12 @@ public class ProjectPhaseReq {
 
     @NotNull(message = "关联项目ID不能为空")
     @Schema(description = "关联项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @JsonProperty("project_id")
+    @JsonProperty(value = "project_id",required = true)
     private Long projectId;
 
     @NotBlank(message = "阶段名称不能为空")
     @Schema(description = "阶段名称", requiredMode = Schema.RequiredMode.REQUIRED)
-    @JsonProperty("phase_name")
+    @JsonProperty(value = "phase_name",required = true)
     private String phaseName;
 
     @Schema(description = "阶段状态（未开始/进行中/已完成/中止）", implementation = PhaseStatusEnum.class)

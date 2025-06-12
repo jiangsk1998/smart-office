@@ -12,6 +12,7 @@ import com.zkyzn.project_manager.utils.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -25,7 +26,7 @@ public class ProjectPhaseController {
     @PostMapping
     @Operation(summary = "新增项目阶段")
     @OperLog(type = "CREATE", desc = "新增项目阶段", targetType = ProjectPhase.class)
-    public Result<Boolean> postCreatePhase(@RequestBody ProjectPhaseReq projectPhaseReq) {
+    public Result<Boolean> postCreatePhase(@RequestBody @Valid ProjectPhaseReq projectPhaseReq) {
         ProjectPhase phase = new ProjectPhase();
         BeanUtil.copyProperties(projectPhaseReq, phase);
         return ResUtil.ok(projectPhaseStory.createPhase(phase, SecurityUtil.getCurrentUserId()));
@@ -34,7 +35,7 @@ public class ProjectPhaseController {
     @PutMapping("/{id}")
     @Operation(summary = "编辑项目阶段")
     @OperLog(type = "UPDATE", desc = "编辑项目阶段", targetType = ProjectPhase.class, idPosition = 0, recordOriginal = true)
-    public Result<Boolean> updatePhase(@PathVariable Long id, @RequestBody ProjectPhaseReq projectPhaseReq) {
+    public Result<Boolean> updatePhase(@PathVariable Long id, @RequestBody @Valid ProjectPhaseReq projectPhaseReq) {
         ProjectPhase phase = new ProjectPhase();
         BeanUtil.copyProperties(projectPhaseReq, phase);
         phase.setPhaseId(id);
