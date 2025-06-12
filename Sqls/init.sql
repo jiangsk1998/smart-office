@@ -102,7 +102,7 @@ CREATE TABLE `tab_project_plan` (
                                     `is_milestone` tinyint(1) DEFAULT '0' COMMENT '是否里程碑任务',
                                     `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
                                     `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
-                                    `task_status` varchar(16) COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '任务状态',
+                                    `task_status` varchar(16) COLLATE utf8mb4_general_ci DEFAULT '未开始' COMMENT '任务状态',
                                     `real_start_date` date DEFAULT NULL COMMENT '实际开始时间',
                                     `real_end_date` date DEFAULT NULL COMMENT '实际结束时间',
                                     PRIMARY KEY (`project_plan_id`),

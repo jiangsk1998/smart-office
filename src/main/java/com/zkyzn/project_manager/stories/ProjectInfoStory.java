@@ -3,6 +3,7 @@ package com.zkyzn.project_manager.stories;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zkyzn.project_manager.enums.DocumentTypeEnum;
 import com.zkyzn.project_manager.enums.Operator;
+import com.zkyzn.project_manager.enums.PhaseStatusEnum;
 import com.zkyzn.project_manager.models.ProjectInfo;
 import com.zkyzn.project_manager.models.ProjectPhase;
 import com.zkyzn.project_manager.models.ProjectPlan;
@@ -588,7 +589,7 @@ public class ProjectInfoStory {
             phase.setDeliverable(deliverable);
             phase.setDeliverableType(deliverableType);
             // 默认状态
-            phase.setPhaseStatus("未开始");
+            phase.setPhaseStatus(PhaseStatusEnum.NOT_STARTED.getDisplayName());
 
             phaseList.add(phase);
         }
