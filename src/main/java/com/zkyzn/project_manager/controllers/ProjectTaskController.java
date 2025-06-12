@@ -1,7 +1,9 @@
 package com.zkyzn.project_manager.controllers;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.zkyzn.project_manager.annotation.OperLog;
 import com.zkyzn.project_manager.models.ProjectPlan;
+import com.zkyzn.project_manager.so.task.ProjectTaskReq;
 import com.zkyzn.project_manager.stories.ProjectTaskStory;
 import com.zkyzn.project_manager.so.Result;
 import com.zkyzn.project_manager.utils.ResUtil;
@@ -25,14 +27,18 @@ public class ProjectTaskController {
     @PostMapping
     @Operation(summary = "新增项目任务")
     @OperLog(type = "CREATE", desc = "新增项目任务", targetType = ProjectPlan.class)
-    public Result<Boolean> postCreatePlan(@RequestBody ProjectPlan projectPlan) {
+    public Result<Boolean> postCreatePlan(@RequestBody ProjectTaskReq task) {
+        ProjectPlan projectPlan = new ProjectPlan();
+        BeanUtil.copyProperties(task, projectPlan);
         return ResUtil.ok(projectTaskStory.createPlan(projectPlan,SecurityUtil.getCurrentUserId()));
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "编辑项目任务")
     @OperLog(type = "UPDATE", desc = "编辑项目任务", targetType = ProjectPlan.class, idPosition = 0, recordOriginal = true)
-    public Result<Boolean> updatePlan(@PathVariable Long id, @RequestBody ProjectPlan projectPlan) {
+    public Result<Boolean> updatePlan(@PathVariable Long id, @RequestBody ProjectTaskReq task) {
+        ProjectPlan projectPlan = new ProjectPlan();
+        BeanUtil.copyProperties(task, projectPlan);
         projectPlan.setProjectPlanId(id);
         return ResUtil.ok(projectTaskStory.updatePlanById(projectPlan, SecurityUtil.getCurrentUserId()));
     }

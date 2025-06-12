@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.time.ZonedDateTime;
 
 /**
  * 即将到期通知
@@ -32,12 +33,12 @@ public class DueDateNoticeContent extends BaseContent{
     @Schema(description = "立项时间", requiredMode = Schema.RequiredMode.REQUIRED)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     @JsonProperty("start_date")
-    private LocalDate startDate;
+    private String startDate;
 
     @Schema(description = "结束时间", requiredMode = Schema.RequiredMode.REQUIRED)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     @JsonProperty("end_date")
-    private LocalDate endDate;
+    private String endDate;
 
     @NotBlank(message = "项目当前阶段不能为空")
     @Schema(description = "项目当前阶段", requiredMode = Schema.RequiredMode.REQUIRED)

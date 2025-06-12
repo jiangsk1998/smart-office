@@ -6,11 +6,13 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 
 @Configuration
 public class JsonConfig {
 
     @Bean
+    @Primary
     public ObjectMapper jacksonObjectMapper() {
         ObjectMapper objectMapper = new ObjectMapper().setPropertyNamingStrategy(
                 PropertyNamingStrategies.SNAKE_CASE);

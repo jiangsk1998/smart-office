@@ -1,129 +1,146 @@
+// src/main/java/com/zkyzn/project_manager/stories/ProjectTaskStory.java
 package com.zkyzn.project_manager.stories;
 
-import com.zkyzn.project_manager.models.ProjectInfo;
+import com.zkyzn.project_manager.events.ProjectTaskChangeEvent;
 import com.zkyzn.project_manager.models.ProjectPlan;
 import com.zkyzn.project_manager.services.ProjectPlanService;
-import com.zkyzn.project_manager.utils.ProjectPhaseOrTaskChangeNoticeUtils;
 import jakarta.annotation.Resource;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
 
 
+/**
+ * 负责处理与项目任务（计划）相关的复杂业务逻辑的服务类。
+ * "Story" 层用于编排一个或多个 "Service" 层操作以完成一个完整的业务流程。
+ * 此类已通过事件发布机制与通知模块解耦。
+ */
 @Service
 public class ProjectTaskStory {
 
-    private static final String NOTIFY_TITLE_CREATE = "新增项目任务通知";
-    private static final String NOTIFY_TITLE_STATUS_CHANGE = "项目任务状态变更通知";
-    private static final String NOTIFY_TITLE_UPDATE = "项目任务信息更新通知";
-    private static final String NOTIFY_TITLE_DELETE = "项目任务删除通知";
-
+    /**
+     * 注入项目计划服务，用于数据库操作。
+     */
     @Resource
     private ProjectPlanService projectPlanService;
+    
+    /**
+     * 注入Spring的事件发布器，用于在业务操作完成后发布变更事件。
+     */
     @Resource
-    private ProjectPhaseOrTaskChangeNoticeUtils noticeUtils;
+    private ApplicationEventPublisher eventPublisher;
 
+    /**
+     * 创建一个新的项目任务。
+     * 操作成功后会发布一个 "CREATE" 类型的任务变更事件。
+     * 这是一个事务性操作，确保数据一致性。
+     *
+     * @param projectPlan 要创建的项目任务对象。
+     * @param operatorId  执行此操作的用户ID。
+     * @return 如果创建成功返回 true，否则返回 false。
+     */
     @Transactional(rollbackFor = Exception.class)
     public Boolean createPlan(ProjectPlan projectPlan, Long operatorId) {
-        if (!projectPlanService.save(projectPlan)) return false;
-
         LocalDateTime now = LocalDateTime.now();
         projectPlan.setCreateTime(now);
         projectPlan.setUpdateTime(now);
 
-        ProjectInfo projectInfo = noticeUtils.getProjectInfoSafely(projectPlan.getProjectId());
-        if (projectInfo == null) return true;
-
-        return noticeUtils.sendNotification(projectInfo,
-                NOTIFY_TITLE_CREATE,
-                buildCreateNoticeContent(projectPlan),
-                operatorId);
+        boolean success = projectPlanService.save(projectPlan);
+        if (success) {
+            // 发布“创建”事件，通知其他模块（如通知服务）
+            ProjectTaskChangeEvent event = new ProjectTaskChangeEvent(this, operatorId, "CREATE", null, projectPlan);
+            eventPublisher.publishEvent(event);
+        }
+        return success;
     }
 
+    /**
+     * 根据ID更新一个项目任务的信息。
+     * 不允许通过此方法更新任务状态。
+     * 更新成功后会发布一个 "UPDATE" 类型的任务变更事件。
+     * 这是一个事务性操作。
+     *
+     * @param projectPlan 包含更新后信息的项目任务对象。
+     * @param operatorId  执行此操作的用户ID。
+     * @return 如果更新成功返回 true，否则返回 false。
+     */
     @Transactional(rollbackFor = Exception.class)
     public Boolean updatePlanById(ProjectPlan projectPlan, Long operatorId) {
         ProjectPlan originalPlan = projectPlanService.getById(projectPlan.getProjectPlanId());
-        if (originalPlan == null) return false;
+        if (originalPlan == null) {
+            return false;
+        }
 
-        projectPlan.setTaskStatus(null);
+        projectPlan.setTaskStatus(null); // 确保状态不会在此方法中被意外修改
         projectPlan.setUpdateTime(LocalDateTime.now());
 
-        if (!projectPlanService.updateById(projectPlan)) return false;
-
-        ProjectInfo projectInfo = noticeUtils.getProjectInfoSafely(projectPlan.getProjectId());
-        if (projectInfo == null) return true;
-
-        return noticeUtils.sendNotification(projectInfo,
-                NOTIFY_TITLE_UPDATE,
-                buildUpdateNoticeContent(originalPlan, projectPlan),
-                operatorId);
+        boolean success = projectPlanService.updateById(projectPlan);
+        if (success) {
+            // 发布“更新”事件，同时传递新旧两个版本的数据
+            ProjectTaskChangeEvent event = new ProjectTaskChangeEvent(this, operatorId, "UPDATE", originalPlan, projectPlan);
+            eventPublisher.publishEvent(event);
+        }
+        return success;
     }
 
+    /**
+     * 变更指定ID的项目任务的状态。
+     * 如果状态发生实际变化，将发布一个 "STATUS_CHANGE" 类型的任务变更事件。
+     * 这是一个事务性操作。
+     *
+     * @param id     要变更状态的项目任务的ID。
+     * @param status 新的状态字符串。
+     * @param operatorId 执行此操作的用户ID。
+     * @return 如果变更成功返回 true，否则返回 false。
+     */
     @Transactional(rollbackFor = Exception.class)
     public Boolean changePlanStatus(Long id, String status, Long operatorId) {
         ProjectPlan currentPlan = projectPlanService.getById(id);
-        if (currentPlan == null) return false;
-        if (status.equals(currentPlan.getTaskStatus())) return true;
+        if (currentPlan == null || status.equals(currentPlan.getTaskStatus())) {
+            return false; // 如果任务不存在或状态未改变，则不执行操作
+        }
+        
+        // 创建一个仅包含要更新字段的实体，以提高效率
+        ProjectPlan updateEntity = new ProjectPlan();
+        updateEntity.setProjectPlanId(id);
+        updateEntity.setTaskStatus(status);
+        updateEntity.setUpdateTime(LocalDateTime.now());
 
-        boolean success = projectPlanService.lambdaUpdate()
-                .eq(ProjectPlan::getProjectPlanId, id)
-                .set(ProjectPlan::getTaskStatus, status)
-                .set(ProjectPlan::getUpdateTime, ZonedDateTime.now())
-                .update();
+        boolean success = projectPlanService.updateById(updateEntity);
 
-        if (!success) return false;
-
-        ProjectInfo projectInfo = noticeUtils.getProjectInfoSafely(currentPlan.getProjectId());
-        if (projectInfo == null) return false;
-
-        return noticeUtils.sendNotification(projectInfo,
-                NOTIFY_TITLE_STATUS_CHANGE,
-                String.format("任务状态已从 [%s] 更新为: [%s]",
-                        currentPlan.getTaskStatus(), status),
-                operatorId);
+        if (success) {
+             // 发布“状态变更”事件
+            ProjectTaskChangeEvent event = new ProjectTaskChangeEvent(this, operatorId, "STATUS_CHANGE", currentPlan, updateEntity);
+            eventPublisher.publishEvent(event);
+        }
+        return success;
     }
 
+    /**
+     * 根据ID删除一个项目任务。
+     * 删除成功后会发布一个 "DELETE" 类型的任务变更事件。
+     * 这是一个事务性操作。
+     *
+     * @param id         要删除的项目任务的ID。
+     * @param operatorId 执行此操作的用户ID。
+     * @return 如果删除成功返回 true，否则返回 false。
+     */
     @Transactional(rollbackFor = Exception.class)
     public Boolean deletePlanById(Long id, Long operatorId) {
         ProjectPlan plan = projectPlanService.getById(id);
-        if (plan == null) return false;
+        if (plan == null) {
+            return false;
+        }
 
-        boolean deleteSuccess = projectPlanService.lambdaUpdate()
-                .eq(ProjectPlan::getProjectPlanId, id)
-                .remove();
+        boolean deleteSuccess = projectPlanService.removeById(id);
 
-        if (!deleteSuccess) return false;
-
-        ProjectInfo projectInfo = noticeUtils.getProjectInfoSafely(plan.getProjectId());
-        if (projectInfo == null) return true;
-
-        return noticeUtils.sendNotification(projectInfo,
-                NOTIFY_TITLE_DELETE,
-                String.format("任务 [%s] 已被删除", plan.getTaskDescription()),
-                operatorId);
-    }
-
-    private String buildCreateNoticeContent(ProjectPlan plan) {
-        return String.format("新增任务: %s\n- 责任人: %s\n- 计划时间: %s 至 %s\n- 交付物: %s",
-                noticeUtils.formatValue(plan.getTaskDescription()),
-                noticeUtils.formatValue(plan.getResponsiblePerson()),
-                noticeUtils.formatDate(plan.getStartDate()),
-                noticeUtils.formatDate(plan.getEndDate()),
-                noticeUtils.formatValue(plan.getDeliverable()));
-    }
-
-    private String buildUpdateNoticeContent(ProjectPlan original, ProjectPlan updated) {
-        StringBuilder changes = new StringBuilder("任务变更内容:\n");
-
-        noticeUtils.addChangeIfDifferent(changes, "任务描述", original.getTaskDescription(), updated.getTaskDescription());
-        noticeUtils.addChangeIfDifferent(changes, "责任人", original.getResponsiblePerson(), updated.getResponsiblePerson());
-        noticeUtils.addDateChangeIfDifferent(changes, "开始日期", original.getStartDate(), updated.getStartDate());
-        noticeUtils.addDateChangeIfDifferent(changes, "结束日期", original.getEndDate(), updated.getEndDate());
-        noticeUtils.addChangeIfDifferent(changes, "交付物", original.getDeliverable(), updated.getDeliverable());
-        noticeUtils.addChangeIfDifferent(changes, "科室", original.getDepartment(), updated.getDepartment());
-
-        return changes.length() > 0 ? changes.toString() : "无字段变更";
+        if (deleteSuccess) {
+            // 发布“删除”事件
+            ProjectTaskChangeEvent event = new ProjectTaskChangeEvent(this, operatorId, "DELETE", plan, null);
+            eventPublisher.publishEvent(event);
+        }
+        return deleteSuccess;
     }
 }

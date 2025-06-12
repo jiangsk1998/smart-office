@@ -135,7 +135,6 @@ create table project_manager.tab_drawing_plan
     comment '项目图纸计划表';
 
 
-
 CREATE TABLE tab_project_favorite
 (
     favorite_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '收藏唯一ID',
@@ -151,49 +150,4 @@ CREATE TABLE tab_project_favorite
         REFERENCES tab_project_info (project_id) ON DELETE CASCADE
 ) COMMENT '项目收藏表';
 
-create table project_manager.tab_message_info
-(
-    message_id     varchar(32)                        not null comment '主键ID'
-        primary key,
-    sender_id      varchar(32)                        not null comment '发送者用户ID（字符串）',
-    receiver_id    varchar(32)                        not null comment '接收者用户ID（字符串）',
-    title          varchar(200)                       null comment '消息标题',
-    content        json                               not null comment '消息内容（JSON结构）',
-    message_type   tinyint  default 1                 not null comment '消息类型：0=附件通知，1=变更通知，2=即将到期通知，3=延期通知,4=延期反馈，5=延期风险告警',
-    read_status    tinyint  default 0                 not null comment '阅读状态：0=未读，1=已读',
-    is_top         tinyint  default 0                 not null comment '是否置顶：0=否，1=是',
-    has_attachment tinyint  default 0                 not null comment '是否有附件：0=无，1=有',
-    attachment     json                               null comment '附件',
-    create_time    datetime default CURRENT_TIMESTAMP null comment '创建时间',
-    read_time      datetime                           null comment '阅读时间',
-    update_time    datetime default CURRENT_TIMESTAMP null on update CURRENT_TIMESTAMP comment '最后更新时间',
-    is_deleted     tinyint  default 0                 not null comment '逻辑删除标志：0=正常，1=删除'
-)
-    comment '消息表';
-
-
-
-create table project_manager.operation_log
-(
-    id             bigint unsigned auto_increment comment '主键ID'
-        primary key,
-    operator_id    bigint       not null comment '操作人ID',
-    operator_name  varchar(50)  not null comment '操作人姓名',
-    operate_time   datetime     not null comment '操作时间',
-    operate_type   varchar(20)  not null comment '操作类型',
-    operate_target varchar(50)  not null comment '操作对象',
-    target_id      bigint       not null comment '对象ID',
-    operate_detail varchar(500) not null comment '操作详情',
-    project_id     bigint       not null comment '关联项目ID',
-    original_data  json         null comment '原始数据',
-    new_data       json         null comment '新数据',
-    ip_address     varchar(45)  null comment '操作IP'
-)
-    comment '操作日志表';
-
-create index idx_project
-    on project_manager.operation_log (project_id);
-
-create index idx_target
-    on project_manager.operation_log (operate_target, target_id);
 
