@@ -7,6 +7,7 @@ import com.zkyzn.project_manager.services.ProjectInfoService;
 import com.zkyzn.project_manager.services.ProjectPlanService;
 import com.zkyzn.project_manager.so.department.DepartmentProjectProgressResp;
 import com.zkyzn.project_manager.so.department.DepartmentTaskStatsResp;
+import com.zkyzn.project_manager.so.department.DepartmentWeeklyProgressResp;
 import com.zkyzn.project_manager.so.department.DepartmentWeeklyTaskStatsResp;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
@@ -168,6 +169,77 @@ public class DepartmentPlanStory {
             }
             return resp;
         }).collect(Collectors.toList());
+    }
+
+    /**
+     * 计算单个周期的工作完成进度
+     * @param departmentName 科室名称
+     * @param weekStartDate 周开始日期
+     * @param weekEndDate 周结束日期
+     * @return BigDecimal格式的进度百分比
+     */
+    private BigDecimal calculateWeeklyProgress(String departmentName, LocalDate weekStartDate, LocalDate weekEndDate) {
+        // 分母：此时间段内应完成的任务总数
+        long shouldCompleteCount = projectPlanService.countTasksDueBetweenDates(departmentName, weekStartDate, weekEndDate);
+
+        if (shouldCompleteCount == 0) {
+            return BigDecimal.ZERO;
+        }
+
+        // 分子：此时间段内计划完成且实际完成的任务数
+        long actualCompletedCount = projectPlanService.countCompletedTasksByEndDateRange(departmentName, weekStartDate, weekEndDate);
+
+        return BigDecimal.valueOf(actualCompletedCount)
+                .divide(BigDecimal.valueOf(shouldCompleteCount), 4, RoundingMode.HALF_UP)
+                .multiply(BigDecimal.valueOf(100));
+    }
+
+    /**
+     * 获取科室周工作完成进度统计
+     * @param departmentName 科室名称
+     * @return 进度统计响应体
+     */
+    public DepartmentWeeklyProgressResp getDepartmentWeeklyProgress(String departmentName) {
+        DepartmentWeeklyProgressResp response = new DepartmentWeeklyProgressResp();
+        LocalDate today = LocalDate.now();
+
+        // 1. 计算上周的进度
+        LocalDate lastWeekStart = today.minusWeeks(1).with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        LocalDate lastWeekEnd = today.minusWeeks(1).with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
+        BigDecimal lastWeekProgress = calculateWeeklyProgress(departmentName, lastWeekStart, lastWeekEnd);
+        response.setLastWeekProgress(lastWeekProgress);
+
+        // 2. 计算上上周的进度并得出变化率
+        LocalDate twoWeeksAgoStart = today.minusWeeks(2).with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        LocalDate twoWeeksAgoEnd = today.minusWeeks(2).with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
+        BigDecimal twoWeeksAgoProgress = calculateWeeklyProgress(departmentName, twoWeeksAgoStart, twoWeeksAgoEnd);
+
+        if (twoWeeksAgoProgress.compareTo(BigDecimal.ZERO) > 0) {
+            BigDecimal change = lastWeekProgress.subtract(twoWeeksAgoProgress)
+                    .divide(twoWeeksAgoProgress, 4, RoundingMode.HALF_UP)
+                    .multiply(BigDecimal.valueOf(100));
+            response.setChangePercentage(String.format("%+.2f%%", change));
+        } else if (lastWeekProgress.compareTo(BigDecimal.ZERO) > 0) {
+            response.setChangePercentage("+100.00%");
+        } else {
+            response.setChangePercentage("0.00%");
+        }
+
+        // 3. 计算本周之前的十周工作进度
+        List<DepartmentWeeklyProgressResp.WeeklyProgress> progressList = new ArrayList<>();
+        WeekFields weekFields = WeekFields.of(Locale.getDefault());
+
+        for (int i = 10; i >= 1; i--) {
+            LocalDate weekStartDate = today.minusWeeks(i).with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+            LocalDate weekEndDate = today.minusWeeks(i).with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
+            BigDecimal progress = calculateWeeklyProgress(departmentName, weekStartDate, weekEndDate);
+
+            String weekLabel = weekStartDate.getYear() + "-W" + weekStartDate.get(weekFields.weekOfWeekBasedYear());
+            progressList.add(new DepartmentWeeklyProgressResp.WeeklyProgress(weekLabel, progress));
+        }
+        response.setLast10WeeksProgress(progressList);
+
+        return response;
     }
 
 }

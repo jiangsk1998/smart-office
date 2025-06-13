@@ -5,15 +5,17 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.yulichang.base.MPJBaseServiceImpl;
 import com.zkyzn.project_manager.mappers.ProjectPlanDao;
 import com.zkyzn.project_manager.models.ProjectPlan;
+import com.zkyzn.project_manager.so.department.DepartmentWeeklyProgressResp;
 import com.zkyzn.project_manager.so.project_info.ProjectDetailResp.*;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.temporal.TemporalAdjusters;
+import java.time.temporal.WeekFields;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -179,5 +181,19 @@ public class ProjectPlanService extends MPJBaseServiceImpl<ProjectPlanDao, Proje
                 .le("end_date", end);
         return baseMapper.selectCount(wrapper);
     }
+
+    /**
+     * 统计指定科室在日期范围内计划完成且状态为“已完成”的任务数
+     */
+    public long countCompletedTasksByEndDateRange(String departmentName, LocalDate startDate, LocalDate endDate) {
+        QueryWrapper<ProjectPlan> wrapper = new QueryWrapper<>();
+        wrapper.eq("department", departmentName)
+                .eq("task_status", "已完成") // 增加了“已完成”的状态筛选
+                .ge("end_date", startDate)
+                .le("end_date", endDate);
+        return baseMapper.selectCount(wrapper);
+    }
+
+
 
 }
