@@ -14,6 +14,7 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author: Mr-ti
@@ -126,6 +127,45 @@ public class ProjectPlanService extends MPJBaseServiceImpl<ProjectPlanDao, Proje
         QueryWrapper<ProjectPlan> wrapper = new QueryWrapper<>();
         wrapper.eq("department", departmentName)
                 .eq("end_date", date);
+        return baseMapper.selectCount(wrapper);
+    }
+
+    /**
+     * 根据科室名称获取其参与的所有不重复的项目ID列表
+     * @param departmentName 科室名称
+     * @return 项目ID列表
+     */
+    public List<Long> getProjectIdsByDepartment(String departmentName) {
+        QueryWrapper<ProjectPlan> wrapper = new QueryWrapper<>();
+        wrapper.select("DISTINCT project_id").eq("department", departmentName);
+        List<Object> projectIdsAsObjects = baseMapper.selectObjs(wrapper);
+        return projectIdsAsObjects.stream()
+                .map(obj -> Long.valueOf(obj.toString()))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 统计指定项目中，特定科室在日期范围内的任务总数
+     */
+    public long countTasksForDepartmentByDateRange(Long projectId, String departmentName, LocalDate start, LocalDate end) {
+        QueryWrapper<ProjectPlan> wrapper = new QueryWrapper<>();
+        wrapper.eq("project_id", projectId)
+                .eq("department", departmentName)
+                .ge("end_date", start)
+                .le("end_date", end);
+        return baseMapper.selectCount(wrapper);
+    }
+
+    /**
+     * 统计指定项目中，特定科室在日期范围内已完成的任务数
+     */
+    public long countCompletedTasksForDepartmentByDateRange(Long projectId, String departmentName, LocalDate start, LocalDate end) {
+        QueryWrapper<ProjectPlan> wrapper = new QueryWrapper<>();
+        wrapper.eq("project_id", projectId)
+                .eq("department", departmentName)
+                .eq("task_status", "已完成")
+                .ge("end_date", start)
+                .le("end_date", end);
         return baseMapper.selectCount(wrapper);
     }
 

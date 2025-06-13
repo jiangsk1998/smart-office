@@ -1,18 +1,24 @@
 package com.zkyzn.project_manager.stories;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.zkyzn.project_manager.models.ProjectPlan;
+import com.zkyzn.project_manager.models.Department;
+import com.zkyzn.project_manager.models.ProjectInfo;
+import com.zkyzn.project_manager.services.DepartmentService;
+import com.zkyzn.project_manager.services.ProjectInfoService;
 import com.zkyzn.project_manager.services.ProjectPlanService;
+import com.zkyzn.project_manager.so.department.DepartmentProjectProgressResp;
 import com.zkyzn.project_manager.so.department.DepartmentTaskStatsResp;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 /**
@@ -24,30 +30,11 @@ public class DepartmentPlanStory {
     @Resource
     private ProjectPlanService projectPlanService;
 
-    /**
-     * 根据科室名称，分页查询该科室承担的所有项目任务。
-     *
-     * @param departmentName 科室的准确名称
-     * @param pageNum        当前页码
-     * @param pageSize       每页显示条数
-     * @return 分页后的项目任务列表 (Page<ProjectPlan>)
-     */
-    public Page<ProjectPlan> getTasksForDepartment(String departmentName, long pageNum, long pageSize) {
-        // 创建分页对象
-        Page<ProjectPlan> page = new Page<>(pageNum, pageSize);
+    @Resource
+    private DepartmentService departmentService;
 
-        // 如果部门名称为空，则返回空的分页结果
-        if (!StringUtils.hasText(departmentName)) {
-            return page;
-        }
-
-        // 使用 ProjectPlanService 进行条件查询
-        // 查询条件为：ProjectPlan实体中的department字段等于传入的departmentName
-        return projectPlanService.lambdaQuery()
-                .eq(ProjectPlan::getDepartment, departmentName)
-                .page(page);
-
-    }
+    @Resource
+    private ProjectInfoService projectInfoService;
 
     public DepartmentTaskStatsResp getDepartmentTaskStats(String departmentName) {
         DepartmentTaskStatsResp response = new DepartmentTaskStatsResp();
@@ -82,4 +69,54 @@ public class DepartmentPlanStory {
 
         return response;
     }
+
+    public List<DepartmentProjectProgressResp> getDepartmentProjectMonthlyProgress(Long departmentId) {
+        Department department = departmentService.getById(departmentId);
+        if (department == null) {
+            return Collections.emptyList();
+        }
+        String departmentName = department.getName();
+
+        // 1. 从 plan 表获取本科室参与的所有项目ID
+        List<Long> projectIds = projectPlanService.getProjectIdsByDepartment(departmentName);
+        if (CollectionUtils.isEmpty(projectIds)) {
+            return Collections.emptyList();
+        }
+
+        // 2. 获取这些项目的详细信息用于展示
+        List<ProjectInfo> projects = projectInfoService.listByIds(projectIds);
+
+        // 3. 计算当前月份
+        LocalDate now = LocalDate.now();
+        YearMonth thisMonth = YearMonth.from(now);
+        LocalDate firstDayOfMonth = thisMonth.atDay(1);
+        LocalDate lastDayOfMonth = thisMonth.atEndOfMonth();
+
+        // 4. 为每个项目计算该科室的专属月进度
+        return projects.stream().map(project -> {
+            // 4.1 查询该科室在该项目中当月的任务总数
+            long totalTasks = projectPlanService.countTasksForDepartmentByDateRange(project.getProjectId(), departmentName, firstDayOfMonth, lastDayOfMonth);
+
+            // 4.2 查询该科室在该项目中当月已完成的任务数
+            long completedTasks = projectPlanService.countCompletedTasksForDepartmentByDateRange(project.getProjectId(), departmentName, firstDayOfMonth, lastDayOfMonth);
+
+            DepartmentProjectProgressResp resp = new DepartmentProjectProgressResp();
+            resp.setProjectName(project.getProjectName());
+            resp.setProjectNumber(project.getProjectNumber());
+            resp.setResponsibleLeader(project.getResponsibleLeader());
+
+            // 4.3 组装分数和百分比
+            resp.setMonthlyProgressFraction(completedTasks + "/" + totalTasks);
+            if (totalTasks > 0) {
+                BigDecimal rate = BigDecimal.valueOf(completedTasks)
+                        .divide(BigDecimal.valueOf(totalTasks), 4, RoundingMode.HALF_UP)
+                        .multiply(BigDecimal.valueOf(100));
+                resp.setMonthlyProgress(rate);
+            } else {
+                resp.setMonthlyProgress(BigDecimal.ZERO);
+            }
+            return resp;
+        }).collect(Collectors.toList());
+    }
+
 }

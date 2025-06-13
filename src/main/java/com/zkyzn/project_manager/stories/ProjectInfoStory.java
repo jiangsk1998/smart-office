@@ -350,6 +350,8 @@ public class ProjectInfoStory {
         Long monthlyCompleted = projectPlanService.countCompletedByDateRange(projectId, firstDayOfMonth, lastDayOfMonth);
 
         ProjectDetailResp.Progress progress = new ProjectDetailResp.Progress();
+        progress.setTotalCount(monthlyTasks); // 新增：设置总数
+        progress.setCompletedCount(monthlyCompleted); // 新增：设置完成数
         progress.setCurrentRate(calculateRate(monthlyCompleted, monthlyTasks));
         progress.setDailyChangeRate(calculateDailyChange(projectId, "monthly"));
         return progress;

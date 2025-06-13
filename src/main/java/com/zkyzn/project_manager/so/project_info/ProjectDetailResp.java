@@ -47,6 +47,8 @@ public class ProjectDetailResp {
     public static class Progress {
         private BigDecimal currentRate;      // 当前进度百分比
         private BigDecimal dailyChangeRate;   // 较前日变化百分比
+        private Long completedCount;         // 已完成数量
+        private Long totalCount;             // 总数量
     }
 
     // 阶段进度明细
