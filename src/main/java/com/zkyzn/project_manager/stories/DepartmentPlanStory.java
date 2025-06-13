@@ -3,9 +3,16 @@ package com.zkyzn.project_manager.stories;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zkyzn.project_manager.models.ProjectPlan;
 import com.zkyzn.project_manager.services.ProjectPlanService;
+import com.zkyzn.project_manager.so.department.DepartmentTaskStatsResp;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -40,5 +47,39 @@ public class DepartmentPlanStory {
                 .eq(ProjectPlan::getDepartment, departmentName)
                 .page(page);
 
+    }
+
+    public DepartmentTaskStatsResp getDepartmentTaskStats(String departmentName) {
+        DepartmentTaskStatsResp response = new DepartmentTaskStatsResp();
+        LocalDate today = LocalDate.now();
+        LocalDate yesterday = today.minusDays(1);
+
+        // 1. 今日到期数
+        long todayDueCount = projectPlanService.countTasksDueOnDate(departmentName, today);
+        response.setTodayDueCount(todayDueCount);
+
+        // 2. 今日到期与昨日到期变化百分比
+        long yesterdayDueCount = projectPlanService.countTasksDueOnDate(departmentName, yesterday);
+        if (yesterdayDueCount > 0) {
+            BigDecimal change = BigDecimal.valueOf(todayDueCount - yesterdayDueCount)
+                    .divide(BigDecimal.valueOf(yesterdayDueCount), 4, RoundingMode.HALF_UP)
+                    .multiply(BigDecimal.valueOf(100));
+            response.setChangePercentage(String.format("%+.2f%%", change));
+        } else if (todayDueCount > 0) {
+            response.setChangePercentage("+100.00%");
+        } else {
+            response.setChangePercentage("0.00%");
+        }
+
+        // 3. 近10日的每日到期数
+        List<DepartmentTaskStatsResp.DailyCount> dailyCounts = new ArrayList<>();
+        for (int i = 9; i >= 0; i--) {
+            LocalDate date = today.minusDays(i);
+            long count = projectPlanService.countTasksDueOnDate(departmentName, date);
+            dailyCounts.add(new DepartmentTaskStatsResp.DailyCount(date, count));
+        }
+        response.setLast10DaysDueCounts(dailyCounts);
+
+        return response;
     }
 }

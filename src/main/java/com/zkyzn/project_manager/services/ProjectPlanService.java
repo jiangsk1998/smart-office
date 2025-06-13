@@ -121,4 +121,12 @@ public class ProjectPlanService extends MPJBaseServiceImpl<ProjectPlanDao, Proje
                 .orderByAsc("task_order");
         return baseMapper.selectList(wrapper);
     }
+
+    public long countTasksDueOnDate(String departmentName, LocalDate date) {
+        QueryWrapper<ProjectPlan> wrapper = new QueryWrapper<>();
+        wrapper.eq("department", departmentName)
+                .eq("end_date", date);
+        return baseMapper.selectCount(wrapper);
+    }
+
 }
