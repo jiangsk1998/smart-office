@@ -2,12 +2,13 @@ package com.zkyzn.project_manager.services;
 
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.yulichang.base.MPJBaseServiceImpl;
+import com.github.yulichang.query.MPJLambdaQueryWrapper;
+import com.zkyzn.project_manager.enums.TaskStatusEnum;
 import com.zkyzn.project_manager.mappers.ProjectPhaseDao;
 import com.zkyzn.project_manager.models.ProjectPhase;
 import com.zkyzn.project_manager.models.ProjectPlan;
-import com.zkyzn.project_manager.so.project_info.ProjectDetailResp;
+import com.zkyzn.project_manager.so.project.dashboard.PhaseProgress;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
@@ -54,9 +55,11 @@ public class ProjectPhaseService extends MPJBaseServiceImpl<ProjectPhaseDao, Pro
      */
 
     public List<ProjectPhase> getPhasesByProjectId(Long projectId) {
-        QueryWrapper<ProjectPhase> wrapper = new QueryWrapper<>();
-        wrapper.eq("project_id", projectId)
-                .orderByAsc("start_date");
+        MPJLambdaQueryWrapper<ProjectPhase> wrapper = new MPJLambdaQueryWrapper<>();
+        wrapper.selectAll(ProjectPhase.class)
+                .eq(ProjectPhase::getProjectId, projectId)
+                .orderByAsc(ProjectPhase::getStartDate);
+
         return baseMapper.selectList(wrapper);
     }
 
@@ -65,9 +68,9 @@ public class ProjectPhaseService extends MPJBaseServiceImpl<ProjectPhaseDao, Pro
      * @param projectId
      * @return
      */
-    public List<ProjectDetailResp.PhaseProgress> getPhaseProgressDetails(Long projectId) {
+    public List<PhaseProgress> getPhaseProgressDetails(Long projectId) {
         List<ProjectPhase> phases = getPhasesByProjectId(projectId);
-        List<ProjectDetailResp.PhaseProgress> progressList = new ArrayList<>();
+        List<PhaseProgress> progressList = new ArrayList<>();
 
         for (ProjectPhase phase : phases) {
             String phaseName = phase.getPhaseName();
@@ -86,7 +89,7 @@ public class ProjectPhaseService extends MPJBaseServiceImpl<ProjectPhaseDao, Pro
             LocalDate today = LocalDate.now();
 
             for (ProjectPlan plan : plans) {
-                if ("已完成".equals(plan.getTaskStatus())) {
+                if (TaskStatusEnum.COMPLETED.getDisplayName().equals(plan.getTaskStatus())) {
                     completedTasks++;
                 }
                 if (plan.getEndDate().isBefore(today) || plan.getEndDate().isEqual(today)) {
@@ -94,7 +97,7 @@ public class ProjectPhaseService extends MPJBaseServiceImpl<ProjectPhaseDao, Pro
                 }
             }
 
-            ProjectDetailResp.PhaseProgress progress = new ProjectDetailResp.PhaseProgress();
+            PhaseProgress progress = new PhaseProgress();
             progress.setPhaseName(phaseName);
 
             if (totalTasks > 0) {

@@ -3,13 +3,14 @@ package com.zkyzn.project_manager.services;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.yulichang.base.MPJBaseServiceImpl;
+import com.github.yulichang.query.MPJLambdaQueryWrapper;
+import com.zkyzn.project_manager.enums.TaskStatusEnum;
 import com.zkyzn.project_manager.mappers.ProjectPlanDao;
 import com.zkyzn.project_manager.models.ProjectPlan;
-import com.zkyzn.project_manager.so.project_info.ProjectDetailResp.*;
+import com.zkyzn.project_manager.so.project.dashboard.ChangeRecord;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
@@ -35,54 +36,102 @@ public class ProjectPlanService extends MPJBaseServiceImpl<ProjectPlanDao, Proje
         return baseMapper.selectList(wrapper);
     }
 
+    /**
+     * 根据项目id和状态获取项目计划数量
+     * @param projectId
+     * @param status
+     * @return
+     */
     public long countByProjectIdAndStatus(Long projectId, String status) {
-        QueryWrapper<ProjectPlan> wrapper = new QueryWrapper<>();
-        wrapper.eq("project_id", projectId)
-                .eq("task_status", status);
+        MPJLambdaQueryWrapper<ProjectPlan> wrapper = new MPJLambdaQueryWrapper<>();
+        wrapper.select(ProjectPlan:: getProjectPlanId)
+                .eq(ProjectPlan::getProjectId, projectId)
+                .eq(ProjectPlan::getTaskStatus, status);
+
         return baseMapper.selectCount(wrapper);
     }
 
+    /**
+     * 根据项目id获取项目计划数量
+     * @param projectId
+     * @return
+     */
     public long countByProjectId(Long projectId) {
-        QueryWrapper<ProjectPlan> wrapper = new QueryWrapper<>();
-        wrapper.eq("project_id", projectId);
+        MPJLambdaQueryWrapper<ProjectPlan> wrapper = new MPJLambdaQueryWrapper<>();
+        wrapper.select(ProjectPlan:: getProjectPlanId)
+                .eq(ProjectPlan::getProjectId, projectId);
+
         return baseMapper.selectCount(wrapper);
     }
 
+    /**
+     * 根据项目id、状态和实际完成时间获取项目计划数量
+     * @param projectId
+     * @return
+     */
+    public long countByProjectIdTaskStatusAndRealEndDate(Long projectId, String status, LocalDate date) {
+        // 查询截止到该日期的完成数
+        MPJLambdaQueryWrapper<ProjectPlan> wrapper = new MPJLambdaQueryWrapper<>();
+        wrapper.select(ProjectPlan:: getProjectPlanId)
+                .eq(ProjectPlan::getProjectId, projectId)
+                .eq(ProjectPlan::getTaskStatus, status)
+                .eq(ProjectPlan::getRealEndDate, date);
+
+        return baseMapper.selectCount(wrapper);
+    }
+
+    /**
+     * 根据项目id和日期范围获取项目计划完成计划数量
+     * @param projectId
+     * @param start
+     * @param end
+     * @return
+     */
     public long countByDateRange(Long projectId, LocalDate start, LocalDate end) {
-        QueryWrapper<ProjectPlan> wrapper = new QueryWrapper<>();
-        wrapper.eq("project_id", projectId)
-                .ge("end_date", start)
-                .le("end_date", end);
+        MPJLambdaQueryWrapper<ProjectPlan> wrapper = new MPJLambdaQueryWrapper<>();
+        wrapper.select(ProjectPlan:: getProjectPlanId)
+                .eq(ProjectPlan::getProjectId, projectId)
+                .ge(ProjectPlan::getEndDate, start)
+                .le(ProjectPlan::getEndDate, end);
+
         return baseMapper.selectCount(wrapper);
     }
 
+    /**
+     * 根据项目id和日期范围获取项目已完成计划数量
+     * @param projectId
+     * @param start
+     * @param end
+     * @return
+     */
     public long countCompletedByDateRange(Long projectId, LocalDate start, LocalDate end) {
-        QueryWrapper<ProjectPlan> wrapper = new QueryWrapper<>();
-        wrapper.eq("project_id", projectId)
-                .eq("task_status", "已完成")
-                .ge("end_date", start)
-                .le("end_date", end);
+        MPJLambdaQueryWrapper<ProjectPlan> wrapper = new MPJLambdaQueryWrapper<>();
+        wrapper.select(ProjectPlan:: getProjectPlanId)
+                .eq(ProjectPlan::getProjectId, projectId)
+                .ge(ProjectPlan::getRealEndDate, start)
+                .le(ProjectPlan::getRealEndDate, end);
+
         return baseMapper.selectCount(wrapper);
     }
 
-    public long countLastWeekCompleted(Long projectId) {
-        LocalDate now = LocalDate.now();
-        LocalDate startOfLastWeek = now.minusWeeks(1).with(DayOfWeek.MONDAY);
-        LocalDate endOfLastWeek = startOfLastWeek.plusDays(6);
+    public long countLastWeekCompleted(Long projectId, LocalDate startOfLastWeek, LocalDate endOfLastWeek) {
+        MPJLambdaQueryWrapper<ProjectPlan> wrapper = new MPJLambdaQueryWrapper<>();
+        wrapper.select(ProjectPlan:: getProjectPlanId)
+                .eq(ProjectPlan::getProjectId, projectId)
+                .eq(ProjectPlan::getTaskStatus, TaskStatusEnum.COMPLETED.getDisplayName())
+                .ge(ProjectPlan::getRealEndDate, startOfLastWeek)
+                .le(ProjectPlan::getRealEndDate, endOfLastWeek);
 
-        QueryWrapper<ProjectPlan> wrapper = new QueryWrapper<>();
-        wrapper.eq("project_id", projectId)
-                .eq("task_status", "已完成")
-                .ge("real_end_date", startOfLastWeek)
-                .le("real_end_date", endOfLastWeek);
         return baseMapper.selectCount(wrapper);
     }
 
     public long countDelayedTasks(Long projectId) {
-        QueryWrapper<ProjectPlan> wrapper = new QueryWrapper<>();
-        wrapper.eq("project_id", projectId)
-                .ne("task_status", "已完成")
-                .lt("end_date", LocalDate.now());
+        MPJLambdaQueryWrapper<ProjectPlan> wrapper = new MPJLambdaQueryWrapper<>();
+        wrapper.select(ProjectPlan:: getProjectPlanId)
+                .eq(ProjectPlan::getProjectId, projectId)
+                .ne(ProjectPlan::getTaskStatus, TaskStatusEnum.COMPLETED.getDisplayName())
+                .lt(ProjectPlan::getEndDate, LocalDate.now());
+
         return baseMapper.selectCount(wrapper);
     }
 
@@ -99,12 +148,14 @@ public class ProjectPlanService extends MPJBaseServiceImpl<ProjectPlanDao, Proje
         LocalDate now = LocalDate.now();
         LocalDate endDate = now.plusDays(days);
 
-        QueryWrapper<ProjectPlan> wrapper = new QueryWrapper<>();
-        wrapper.eq("project_id", projectId)
-                .ne("task_status", "已完成")
-                .ge("end_date", now)
-                .le("end_date", endDate)
-                .orderByAsc("end_date");
+        MPJLambdaQueryWrapper<ProjectPlan> wrapper = new MPJLambdaQueryWrapper<>();
+        wrapper.selectAll(ProjectPlan.class)
+                .eq(ProjectPlan::getProjectId, projectId)
+                .ne(ProjectPlan::getTaskStatus, TaskStatusEnum.COMPLETED.getDisplayName())
+                .ge(ProjectPlan::getEndDate, now)
+                .le(ProjectPlan::getEndDate, endDate)
+                .orderByAsc(ProjectPlan::getEndDate);
+
         return baseMapper.selectList(wrapper);
     }
 
@@ -115,10 +166,12 @@ public class ProjectPlanService extends MPJBaseServiceImpl<ProjectPlanDao, Proje
     }
 
     public List<ProjectPlan> getPlansByPhase(Long projectId, String phaseName) {
-        QueryWrapper<ProjectPlan> wrapper = new QueryWrapper<>();
-        wrapper.eq("project_id", projectId)
-                .eq("task_package", phaseName)
-                .orderByAsc("task_order");
+        MPJLambdaQueryWrapper<ProjectPlan> wrapper = new MPJLambdaQueryWrapper<>();
+        wrapper.selectAll(ProjectPlan.class)
+                .eq(ProjectPlan::getProjectId, projectId)
+                .eq(ProjectPlan::getTaskPackage, phaseName)
+                .orderByAsc(ProjectPlan::getStartDate);
+
         return baseMapper.selectList(wrapper);
     }
 
@@ -127,6 +180,29 @@ public class ProjectPlanService extends MPJBaseServiceImpl<ProjectPlanDao, Proje
         wrapper.eq("department", departmentName)
                 .eq("end_date", date);
         return baseMapper.selectCount(wrapper);
+    }
+
+    public List<Map<String, Object>> countTasksByDepartment(Long projectId, LocalDate start, LocalDate end) {
+        QueryWrapper<ProjectPlan> wrapper = new QueryWrapper<>();
+        wrapper.select("department, COUNT(*) as task_count")
+                .eq("project_id", projectId)
+                .ge("end_date", start)
+                .le("end_date", end)
+                .groupBy("department");
+
+        return baseMapper.selectMaps(wrapper);
+    }
+
+    public List<Map<String, Object>> countCompletedTasksByDepartment(Long projectId, LocalDate start, LocalDate end) {
+        QueryWrapper<ProjectPlan> wrapper = new QueryWrapper<>();
+        wrapper.select("department, COUNT(*) as task_count")
+                .eq("project_id", projectId)
+                .eq("task_status", "已完成")
+                .ge("real_end_date", start)
+                .le("real_end_date", end)
+                .groupBy("department");
+
+        return baseMapper.selectMaps(wrapper);
     }
 
 }

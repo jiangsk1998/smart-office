@@ -105,10 +105,11 @@ CREATE TABLE `tab_project_plan` (
                                     `task_status` varchar(16) COLLATE utf8mb4_general_ci DEFAULT '未开始' COMMENT '任务状态',
                                     `real_start_date` date DEFAULT NULL COMMENT '实际开始时间',
                                     `real_end_date` date DEFAULT NULL COMMENT '实际结束时间',
+                                    `phase_id` bigint DEFAULT NULL COMMENT '项目阶段ID',
                                     PRIMARY KEY (`project_plan_id`),
                                     KEY `fk_plan_project` (`project_id`),
                                     CONSTRAINT `fk_plan_project` FOREIGN KEY (`project_id`) REFERENCES `tab_project_info` (`project_id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='项目计划表';
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='项目计划表';
 
 
 

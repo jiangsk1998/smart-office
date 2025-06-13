@@ -1,4 +1,4 @@
-package com.zkyzn.project_manager.so.project_info;
+package com.zkyzn.project_manager.so.project.info;
 
 
 import io.swagger.v3.oas.annotations.media.Schema;

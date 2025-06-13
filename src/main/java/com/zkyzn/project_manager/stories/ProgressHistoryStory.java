@@ -1,8 +1,7 @@
 package com.zkyzn.project_manager.stories;
 
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.zkyzn.project_manager.models.ProjectPlan;
+import com.zkyzn.project_manager.enums.TaskStatusEnum;
 import com.zkyzn.project_manager.services.ProjectPlanService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
@@ -24,12 +23,20 @@ public class ProgressHistoryStory {
     @Resource
     private ProjectPlanService projectPlanService;
 
+    /**
+     * 根据项目ID、类型和日期获取进度率
+     * @param projectId
+     * @param type
+     * @param date
+     * @return
+     */
     public BigDecimal getProgressRate(Long projectId, String type, LocalDate date) {
+        // 根据type参数的不同，调用不同的方法计算进度率
         return switch (type) {
             case "overall" -> calculateOverallProgress(projectId, date);
             case "monthly" -> calculateMonthlyProgress(projectId, date);
             case "weekly" -> calculateWeeklyProgress(projectId, date);
-            case "delayed" -> calculateDelayedProgress(projectId, date);
+            // 默认返回0
             default -> BigDecimal.ZERO;
         };
     }
@@ -40,12 +47,7 @@ public class ProgressHistoryStory {
             return BigDecimal.ZERO;
         }
 
-        // 查询截止到该日期的完成数
-        QueryWrapper<ProjectPlan> wrapper = new QueryWrapper<>();
-        wrapper.eq("project_id", projectId)
-                .eq("task_status", "已完成")
-                .le("real_end_date", date);
-        long completed = projectPlanService.count(wrapper);
+        long completed = projectPlanService.countByProjectIdTaskStatusAndRealEndDate(projectId, TaskStatusEnum.COMPLETED.getDisplayName(), date);
 
         return BigDecimal.valueOf(completed)
                 .divide(BigDecimal.valueOf(total), 4, RoundingMode.HALF_UP);
@@ -75,18 +77,8 @@ public class ProgressHistoryStory {
             return BigDecimal.ZERO;
         }
 
-        long completed = projectPlanService.countCompletedByDateRange(projectId, startOfWeek, endOfWeek);
+        long completed = projectPlanService.countCompletedByDateRange(projectId, startOfWeek, date);
         return BigDecimal.valueOf(completed)
                 .divide(BigDecimal.valueOf(total), 4, RoundingMode.HALF_UP);
-    }
-
-    private BigDecimal calculateDelayedProgress(Long projectId, LocalDate date) {
-        QueryWrapper<ProjectPlan> wrapper = new QueryWrapper<>();
-        wrapper.eq("project_id", projectId)
-                .ne("task_status", "已完成")
-                .lt("end_date", date);
-        long delayed = projectPlanService.count(wrapper);
-
-        return BigDecimal.valueOf(delayed);
     }
 }

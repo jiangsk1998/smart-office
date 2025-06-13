@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 /**
  * @author Jiangsk
@@ -25,7 +25,7 @@ public class OperationLog {
     private String operatorName;
 
     @TableField("operate_time")
-    private Date operateTime;
+    private LocalDate operateTime;
 
     @TableField("operate_type")
     private String operateType;

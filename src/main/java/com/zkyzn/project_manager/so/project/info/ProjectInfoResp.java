@@ -1,4 +1,4 @@
-package com.zkyzn.project_manager.so.project_info;
+package com.zkyzn.project_manager.so.project.info;
 
 import com.zkyzn.project_manager.models.ProjectDocument;
 import com.zkyzn.project_manager.models.ProjectInfo;

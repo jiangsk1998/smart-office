@@ -1,6 +1,7 @@
 package com.zkyzn.project_manager.services;
 
 import com.github.yulichang.base.MPJBaseServiceImpl;
+import com.github.yulichang.query.MPJLambdaQueryWrapper;
 import com.zkyzn.project_manager.mappers.OperationLogDao;
 import com.zkyzn.project_manager.models.OperationLog;
 import com.zkyzn.project_manager.utils.IpUtil;
@@ -9,7 +10,8 @@ import com.zkyzn.project_manager.utils.SecurityUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
+import java.time.LocalDate;
+import java.util.List;
 
 
 @Service
@@ -34,7 +36,7 @@ public class OperationLogService extends MPJBaseServiceImpl<OperationLogDao, Ope
         OperationLog log = new OperationLog();
         log.setOperatorId(currentUserId);
         log.setOperatorName(currentUserName);
-        log.setOperateTime(new Date());
+        log.setOperateTime(LocalDate.now());
         log.setOperateType(operateType);
         log.setOperateTarget(operateTarget);
         log.setTargetId(targetId);
@@ -45,6 +47,15 @@ public class OperationLogService extends MPJBaseServiceImpl<OperationLogDao, Ope
         log.setIpAddress(IpUtil.getClientIp(request));
 
         this.save(log);
+    }
+
+    public List<OperationLog> getPlansByPhase(Long projectId) {
+        MPJLambdaQueryWrapper<OperationLog> wrapper = new MPJLambdaQueryWrapper<>();
+        wrapper.selectAll(OperationLog.class)
+                .eq(OperationLog::getProjectId, projectId)
+                .orderByAsc(OperationLog::getOperateTime);
+
+        return baseMapper.selectList(wrapper);
     }
 
 }
