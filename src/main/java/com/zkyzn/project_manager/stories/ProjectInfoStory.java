@@ -250,7 +250,8 @@ public class ProjectInfoStory {
      * @return 是否导入成功
      */
     public Boolean importProjectBatch(ProjectImportReq req) {
-        List<ProjectInfo> projectInfoList = ExcelUtil.parseProjectInfoSheet(req.getImportExcelFilePath(), "");
+        String filePath = FileUtil.getAbsolutePathByUrlAndRootPath(req.getImportExcelFilePath(), fileRootPath);
+        List<ProjectInfo> projectInfoList = ExcelUtil.parseProjectInfoSheet(filePath, "");
 
         // todo: 输出错误文档
 
