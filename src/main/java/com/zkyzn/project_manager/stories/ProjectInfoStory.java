@@ -9,6 +9,7 @@ import com.zkyzn.project_manager.models.ProjectPhase;
 import com.zkyzn.project_manager.models.ProjectPlan;
 import com.zkyzn.project_manager.services.*;
 import com.zkyzn.project_manager.so.project.dashboard.PhaseDetail;
+import com.zkyzn.project_manager.so.project.dashboard.Progress;
 import com.zkyzn.project_manager.so.project.info.*;
 import com.zkyzn.project_manager.utils.ExcelUtil;
 import com.zkyzn.project_manager.utils.FileUtil;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -291,9 +293,6 @@ public class ProjectInfoStory {
 
         return resp;
     }
-
-
-
 
     /**
      * 根据解析的计划列表生成阶段列表

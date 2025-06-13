@@ -12,9 +12,8 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author: Mr-ti
@@ -204,5 +203,136 @@ public class ProjectPlanService extends MPJBaseServiceImpl<ProjectPlanDao, Proje
 
         return baseMapper.selectMaps(wrapper);
     }
+
+    /**
+     * 统计指定科室在日期范围内的到期任务总数
+     */
+    public long countTasksDueBetweenDates(String departmentName, LocalDate startDate, LocalDate endDate) {
+        QueryWrapper<ProjectPlan> wrapper = new QueryWrapper<>();
+        wrapper.eq("department", departmentName)
+                .ge("end_date", startDate)
+                .le("end_date", endDate);
+        return baseMapper.selectCount(wrapper);
+    }
+
+    /**
+     * 根据科室名称获取其参与的所有不重复的项目ID列表
+     * @param departmentName 科室名称
+     * @return 项目ID列表
+     */
+    public List<Long> getProjectIdsByDepartment(String departmentName) {
+        QueryWrapper<ProjectPlan> wrapper = new QueryWrapper<>();
+        wrapper.select("DISTINCT project_id").eq("department", departmentName);
+        List<Object> projectIdsAsObjects = baseMapper.selectObjs(wrapper);
+        return projectIdsAsObjects.stream()
+                .map(obj -> Long.valueOf(obj.toString()))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 统计指定项目中，特定科室在日期范围内的任务总数
+     */
+    public long countTasksForDepartmentByDateRange(Long projectId, String departmentName, LocalDate start, LocalDate end) {
+        QueryWrapper<ProjectPlan> wrapper = new QueryWrapper<>();
+        wrapper.eq("project_id", projectId)
+                .eq("department", departmentName)
+                .ge("end_date", start)
+                .le("end_date", end);
+        return baseMapper.selectCount(wrapper);
+    }
+
+    /**
+     * 统计指定项目中，特定科室在日期范围内已完成的任务数
+     */
+    public long countCompletedTasksForDepartmentByDateRange(Long projectId, String departmentName, LocalDate start, LocalDate end) {
+        QueryWrapper<ProjectPlan> wrapper = new QueryWrapper<>();
+        wrapper.eq("project_id", projectId)
+                .eq("department", departmentName)
+                .eq("task_status", TaskStatusEnum.COMPLETED.getDisplayName())
+                .ge("end_date", start)
+                .le("end_date", end);
+        return baseMapper.selectCount(wrapper);
+    }
+
+    /**
+     * 统计指定科室在日期范围内计划完成且状态为“已完成”的任务数
+     */
+    public long countCompletedTasksByEndDateRange(String departmentName, LocalDate startDate, LocalDate endDate) {
+        QueryWrapper<ProjectPlan> wrapper = new QueryWrapper<>();
+        wrapper.eq("department", departmentName)
+                .eq("task_status", TaskStatusEnum.COMPLETED.getDisplayName()) // 增加了“已完成”的状态筛选
+                .ge("end_date", startDate)
+                .le("end_date", endDate);
+        return baseMapper.selectCount(wrapper);
+    }
+
+    /**
+     * 统计指定科室，在某日期范围（planStartDate-planEndDate）内计划完成，
+     * 并在某个截止日期（realEndDateCutoff）前实际完成的任务数
+     */
+    public long countCompletedTasksByDateRanges(String departmentName, LocalDate planStartDate, LocalDate planEndDate, LocalDate realEndDateCutoff) {
+        QueryWrapper<ProjectPlan> wrapper = new QueryWrapper<>();
+        wrapper.eq("department", departmentName)
+                .eq("task_status", TaskStatusEnum.COMPLETED.getDisplayName())
+                .ge("end_date", planStartDate)  // 任务应在本月内完成
+                .le("end_date", planEndDate)
+                .le("real_end_date", realEndDateCutoff); // 任务在指定日期或之前实际完成
+        return baseMapper.selectCount(wrapper);
+    }
+
+    /**
+     * 统计指定科室在某月内计划完成，但当前已拖期的任务数
+     * 拖期定义: 已到截止时间，但任务不处于“已完成”或者“中止”状态
+     */
+    public long countDelayedTasksForMonth(String departmentName, LocalDate monthStartDate, LocalDate monthEndDate) {
+        QueryWrapper<ProjectPlan> wrapper = new QueryWrapper<>();
+        wrapper.eq("department", departmentName)
+                .ge("end_date", monthStartDate)
+                .le("end_date", monthEndDate)
+                .lt("end_date", LocalDate.now()) // 关键：截止日期已过
+                .notIn("task_status", Arrays.asList(TaskStatusEnum.COMPLETED.toString(), TaskStatusEnum.STOP.toString())); // 关键：状态不是“已完成”或“中止”
+        return baseMapper.selectCount(wrapper);
+    }
+
+    /**
+     * 获取指定科室的所有不重复的责任人列表
+     * @param departmentName 科室名称
+     * @return 责任人姓名列表
+     */
+    public List<String> getUniqueResponsiblePersonsByDepartment(String departmentName) {
+        QueryWrapper<ProjectPlan> wrapper = new QueryWrapper<>();
+        wrapper.select("DISTINCT responsible_person").eq("department", departmentName);
+        List<Object> responsiblePersonsAsObjects = baseMapper.selectObjs(wrapper);
+        return responsiblePersonsAsObjects.stream()
+                .map(obj -> obj != null ? obj.toString() : null)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 统计指定科室中特定人员在日期范围内的应完成任务总数
+     */
+    public long countTasksForPersonByDateRange(String departmentName, String personName, LocalDate startDate, LocalDate endDate) {
+        QueryWrapper<ProjectPlan> wrapper = new QueryWrapper<>();
+        wrapper.eq("department", departmentName)
+                .eq("responsible_person", personName)
+                .ge("end_date", startDate)
+                .le("end_date", endDate);
+        return baseMapper.selectCount(wrapper);
+    }
+
+    /**
+     * 统计指定科室中特定人员在日期范围内已完成的任务数
+     */
+    public long countCompletedTasksForPersonByDateRange(String departmentName, String personName, LocalDate startDate, LocalDate endDate) {
+        QueryWrapper<ProjectPlan> wrapper = new QueryWrapper<>();
+        wrapper.eq("department", departmentName)
+                .eq("responsible_person", personName)
+                .eq("task_status", TaskStatusEnum.COMPLETED.getDisplayName())
+                .ge("end_date", startDate)
+                .le("end_date", endDate);
+        return baseMapper.selectCount(wrapper);
+    }
+
 
 }
