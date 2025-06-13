@@ -15,6 +15,7 @@ import java.math.RoundingMode;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.time.temporal.WeekFields;
 import java.util.ArrayList;
@@ -300,6 +301,49 @@ public class DepartmentPlanStory {
             dailyProgressList.add(new DepartmentMonthlyProgressResp.DailyProgress(currentDate, dailyProgress));
         }
         response.setLast10DaysProgress(dailyProgressList);
+
+        return response;
+    }
+
+    /**
+     * 获取科室月度拖期项目统计
+     * @param departmentName 科室名称
+     * @return 月度拖期统计
+     */
+    public DepartmentMonthlyDelayedStatsResp getDepartmentMonthlyDelayedStats(String departmentName) {
+        DepartmentMonthlyDelayedStatsResp response = new DepartmentMonthlyDelayedStatsResp();
+        LocalDate today = LocalDate.now();
+
+        // 1. 本月拖期项目数
+        YearMonth thisMonth = YearMonth.from(today);
+        long thisMonthDelayedCount = projectPlanService.countDelayedTasksForMonth(departmentName, thisMonth.atDay(1), thisMonth.atEndOfMonth());
+        response.setThisMonthDelayedCount(thisMonthDelayedCount);
+
+        // 2. 与上月比较
+        YearMonth lastMonth = thisMonth.minusMonths(1);
+        long lastMonthDelayedCount = projectPlanService.countDelayedTasksForMonth(departmentName, lastMonth.atDay(1), lastMonth.atEndOfMonth());
+
+        if (lastMonthDelayedCount > 0) {
+            BigDecimal change = BigDecimal.valueOf(thisMonthDelayedCount - lastMonthDelayedCount)
+                    .divide(BigDecimal.valueOf(lastMonthDelayedCount), 4, RoundingMode.HALF_UP)
+                    .multiply(BigDecimal.valueOf(100));
+            response.setChangePercentage(String.format("%+.2f%%", change));
+        } else if (thisMonthDelayedCount > 0) {
+            response.setChangePercentage("+100.00%");
+        } else {
+            response.setChangePercentage("0.00%");
+        }
+
+        // 3. 自本月往前十个月的拖期项目数
+        List<DepartmentMonthlyDelayedStatsResp.MonthlyCount> monthlyCounts = new ArrayList<>();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM");
+
+        for (int i = 9; i >= 0; i--) {
+            YearMonth currentMonth = thisMonth.minusMonths(i);
+            long count = projectPlanService.countDelayedTasksForMonth(departmentName, currentMonth.atDay(1), currentMonth.atEndOfMonth());
+            monthlyCounts.add(new DepartmentMonthlyDelayedStatsResp.MonthlyCount(currentMonth.format(formatter), count));
+        }
+        response.setLast10MonthsDelayedCounts(monthlyCounts);
 
         return response;
     }

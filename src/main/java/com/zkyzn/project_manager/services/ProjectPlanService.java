@@ -3,6 +3,7 @@ package com.zkyzn.project_manager.services;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.yulichang.base.MPJBaseServiceImpl;
+import com.zkyzn.project_manager.enums.TaskStatusEnum;
 import com.zkyzn.project_manager.mappers.ProjectPlanDao;
 import com.zkyzn.project_manager.models.ProjectPlan;
 import com.zkyzn.project_manager.so.department.DepartmentWeeklyProgressResp;
@@ -205,6 +206,20 @@ public class ProjectPlanService extends MPJBaseServiceImpl<ProjectPlanDao, Proje
                 .ge("end_date", planStartDate)  // 任务应在本月内完成
                 .le("end_date", planEndDate)
                 .le("real_end_date", realEndDateCutoff); // 任务在指定日期或之前实际完成
+        return baseMapper.selectCount(wrapper);
+    }
+
+    /**
+     * 统计指定科室在某月内计划完成，但当前已拖期的任务数
+     * 拖期定义: 已到截止时间，但任务不处于“已完成”或者“中止”状态
+     */
+    public long countDelayedTasksForMonth(String departmentName, LocalDate monthStartDate, LocalDate monthEndDate) {
+        QueryWrapper<ProjectPlan> wrapper = new QueryWrapper<>();
+        wrapper.eq("department", departmentName)
+                .ge("end_date", monthStartDate)
+                .le("end_date", monthEndDate)
+                .lt("end_date", LocalDate.now()) // 关键：截止日期已过
+                .notIn("task_status", Arrays.asList(TaskStatusEnum.COMPLETED.toString(), TaskStatusEnum.STOP.toString())); // 关键：状态不是“已完成”或“中止”
         return baseMapper.selectCount(wrapper);
     }
 
