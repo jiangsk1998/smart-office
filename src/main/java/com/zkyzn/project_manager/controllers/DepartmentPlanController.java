@@ -2,7 +2,7 @@ package com.zkyzn.project_manager.controllers;
 
 import com.zkyzn.project_manager.so.Result;
 import com.zkyzn.project_manager.so.ResultList;
-import com.zkyzn.project_manager.so.department.*;
+import com.zkyzn.project_manager.so.department.plan.*;
 import com.zkyzn.project_manager.stories.DepartmentPlanStory;
 import com.zkyzn.project_manager.utils.ResUtil;
 import io.swagger.v3.oas.annotations.Operation;

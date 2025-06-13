@@ -5,7 +5,7 @@ import com.zkyzn.project_manager.models.ProjectInfo;
 import com.zkyzn.project_manager.services.DepartmentService;
 import com.zkyzn.project_manager.services.ProjectInfoService;
 import com.zkyzn.project_manager.services.ProjectPlanService;
-import com.zkyzn.project_manager.so.department.*;
+import com.zkyzn.project_manager.so.department.plan.*;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;

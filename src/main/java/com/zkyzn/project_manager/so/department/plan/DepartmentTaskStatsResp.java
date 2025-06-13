@@ -1,4 +1,4 @@
-package com.zkyzn.project_manager.so.department;
+package com.zkyzn.project_manager.so.department.plan;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
