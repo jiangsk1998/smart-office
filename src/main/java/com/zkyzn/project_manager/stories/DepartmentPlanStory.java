@@ -7,17 +7,22 @@ import com.zkyzn.project_manager.services.ProjectInfoService;
 import com.zkyzn.project_manager.services.ProjectPlanService;
 import com.zkyzn.project_manager.so.department.DepartmentProjectProgressResp;
 import com.zkyzn.project_manager.so.department.DepartmentTaskStatsResp;
+import com.zkyzn.project_manager.so.department.DepartmentWeeklyTaskStatsResp;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.time.temporal.TemporalAdjusters;
+import java.time.temporal.WeekFields;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 
@@ -66,6 +71,52 @@ public class DepartmentPlanStory {
             dailyCounts.add(new DepartmentTaskStatsResp.DailyCount(date, count));
         }
         response.setLast10DaysDueCounts(dailyCounts);
+
+        return response;
+    }
+
+    public DepartmentWeeklyTaskStatsResp getDepartmentWeeklyTaskStats(String departmentName) {
+        DepartmentWeeklyTaskStatsResp response = new DepartmentWeeklyTaskStatsResp();
+        LocalDate today = LocalDate.now();
+
+        // 定义周的开始和结束（周一到周日）
+        LocalDate startOfWeek = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        LocalDate endOfWeek = today.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
+
+        // 1. 本周到期数
+        long thisWeekDueCount = projectPlanService.countTasksDueBetweenDates(departmentName, startOfWeek, endOfWeek);
+        response.setThisWeekDueCount(thisWeekDueCount);
+
+        // 2. 与上周到期数比较
+        LocalDate startOfLastWeek = startOfWeek.minusWeeks(1);
+        LocalDate endOfLastWeek = endOfWeek.minusWeeks(1);
+        long lastWeekDueCount = projectPlanService.countTasksDueBetweenDates(departmentName, startOfLastWeek, endOfLastWeek);
+
+        if (lastWeekDueCount > 0) {
+            BigDecimal change = BigDecimal.valueOf(thisWeekDueCount - lastWeekDueCount)
+                    .divide(BigDecimal.valueOf(lastWeekDueCount), 4, RoundingMode.HALF_UP)
+                    .multiply(BigDecimal.valueOf(100));
+            response.setChangePercentage(String.format("%+.2f%%", change));
+        } else if (thisWeekDueCount > 0) {
+            response.setChangePercentage("+100.00%");
+        } else {
+            response.setChangePercentage("0.00%");
+        }
+
+        // 3. 近10周的每日到期数
+        List<DepartmentWeeklyTaskStatsResp.WeeklyCount> weeklyCounts = new ArrayList<>();
+        WeekFields weekFields = WeekFields.of(Locale.getDefault());
+
+        for (int i = 9; i >= 0; i--) {
+            LocalDate weekStartDate = startOfWeek.minusWeeks(i);
+            LocalDate weekEndDate = endOfWeek.minusWeeks(i);
+            long count = projectPlanService.countTasksDueBetweenDates(departmentName, weekStartDate, weekEndDate);
+
+            // 格式化周的标签，例如 "2025-W23"
+            String weekLabel = weekStartDate.getYear() + "-W" + weekStartDate.get(weekFields.weekOfWeekBasedYear());
+            weeklyCounts.add(new DepartmentWeeklyTaskStatsResp.WeeklyCount(weekLabel, count));
+        }
+        response.setLast10WeeksDueCounts(weeklyCounts);
 
         return response;
     }

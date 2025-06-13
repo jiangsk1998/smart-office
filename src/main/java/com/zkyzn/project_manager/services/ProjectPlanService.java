@@ -131,6 +131,17 @@ public class ProjectPlanService extends MPJBaseServiceImpl<ProjectPlanDao, Proje
     }
 
     /**
+     * 统计指定科室在日期范围内的到期任务总数
+     */
+    public long countTasksDueBetweenDates(String departmentName, LocalDate startDate, LocalDate endDate) {
+        QueryWrapper<ProjectPlan> wrapper = new QueryWrapper<>();
+        wrapper.eq("department", departmentName)
+                .ge("end_date", startDate)
+                .le("end_date", endDate);
+        return baseMapper.selectCount(wrapper);
+    }
+
+    /**
      * 根据科室名称获取其参与的所有不重复的项目ID列表
      * @param departmentName 科室名称
      * @return 项目ID列表
