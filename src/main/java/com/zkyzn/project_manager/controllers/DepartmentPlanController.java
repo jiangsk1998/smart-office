@@ -54,7 +54,7 @@ public class DepartmentPlanController {
     }
 
     @Operation(summary = "月工作完成进度")
-    @GetMapping(value = "/{departmentName}/monthly/completion-progress")
+    @GetMapping(value = "/{departmentName}/monthly/completion/progress")
     public Result<DepartmentMonthlyProgressResp> getDepartmentMonthlyProgressStats(
             @PathVariable("departmentName") String departmentName
     ) {
@@ -62,11 +62,20 @@ public class DepartmentPlanController {
     }
 
     @Operation(summary = "项目拖期项统计")
-    @GetMapping(value = "/{departmentName}/monthly/delayed-stats")
+    @GetMapping(value = "/{departmentName}/monthly/delayed/stats")
     public Result<DepartmentMonthlyDelayedStatsResp> getDepartmentMonthlyDelayedStats(
             @PathVariable("departmentName") String departmentName
     ) {
         return ResUtil.ok(departmentPlanStory.getDepartmentMonthlyDelayedStats(departmentName));
+    }
+
+    @Operation(summary = "人员月进度")
+    @GetMapping("/{departmentName}/personnel-monthly/progress")
+    public ResultList<PersonnelMonthlyProgressResp> getPersonnelMonthlyProgress(
+            @PathVariable("departmentName") String departmentName
+    ) {
+        List<PersonnelMonthlyProgressResp> result = departmentPlanStory.getPersonnelMonthlyProgress(departmentName);
+        return ResUtil.list(result);
     }
 
 }

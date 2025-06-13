@@ -6,16 +6,12 @@ import com.github.yulichang.base.MPJBaseServiceImpl;
 import com.zkyzn.project_manager.enums.TaskStatusEnum;
 import com.zkyzn.project_manager.mappers.ProjectPlanDao;
 import com.zkyzn.project_manager.models.ProjectPlan;
-import com.zkyzn.project_manager.so.department.DepartmentWeeklyProgressResp;
 import com.zkyzn.project_manager.so.project_info.ProjectDetailResp.*;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.temporal.TemporalAdjusters;
-import java.time.temporal.WeekFields;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -177,7 +173,7 @@ public class ProjectPlanService extends MPJBaseServiceImpl<ProjectPlanDao, Proje
         QueryWrapper<ProjectPlan> wrapper = new QueryWrapper<>();
         wrapper.eq("project_id", projectId)
                 .eq("department", departmentName)
-                .eq("task_status", "已完成")
+                .eq("task_status", TaskStatusEnum.COMPLETED.getDisplayName())
                 .ge("end_date", start)
                 .le("end_date", end);
         return baseMapper.selectCount(wrapper);
@@ -189,7 +185,7 @@ public class ProjectPlanService extends MPJBaseServiceImpl<ProjectPlanDao, Proje
     public long countCompletedTasksByEndDateRange(String departmentName, LocalDate startDate, LocalDate endDate) {
         QueryWrapper<ProjectPlan> wrapper = new QueryWrapper<>();
         wrapper.eq("department", departmentName)
-                .eq("task_status", "已完成") // 增加了“已完成”的状态筛选
+                .eq("task_status", TaskStatusEnum.COMPLETED.getDisplayName()) // 增加了“已完成”的状态筛选
                 .ge("end_date", startDate)
                 .le("end_date", endDate);
         return baseMapper.selectCount(wrapper);
@@ -202,7 +198,7 @@ public class ProjectPlanService extends MPJBaseServiceImpl<ProjectPlanDao, Proje
     public long countCompletedTasksByDateRanges(String departmentName, LocalDate planStartDate, LocalDate planEndDate, LocalDate realEndDateCutoff) {
         QueryWrapper<ProjectPlan> wrapper = new QueryWrapper<>();
         wrapper.eq("department", departmentName)
-                .eq("task_status", "已完成")
+                .eq("task_status", TaskStatusEnum.COMPLETED.getDisplayName())
                 .ge("end_date", planStartDate)  // 任务应在本月内完成
                 .le("end_date", planEndDate)
                 .le("real_end_date", realEndDateCutoff); // 任务在指定日期或之前实际完成
@@ -220,6 +216,46 @@ public class ProjectPlanService extends MPJBaseServiceImpl<ProjectPlanDao, Proje
                 .le("end_date", monthEndDate)
                 .lt("end_date", LocalDate.now()) // 关键：截止日期已过
                 .notIn("task_status", Arrays.asList(TaskStatusEnum.COMPLETED.toString(), TaskStatusEnum.STOP.toString())); // 关键：状态不是“已完成”或“中止”
+        return baseMapper.selectCount(wrapper);
+    }
+
+    /**
+     * 获取指定科室的所有不重复的责任人列表
+     * @param departmentName 科室名称
+     * @return 责任人姓名列表
+     */
+    public List<String> getUniqueResponsiblePersonsByDepartment(String departmentName) {
+        QueryWrapper<ProjectPlan> wrapper = new QueryWrapper<>();
+        wrapper.select("DISTINCT responsible_person").eq("department", departmentName);
+        List<Object> responsiblePersonsAsObjects = baseMapper.selectObjs(wrapper);
+        return responsiblePersonsAsObjects.stream()
+                .map(obj -> obj != null ? obj.toString() : null)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 统计指定科室中特定人员在日期范围内的应完成任务总数
+     */
+    public long countTasksForPersonByDateRange(String departmentName, String personName, LocalDate startDate, LocalDate endDate) {
+        QueryWrapper<ProjectPlan> wrapper = new QueryWrapper<>();
+        wrapper.eq("department", departmentName)
+                .eq("responsible_person", personName)
+                .ge("end_date", startDate)
+                .le("end_date", endDate);
+        return baseMapper.selectCount(wrapper);
+    }
+
+    /**
+     * 统计指定科室中特定人员在日期范围内已完成的任务数
+     */
+    public long countCompletedTasksForPersonByDateRange(String departmentName, String personName, LocalDate startDate, LocalDate endDate) {
+        QueryWrapper<ProjectPlan> wrapper = new QueryWrapper<>();
+        wrapper.eq("department", departmentName)
+                .eq("responsible_person", personName)
+                .eq("task_status", TaskStatusEnum.COMPLETED.getDisplayName())
+                .ge("end_date", startDate)
+                .le("end_date", endDate);
         return baseMapper.selectCount(wrapper);
     }
 

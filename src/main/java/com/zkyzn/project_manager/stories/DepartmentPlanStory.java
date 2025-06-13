@@ -348,4 +348,52 @@ public class DepartmentPlanStory {
         return response;
     }
 
+    public List<PersonnelMonthlyProgressResp> getPersonnelMonthlyProgress(String departmentName) {
+        // 1. 获取该科室下的所有责任人
+        List<String> responsiblePersons = projectPlanService.getUniqueResponsiblePersonsByDepartment(departmentName);
+        if (CollectionUtils.isEmpty(responsiblePersons)) {
+            return Collections.emptyList();
+        }
+
+        // 2. 定义本月的开始和结束日期
+        YearMonth thisMonth = YearMonth.now();
+        LocalDate firstDayOfMonth = thisMonth.atDay(1);
+        LocalDate lastDayOfMonth = thisMonth.atEndOfMonth();
+
+        List<PersonnelMonthlyProgressResp> progressList = new ArrayList<>();
+
+        // 3. 遍历每一位责任人，计算其月度进度
+        for (String person : responsiblePersons) {
+            PersonnelMonthlyProgressResp progressResp = new PersonnelMonthlyProgressResp();
+            progressResp.setResponsiblePerson(person);
+
+            // 分母：获取该人员本月应完成的任务总数
+            long totalTasks = projectPlanService.countTasksForPersonByDateRange(departmentName, person, firstDayOfMonth, lastDayOfMonth);
+            progressResp.setTotalTasks(totalTasks);
+
+            if (totalTasks == 0) {
+                progressResp.setCompletedTasks(0);
+                progressResp.setMonthlyProgress(BigDecimal.ZERO);
+                progressResp.setMonthlyProgressFraction("0/0"); // 新增
+            } else {
+                // 分子：获取该人员本月已完成的任务数
+                long completedTasks = projectPlanService.countCompletedTasksForPersonByDateRange(departmentName, person, firstDayOfMonth, lastDayOfMonth);
+                progressResp.setCompletedTasks(completedTasks);
+
+                // 设置分数形式的进度
+                progressResp.setMonthlyProgressFraction(completedTasks + "/" + totalTasks); // 新增
+
+                // 计算进度百分比
+                BigDecimal progress = BigDecimal.valueOf(completedTasks)
+                        .divide(BigDecimal.valueOf(totalTasks), 4, RoundingMode.HALF_UP)
+                        .multiply(BigDecimal.valueOf(100));
+                progressResp.setMonthlyProgress(progress);
+            }
+            progressList.add(progressResp);
+        }
+
+        return progressList;
+    }
+
+
 }
