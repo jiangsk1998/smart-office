@@ -194,6 +194,19 @@ public class ProjectPlanService extends MPJBaseServiceImpl<ProjectPlanDao, Proje
         return baseMapper.selectCount(wrapper);
     }
 
+    /**
+     * 统计指定科室，在某日期范围（planStartDate-planEndDate）内计划完成，
+     * 并在某个截止日期（realEndDateCutoff）前实际完成的任务数
+     */
+    public long countCompletedTasksByDateRanges(String departmentName, LocalDate planStartDate, LocalDate planEndDate, LocalDate realEndDateCutoff) {
+        QueryWrapper<ProjectPlan> wrapper = new QueryWrapper<>();
+        wrapper.eq("department", departmentName)
+                .eq("task_status", "已完成")
+                .ge("end_date", planStartDate)  // 任务应在本月内完成
+                .le("end_date", planEndDate)
+                .le("real_end_date", realEndDateCutoff); // 任务在指定日期或之前实际完成
+        return baseMapper.selectCount(wrapper);
+    }
 
 
 }

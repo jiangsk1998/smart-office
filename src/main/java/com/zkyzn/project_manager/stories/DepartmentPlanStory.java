@@ -5,10 +5,7 @@ import com.zkyzn.project_manager.models.ProjectInfo;
 import com.zkyzn.project_manager.services.DepartmentService;
 import com.zkyzn.project_manager.services.ProjectInfoService;
 import com.zkyzn.project_manager.services.ProjectPlanService;
-import com.zkyzn.project_manager.so.department.DepartmentProjectProgressResp;
-import com.zkyzn.project_manager.so.department.DepartmentTaskStatsResp;
-import com.zkyzn.project_manager.so.department.DepartmentWeeklyProgressResp;
-import com.zkyzn.project_manager.so.department.DepartmentWeeklyTaskStatsResp;
+import com.zkyzn.project_manager.so.department.*;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
@@ -238,6 +235,71 @@ public class DepartmentPlanStory {
             progressList.add(new DepartmentWeeklyProgressResp.WeeklyProgress(weekLabel, progress));
         }
         response.setLast10WeeksProgress(progressList);
+
+        return response;
+    }
+
+    /**
+     * 获取科室月工作完成进度
+     * @param departmentName 科室名称
+     * @return 月度进度统计
+     */
+    public DepartmentMonthlyProgressResp getDepartmentMonthlyProgressStats(String departmentName) {
+        DepartmentMonthlyProgressResp response = new DepartmentMonthlyProgressResp();
+        LocalDate today = LocalDate.now();
+        LocalDate yesterday = today.minusDays(1);
+
+        // 定义本月的开始和结束日期
+        YearMonth thisMonth = YearMonth.from(today);
+        LocalDate firstDayOfMonth = thisMonth.atDay(1);
+        LocalDate lastDayOfMonth = thisMonth.atEndOfMonth();
+
+        // 分母：获取本月应完成的总任务数
+        long totalTasksInMonth = projectPlanService.countTasksDueBetweenDates(departmentName, firstDayOfMonth, lastDayOfMonth);
+
+        // 如果本月无应完成任务，则直接返回
+        if (totalTasksInMonth == 0) {
+            response.setThisMonthProgress(BigDecimal.ZERO);
+            response.setDailyChangePercentage("0.00%");
+            response.setLast10DaysProgress(Collections.emptyList());
+            return response;
+        }
+
+        // 1. 计算今天的月度进度
+        long completedTasksToday = projectPlanService.countCompletedTasksByDateRanges(departmentName, firstDayOfMonth, lastDayOfMonth, today);
+        BigDecimal todayProgress = BigDecimal.valueOf(completedTasksToday)
+                .divide(BigDecimal.valueOf(totalTasksInMonth), 4, RoundingMode.HALF_UP)
+                .multiply(BigDecimal.valueOf(100));
+        response.setThisMonthProgress(todayProgress);
+
+        // 2. 计算与昨日的进度变化
+        long completedTasksYesterday = projectPlanService.countCompletedTasksByDateRanges(departmentName, firstDayOfMonth, lastDayOfMonth, yesterday);
+        BigDecimal yesterdayProgress = BigDecimal.valueOf(completedTasksYesterday)
+                .divide(BigDecimal.valueOf(totalTasksInMonth), 4, RoundingMode.HALF_UP)
+                .multiply(BigDecimal.valueOf(100));
+
+        if (yesterdayProgress.compareTo(BigDecimal.ZERO) > 0) {
+            BigDecimal change = todayProgress.subtract(yesterdayProgress)
+                    .divide(yesterdayProgress, 4, RoundingMode.HALF_UP)
+                    .multiply(BigDecimal.valueOf(100));
+            response.setDailyChangePercentage(String.format("%+.2f%%", change));
+        } else if (todayProgress.compareTo(BigDecimal.ZERO) > 0) {
+            response.setDailyChangePercentage("+100.00%");
+        } else {
+            response.setDailyChangePercentage("0.00%");
+        }
+
+        // 3. 计算近10日的日进度
+        List<DepartmentMonthlyProgressResp.DailyProgress> dailyProgressList = new ArrayList<>();
+        for (int i = 9; i >= 0; i--) {
+            LocalDate currentDate = today.minusDays(i);
+            long completedCount = projectPlanService.countCompletedTasksByDateRanges(departmentName, firstDayOfMonth, lastDayOfMonth, currentDate);
+            BigDecimal dailyProgress = BigDecimal.valueOf(completedCount)
+                    .divide(BigDecimal.valueOf(totalTasksInMonth), 4, RoundingMode.HALF_UP)
+                    .multiply(BigDecimal.valueOf(100));
+            dailyProgressList.add(new DepartmentMonthlyProgressResp.DailyProgress(currentDate, dailyProgress));
+        }
+        response.setLast10DaysProgress(dailyProgressList);
 
         return response;
     }

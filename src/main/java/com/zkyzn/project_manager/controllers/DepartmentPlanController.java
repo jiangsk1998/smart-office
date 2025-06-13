@@ -2,10 +2,7 @@ package com.zkyzn.project_manager.controllers;
 
 import com.zkyzn.project_manager.so.Result;
 import com.zkyzn.project_manager.so.ResultList;
-import com.zkyzn.project_manager.so.department.DepartmentProjectProgressResp;
-import com.zkyzn.project_manager.so.department.DepartmentTaskStatsResp;
-import com.zkyzn.project_manager.so.department.DepartmentWeeklyProgressResp;
-import com.zkyzn.project_manager.so.department.DepartmentWeeklyTaskStatsResp;
+import com.zkyzn.project_manager.so.department.*;
 import com.zkyzn.project_manager.stories.DepartmentPlanStory;
 import com.zkyzn.project_manager.utils.ResUtil;
 import io.swagger.v3.oas.annotations.Operation;
@@ -47,11 +44,20 @@ public class DepartmentPlanController {
     ) {
         return ResUtil.ok(departmentPlanStory.getDepartmentWeeklyTaskStats(departmentName));
     }
+
     @Operation(summary = "周工作完成进度")
     @GetMapping(value = "/{departmentName}/weekly-progress")
     public Result<DepartmentWeeklyProgressResp> getDepartmentWeeklyProgress(
             @PathVariable("departmentName") String departmentName
     ) {
         return ResUtil.ok(departmentPlanStory.getDepartmentWeeklyProgress(departmentName));
+    }
+
+    @Operation(summary = "月工作完成进度")
+    @GetMapping(value = "/{departmentName}/monthly-completion-progress")
+    public Result<DepartmentMonthlyProgressResp> getDepartmentMonthlyProgressStats(
+            @PathVariable("departmentName") String departmentName
+    ) {
+        return ResUtil.ok(departmentPlanStory.getDepartmentMonthlyProgressStats(departmentName));
     }
 }
