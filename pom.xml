@@ -185,6 +185,14 @@
                 </configuration>
             </plugin>
         </plugins>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>**/*.xml</include>  <!-- Includes XML files -->
+                </includes>
+            </resource>
+        </resources>
     </build>
 
 </project>

@@ -24,7 +24,7 @@ spring:
       max-request-size: 100MB
 
 mybatis-plus:
-  mapper-locations: classpath*:/mappers/**/*.xml
+  mapper-locations: classpath*:mappers/**/*.xml
   global-config:
     db-config:
       logic-delete-value: 1
