@@ -120,13 +120,7 @@ public class DepartmentPlanStory {
         return response;
     }
 
-    public List<DepartmentProjectProgressResp> getDepartmentProjectMonthlyProgress(Long departmentId) {
-        Department department = departmentService.getById(departmentId);
-        if (department == null) {
-            return Collections.emptyList();
-        }
-        String departmentName = department.getName();
-
+    public List<DepartmentProjectProgressResp> getDepartmentProjectMonthlyProgress(String departmentName) {
         // 1. 从 plan 表获取本科室参与的所有项目ID
         List<Long> projectIds = projectPlanService.getProjectIdsByDepartment(departmentName);
         if (CollectionUtils.isEmpty(projectIds)) {

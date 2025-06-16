@@ -29,11 +29,11 @@ public class DepartmentPlanController {
     }
 
     @Operation(summary = "项目月进度")
-    @GetMapping("/{departmentId}/projects/monthly/progress")
+    @GetMapping("/{departmentName}/projects/monthly/progress")
     public ResultList<DepartmentProjectProgressResp> getDepartmentProjectMonthlyProgress(
-            @PathVariable Long departmentId
+            @PathVariable String departmentName
     ) {
-        List<DepartmentProjectProgressResp> result = departmentPlanStory.getDepartmentProjectMonthlyProgress(departmentId);
+        List<DepartmentProjectProgressResp> result = departmentPlanStory.getDepartmentProjectMonthlyProgress(departmentName);
         return ResUtil.list(result);
     }
 
