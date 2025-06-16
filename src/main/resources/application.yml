@@ -43,3 +43,9 @@ file:
     plan: C:\Users\biles\Documents\Works\Zky\projectmanagerapi\file\old_drawing_plan
   root:
     path: C:\Users\biles\Documents\Works\Zky\projectmanagerapi\file
+
+debug: true
+logging:
+  level:
+    org.springframework.boot: debug
+

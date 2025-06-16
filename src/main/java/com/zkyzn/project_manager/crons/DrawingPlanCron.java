@@ -1,13 +1,23 @@
 package com.zkyzn.project_manager.crons;
 
+import cn.hutool.core.date.DateTime;
+import cn.hutool.core.date.DateUtil;
+import cn.idev.excel.FastExcel;
+import com.zkyzn.project_manager.converts.imports.DrawingPlanExcel;
+import com.zkyzn.project_manager.listener.excel.DrawingPlanImportListener;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.stream.Stream;
 
 /**
@@ -25,13 +35,24 @@ public class DrawingPlanCron {
     /**
      * 每隔一段时间处理图纸计划相关数据
      */
-    @Scheduled(cron = "0 */5 * * * *")
+    @Scheduled(cron = "0 */1 * * * *")
     public void ProcessDrawingPlan() throws IOException {
         // 读取历史图纸列表
         try (Stream<Path> paths = Files.list(Paths.get(oldPlanDir))) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/M/d");
             paths.filter(p -> p.toString().endsWith(".xls"))
-                    .forEach(p -> {
-
+                    .forEach(path -> {
+                        DrawingPlanImportListener listener = new DrawingPlanImportListener();
+                        FastExcel.read(path.toFile(), DrawingPlanExcel.class, listener).sheet().doRead();
+                        List<LocalDate> planDateStream = listener
+                                .getData()
+                                .stream()
+                                .map(DrawingPlanExcel::getPlanDate)
+                                .map(time -> LocalDate.parse(time, formatter))
+                                .toList();
+                        LocalDate maxDate = planDateStream.stream().max(LocalDate::compareTo).orElse(LocalDate.now());
+                        LocalDate minDate = planDateStream.stream().min(LocalDate::compareTo).orElse(LocalDate.now());
+                        System.out.println("导入成功，数据量: " + listener.getData().size());
                     });
         }
     }
