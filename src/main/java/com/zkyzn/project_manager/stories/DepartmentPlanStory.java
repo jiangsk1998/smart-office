@@ -1,6 +1,5 @@
 package com.zkyzn.project_manager.stories;
 
-import com.zkyzn.project_manager.models.Department;
 import com.zkyzn.project_manager.models.ProjectInfo;
 import com.zkyzn.project_manager.services.DepartmentService;
 import com.zkyzn.project_manager.services.ProjectInfoService;
@@ -40,7 +39,7 @@ public class DepartmentPlanStory {
     @Resource
     private ProjectInfoService projectInfoService;
 
-    public DepartmentTaskStatsResp getDepartmentTaskStats(String departmentName) {
+    public DepartmentTaskStatsResp getDepartmentTaskStatsByDepartmentName(String departmentName) {
         DepartmentTaskStatsResp response = new DepartmentTaskStatsResp();
         LocalDate today = LocalDate.now();
         LocalDate yesterday = today.minusDays(1);
@@ -74,7 +73,7 @@ public class DepartmentPlanStory {
         return response;
     }
 
-    public DepartmentWeeklyTaskStatsResp getDepartmentWeeklyTaskStats(String departmentName) {
+    public DepartmentWeeklyTaskStatsResp getDepartmentWeeklyTaskStatsByDepartmentName(String departmentName) {
         DepartmentWeeklyTaskStatsResp response = new DepartmentWeeklyTaskStatsResp();
         LocalDate today = LocalDate.now();
 
@@ -120,7 +119,7 @@ public class DepartmentPlanStory {
         return response;
     }
 
-    public List<DepartmentProjectProgressResp> getDepartmentProjectMonthlyProgress(String departmentName) {
+    public List<DepartmentProjectProgressResp> getDepartmentProjectMonthlyProgressByDepartmentName(String departmentName) {
         // 1. 从 plan 表获取本科室参与的所有项目ID
         List<Long> projectIds = projectPlanService.getProjectIdsByDepartment(departmentName);
         if (CollectionUtils.isEmpty(projectIds)) {
@@ -191,7 +190,7 @@ public class DepartmentPlanStory {
      * @param departmentName 科室名称
      * @return 进度统计响应体
      */
-    public DepartmentWeeklyProgressResp getDepartmentWeeklyProgress(String departmentName) {
+    public DepartmentWeeklyProgressResp getDepartmentWeeklyProgressByDepartmentName(String departmentName) {
         DepartmentWeeklyProgressResp response = new DepartmentWeeklyProgressResp();
         LocalDate today = LocalDate.now();
 
@@ -239,7 +238,7 @@ public class DepartmentPlanStory {
      * @param departmentName 科室名称
      * @return 月度进度统计
      */
-    public DepartmentMonthlyProgressResp getDepartmentMonthlyProgressStats(String departmentName) {
+    public DepartmentMonthlyProgressResp getDepartmentMonthlyProgressStatsByDepartmentName(String departmentName) {
         DepartmentMonthlyProgressResp response = new DepartmentMonthlyProgressResp();
         LocalDate today = LocalDate.now();
         LocalDate yesterday = today.minusDays(1);
@@ -304,7 +303,7 @@ public class DepartmentPlanStory {
      * @param departmentName 科室名称
      * @return 月度拖期统计
      */
-    public DepartmentMonthlyDelayedStatsResp getDepartmentMonthlyDelayedStats(String departmentName) {
+    public DepartmentMonthlyDelayedStatsResp getDepartmentMonthlyDelayedStatsByDepartmentName(String departmentName) {
         DepartmentMonthlyDelayedStatsResp response = new DepartmentMonthlyDelayedStatsResp();
         LocalDate today = LocalDate.now();
 
@@ -342,7 +341,7 @@ public class DepartmentPlanStory {
         return response;
     }
 
-    public List<PersonnelMonthlyProgressResp> getPersonnelMonthlyProgress(String departmentName) {
+    public List<PersonnelMonthlyProgressResp> getPersonnelMonthlyProgressByDepartmentName(String departmentName) {
         // 1. 获取该科室下的所有责任人
         List<String> responsiblePersons = projectPlanService.getUniqueResponsiblePersonsByDepartment(departmentName);
         if (CollectionUtils.isEmpty(responsiblePersons)) {

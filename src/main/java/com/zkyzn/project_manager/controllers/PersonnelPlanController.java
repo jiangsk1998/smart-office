@@ -1,6 +1,5 @@
 package com.zkyzn.project_manager.controllers;
 
-import com.zkyzn.project_manager.models.MessageInfo;
 import com.zkyzn.project_manager.so.Result;
 import com.zkyzn.project_manager.so.ResultList;
 import com.zkyzn.project_manager.so.personnel.*;
@@ -29,7 +28,7 @@ public class PersonnelPlanController {
     public Result<PersonnelDailyTaskStatsResp> getPersonnelDailyTaskStats(
             @PathVariable("personName") String personName
     ) {
-        return ResUtil.ok(personnelPlanStory.getPersonnelDailyTaskStats(personName));
+        return ResUtil.ok(personnelPlanStory.getPersonnelDailyTaskStatsByPersonName(personName));
     }
 
     @Operation(summary = "本周到期事项")
@@ -37,7 +36,7 @@ public class PersonnelPlanController {
     public Result<PersonnelWeeklyTaskStatsResp> getPersonnelWeeklyTaskStats(
             @PathVariable("personName") String personName
     ) {
-        return ResUtil.ok(personnelPlanStory.getPersonnelWeeklyTaskStats(personName));
+        return ResUtil.ok(personnelPlanStory.getPersonnelWeeklyTaskStatsByPersonName(personName));
     }
 
     @Operation(summary = "本周工作完成进度")
@@ -45,7 +44,7 @@ public class PersonnelPlanController {
     public Result<PersonnelWeeklyProgressResp> getPersonnelWeeklyProgress(
             @PathVariable("personName") String personName
     ) {
-        return ResUtil.ok(personnelPlanStory.getPersonnelWeeklyProgress(personName));
+        return ResUtil.ok(personnelPlanStory.getPersonnelWeeklyProgressByPersonName(personName));
     }
 
     @Operation(summary = "月工作完成进度")
@@ -53,7 +52,7 @@ public class PersonnelPlanController {
     public Result<PersonnelMonthlyProgressResp> getPersonnelMonthlyProgress(
             @PathVariable("personName") String personName
     ) {
-        return ResUtil.ok(personnelPlanStory.getPersonnelMonthlyProgressStats(personName));
+        return ResUtil.ok(personnelPlanStory.getPersonnelMonthlyProgressStatsByPersonName(personName));
     }
 
     @Operation(summary = "上周未完成事项")
@@ -61,7 +60,7 @@ public class PersonnelPlanController {
     public Result<PersonnelWeeklyUncompletedStatsResp> getPersonnelWeeklyUncompletedStats(
             @PathVariable("personName") String personName
     ) {
-        return ResUtil.ok(personnelPlanStory.getPersonnelWeeklyUncompletedStats(personName));
+        return ResUtil.ok(personnelPlanStory.getPersonnelWeeklyUncompletedStatsByPersonName(personName));
     }
 
     @Operation(summary = "个人待办事项")

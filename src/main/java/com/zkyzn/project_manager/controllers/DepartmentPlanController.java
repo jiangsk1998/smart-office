@@ -25,7 +25,7 @@ public class DepartmentPlanController {
     public Result<DepartmentTaskStatsResp> getDepartmentTaskStats(
             @PathVariable("departmentName") String departmentName
     ) {
-        return ResUtil.ok(departmentPlanStory.getDepartmentTaskStats(departmentName));
+        return ResUtil.ok(departmentPlanStory.getDepartmentTaskStatsByDepartmentName(departmentName));
     }
 
     @Operation(summary = "项目月进度")
@@ -33,7 +33,7 @@ public class DepartmentPlanController {
     public ResultList<DepartmentProjectProgressResp> getDepartmentProjectMonthlyProgress(
             @PathVariable String departmentName
     ) {
-        List<DepartmentProjectProgressResp> result = departmentPlanStory.getDepartmentProjectMonthlyProgress(departmentName);
+        List<DepartmentProjectProgressResp> result = departmentPlanStory.getDepartmentProjectMonthlyProgressByDepartmentName(departmentName);
         return ResUtil.list(result);
     }
 
@@ -42,7 +42,7 @@ public class DepartmentPlanController {
     public Result<DepartmentWeeklyTaskStatsResp> getDepartmentWeeklyTaskStats(
             @PathVariable("departmentName") String departmentName
     ) {
-        return ResUtil.ok(departmentPlanStory.getDepartmentWeeklyTaskStats(departmentName));
+        return ResUtil.ok(departmentPlanStory.getDepartmentWeeklyTaskStatsByDepartmentName(departmentName));
     }
 
     @Operation(summary = "周工作完成进度")
@@ -50,7 +50,7 @@ public class DepartmentPlanController {
     public Result<DepartmentWeeklyProgressResp> getDepartmentWeeklyProgress(
             @PathVariable("departmentName") String departmentName
     ) {
-        return ResUtil.ok(departmentPlanStory.getDepartmentWeeklyProgress(departmentName));
+        return ResUtil.ok(departmentPlanStory.getDepartmentWeeklyProgressByDepartmentName(departmentName));
     }
 
     @Operation(summary = "月工作完成进度")
@@ -58,7 +58,7 @@ public class DepartmentPlanController {
     public Result<DepartmentMonthlyProgressResp> getDepartmentMonthlyProgressStats(
             @PathVariable("departmentName") String departmentName
     ) {
-        return ResUtil.ok(departmentPlanStory.getDepartmentMonthlyProgressStats(departmentName));
+        return ResUtil.ok(departmentPlanStory.getDepartmentMonthlyProgressStatsByDepartmentName(departmentName));
     }
 
     @Operation(summary = "项目拖期项统计")
@@ -66,7 +66,7 @@ public class DepartmentPlanController {
     public Result<DepartmentMonthlyDelayedStatsResp> getDepartmentMonthlyDelayedStats(
             @PathVariable("departmentName") String departmentName
     ) {
-        return ResUtil.ok(departmentPlanStory.getDepartmentMonthlyDelayedStats(departmentName));
+        return ResUtil.ok(departmentPlanStory.getDepartmentMonthlyDelayedStatsByDepartmentName(departmentName));
     }
 
     @Operation(summary = "人员月进度")
@@ -74,7 +74,7 @@ public class DepartmentPlanController {
     public ResultList<PersonnelMonthlyProgressResp> getPersonnelMonthlyProgress(
             @PathVariable("departmentName") String departmentName
     ) {
-        List<PersonnelMonthlyProgressResp> result = departmentPlanStory.getPersonnelMonthlyProgress(departmentName);
+        List<PersonnelMonthlyProgressResp> result = departmentPlanStory.getPersonnelMonthlyProgressByDepartmentName(departmentName);
         return ResUtil.list(result);
     }
 

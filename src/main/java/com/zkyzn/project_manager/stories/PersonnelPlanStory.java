@@ -31,7 +31,7 @@ public class PersonnelPlanStory {
      * @param personName 责任人姓名
      * @return 每日任务统计
      */
-    public PersonnelDailyTaskStatsResp getPersonnelDailyTaskStats(String personName) {
+    public PersonnelDailyTaskStatsResp getPersonnelDailyTaskStatsByPersonName(String personName) {
         PersonnelDailyTaskStatsResp response = new PersonnelDailyTaskStatsResp();
         LocalDate today = LocalDate.now();
         LocalDate yesterday = today.minusDays(1);
@@ -70,7 +70,7 @@ public class PersonnelPlanStory {
      * @param personName 责任人姓名
      * @return 每周任务统计
      */
-    public PersonnelWeeklyTaskStatsResp getPersonnelWeeklyTaskStats(String personName) {
+    public PersonnelWeeklyTaskStatsResp getPersonnelWeeklyTaskStatsByPersonName(String personName) {
         PersonnelWeeklyTaskStatsResp response = new PersonnelWeeklyTaskStatsResp();
         LocalDate today = LocalDate.now();
 
@@ -144,7 +144,7 @@ public class PersonnelPlanStory {
      * @param personName 责任人姓名
      * @return 个人周工作进度
      */
-    public PersonnelWeeklyProgressResp getPersonnelWeeklyProgress(String personName) {
+    public PersonnelWeeklyProgressResp getPersonnelWeeklyProgressByPersonName(String personName) {
         PersonnelWeeklyProgressResp response = new PersonnelWeeklyProgressResp();
         LocalDate today = LocalDate.now();
 
@@ -193,7 +193,7 @@ public class PersonnelPlanStory {
      * @param personName 责任人姓名
      * @return 个人月度进度统计
      */
-    public PersonnelMonthlyProgressResp getPersonnelMonthlyProgressStats(String personName) {
+    public PersonnelMonthlyProgressResp getPersonnelMonthlyProgressStatsByPersonName(String personName) {
         PersonnelMonthlyProgressResp response = new PersonnelMonthlyProgressResp();
         LocalDate today = LocalDate.now();
         LocalDate yesterday = today.minusDays(1);
@@ -257,7 +257,7 @@ public class PersonnelPlanStory {
      * @param personName 责任人姓名
      * @return 个人周度未完成事项统计
      */
-    public PersonnelWeeklyUncompletedStatsResp getPersonnelWeeklyUncompletedStats(String personName) {
+    public PersonnelWeeklyUncompletedStatsResp getPersonnelWeeklyUncompletedStatsByPersonName(String personName) {
         PersonnelWeeklyUncompletedStatsResp response = new PersonnelWeeklyUncompletedStatsResp();
         LocalDate today = LocalDate.now();
 
