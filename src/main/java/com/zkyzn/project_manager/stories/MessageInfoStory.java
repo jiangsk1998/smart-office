@@ -87,16 +87,4 @@ public class MessageInfoStory {
     }
 
 
-    /**
-     * 获取当前用户的重点事项提醒
-     * @return 重点消息列表
-     */
-    public List<MessageInfo> getKeyItemRemindersForCurrentUser() {
-        Long currentUserId = SecurityUtil.getCurrentUserId();
-        if (currentUserId == null) {
-            return Collections.emptyList();
-        }
-        return messageInfoService.getKeyItemReminders(currentUserId);
-    }
-
 }

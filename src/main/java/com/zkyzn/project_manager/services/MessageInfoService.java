@@ -103,7 +103,7 @@ public class MessageInfoService extends MPJBaseServiceImpl<MessageInfoDao, Messa
      * @param userId 接收者用户ID
      * @return 重点消息列表
      */
-    public List<MessageInfo> getKeyItemReminders(Long userId) {
+    public List<MessageInfo> getKeyItemsByUserId(Long userId) {
         // 定义需要提醒的消息类型
         List<Integer> reminderTypes = Arrays.asList(
                 1, // 变更通知
@@ -127,5 +127,6 @@ public class MessageInfoService extends MPJBaseServiceImpl<MessageInfoDao, Messa
 
         return this.list(queryWrapper);
     }
+
 
 }

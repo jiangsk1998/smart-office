@@ -1,10 +1,12 @@
 package com.zkyzn.project_manager.controllers;
 
+import com.zkyzn.project_manager.models.MessageInfo;
 import com.zkyzn.project_manager.so.Result;
 import com.zkyzn.project_manager.so.ResultList;
 import com.zkyzn.project_manager.so.personnel.*;
 import com.zkyzn.project_manager.stories.PersonnelPlanStory;
 import com.zkyzn.project_manager.utils.ResUtil;
+import com.zkyzn.project_manager.utils.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -107,6 +109,14 @@ public class PersonnelPlanController {
         );
 
         return ResUtil.list(result);
+    }
+
+    @GetMapping("/weekly-key-items")
+    @Operation(summary = "本周重点事项")
+    // 修改返回类型为 List<MessageInfo>
+    public Result<List<MessageInfo>> getWeeklyKeyItems() {
+        Long currentUserId = SecurityUtil.getCurrentUserId();
+        return ResUtil.ok(personnelPlanStory.getWeeklyKeyItemsByUserId(currentUserId));
     }
 
 }
