@@ -3,6 +3,7 @@ package com.zkyzn.project_manager.stories;
 import cn.hutool.core.bean.BeanUtil;
 import com.zkyzn.project_manager.models.MessageInfo;
 import com.zkyzn.project_manager.services.MessageInfoService;
+import com.zkyzn.project_manager.utils.SecurityUtil;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.docx4j.com.google.common.collect.Sets;
@@ -83,6 +84,19 @@ public class MessageInfoStory {
             return false;
         }
         return this.messageInfoService.save(message);
+    }
+
+
+    /**
+     * 获取当前用户的重点事项提醒
+     * @return 重点消息列表
+     */
+    public List<MessageInfo> getKeyItemRemindersForCurrentUser() {
+        Long currentUserId = SecurityUtil.getCurrentUserId();
+        if (currentUserId == null) {
+            return Collections.emptyList();
+        }
+        return messageInfoService.getKeyItemReminders(currentUserId);
     }
 
 }

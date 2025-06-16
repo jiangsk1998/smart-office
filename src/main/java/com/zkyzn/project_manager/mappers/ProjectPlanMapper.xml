@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zkyzn.project_manager.mappers.ProjectPlanDao">
+
+    <resultMap id="todoTaskResultMap" type="com.zkyzn.project_manager.so.personnel.PersonnelTodoTaskResp">
+        <id property="projectPlanId" column="project_plan_id"/>
+        <result property="taskPackage" column="task_package"/>
+        <result property="taskDescription" column="task_description"/>
+        <result property="startDate" column="start_date"/>
+        <result property="endDate" column="end_date"/>
+        <result property="responsiblePerson" column="responsible_person"/>
+        <result property="deliverable" column="deliverable"/>
+        <result property="taskStatus" column="task_status"/>
+        <result property="isMilestone" column="is_milestone"/>
+        <result property="projectName" column="project_name"/>
+        <result property="projectNumber" column="project_number"/>
+    </resultMap>
+
+    <select id="findTodoTasksForPersonXML" resultMap="todoTaskResultMap">
+        SELECT
+        pp.project_plan_id,
+        pp.task_package,
+        pp.task_description,
+        pp.start_date,
+        pp.end_date,
+        pp.responsible_person,
+        pp.deliverable,
+        pp.task_status,
+        pp.is_milestone,
+        pi.project_name,
+        pi.project_number
+        FROM
+        tab_project_plan pp
+        LEFT JOIN
+        tab_project_info pi ON pp.project_id = pi.project_id
+        WHERE
+        pp.responsible_person = #{personName}
+        AND pp.end_date >= #{startDate}
+        AND pp.end_date &lt;= #{endDate}
+        AND pp.task_status IN
+        <foreach item="item" index="index" collection="statuses" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        ORDER BY
+        pp.end_date ASC
+    </select>
+
+</mapper>

@@ -7,6 +7,7 @@ import com.github.yulichang.query.MPJLambdaQueryWrapper;
 import com.zkyzn.project_manager.enums.TaskStatusEnum;
 import com.zkyzn.project_manager.mappers.ProjectPlanDao;
 import com.zkyzn.project_manager.models.ProjectPlan;
+import com.zkyzn.project_manager.so.personnel.PersonnelTodoTaskResp;
 import com.zkyzn.project_manager.so.project.dashboard.ChangeRecord;
 import org.springframework.stereotype.Service;
 
@@ -332,6 +333,94 @@ public class ProjectPlanService extends MPJBaseServiceImpl<ProjectPlanDao, Proje
                 .ge("end_date", startDate)
                 .le("end_date", endDate);
         return baseMapper.selectCount(wrapper);
+    }
+
+    /**
+     * 统计指定责任人在特定日期的到期任务数
+     */
+    public long countTasksDueOnDateForPerson(String personName, LocalDate date) {
+        QueryWrapper<ProjectPlan> wrapper = new QueryWrapper<>();
+        wrapper.eq("responsible_person", personName)
+                .eq("end_date", date);
+        return baseMapper.selectCount(wrapper);
+    }
+
+    /**
+     * 统计指定责任人在日期范围内的到期任务总数
+     */
+    public long countTasksDueBetweenDatesForPerson(String personName, LocalDate startDate, LocalDate endDate) {
+        QueryWrapper<ProjectPlan> wrapper = new QueryWrapper<>();
+        wrapper.eq("responsible_person", personName)
+                .ge("end_date", startDate)
+                .le("end_date", endDate);
+        return baseMapper.selectCount(wrapper);
+    }
+
+    /**
+     * 统计指定责任人在日期范围内的应完成任务总数
+     */
+    public long countTasksForPersonByDateRange(String personName, LocalDate startDate, LocalDate endDate) {
+        QueryWrapper<ProjectPlan> wrapper = new QueryWrapper<>();
+        wrapper.eq("responsible_person", personName)
+                .ge("end_date", startDate)
+                .le("end_date", endDate);
+        return baseMapper.selectCount(wrapper);
+    }
+
+    /**
+     * 统计指定责任人在日期范围内已完成的任务数
+     */
+    public long countCompletedTasksForPersonByDateRange(String personName, LocalDate startDate, LocalDate endDate) {
+        QueryWrapper<ProjectPlan> wrapper = new QueryWrapper<>();
+        wrapper.eq("responsible_person", personName)
+                .eq("task_status", TaskStatusEnum.COMPLETED.getDisplayName())
+                .ge("end_date", startDate)
+                .le("end_date", endDate);
+        return baseMapper.selectCount(wrapper);
+    }
+
+    /**
+     * 统计指定责任人，在某日期范围（planStartDate-planEndDate）内计划完成，
+     * 并在某个截止日期（realEndDateCutoff）前实际完成的任务数
+     */
+    public long countCompletedTasksForPersonByDateRanges(String personName, LocalDate planStartDate, LocalDate planEndDate, LocalDate realEndDateCutoff) {
+        QueryWrapper<ProjectPlan> wrapper = new QueryWrapper<>();
+        wrapper.eq("responsible_person", personName)
+                .eq("task_status", TaskStatusEnum.COMPLETED.getDisplayName())
+                .ge("end_date", planStartDate)
+                .le("end_date", planEndDate)
+                .le("real_end_date", realEndDateCutoff);
+        return baseMapper.selectCount(wrapper);
+    }
+
+    /**
+     * 统计指定责任人在某周内计划完成，但当前已拖期的任务数
+     * 拖期/未完成定义: 已到截止时间，但任务不处于“已完成”或者“中止”状态
+     */
+    public long countUncompletedTasksForWeek(String personName, LocalDate weekStartDate, LocalDate weekEndDate) {
+        QueryWrapper<ProjectPlan> wrapper = new QueryWrapper<>();
+        wrapper.eq("responsible_person", personName)
+                .ge("end_date", weekStartDate)
+                .le("end_date", weekEndDate)
+                .lt("end_date", LocalDate.now()) // 截止日期已过
+                .notIn("task_status", Arrays.asList(TaskStatusEnum.COMPLETED.toString(), TaskStatusEnum.STOP.toString())); // 状态不是“已完成”或“中止”
+        return baseMapper.selectCount(wrapper);
+    }
+
+
+    /**
+     * 查询指定责任人在时间范围内的待办事项（未开始或中止）
+     * @param personName 责任人姓名
+     * @param startDate 开始日期
+     * @param endDate 结束日期
+     * @return 包含项目信息的待办任务列表
+     */
+    public List<PersonnelTodoTaskResp> findTodoTasksForPerson(String personName, LocalDate startDate, LocalDate endDate) {
+        // 定义待办事项的状态列表
+        List<String> statuses = Arrays.asList(TaskStatusEnum.NOT_STARTED.toString(), TaskStatusEnum.STOP.toString());
+
+        // 直接调用 Mapper 接口中定义的方法
+        return baseMapper.findTodoTasksForPersonXML(personName, startDate, endDate, statuses);
     }
 
 

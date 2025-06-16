@@ -11,6 +11,9 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
+import java.util.List;
+
 @Service
 public class MessageInfoService extends MPJBaseServiceImpl<MessageInfoDao, MessageInfo> {
 
@@ -93,4 +96,36 @@ public class MessageInfoService extends MPJBaseServiceImpl<MessageInfoDao, Messa
         // 分页查询
         return this.page(page, queryWrapper);
     }
+
+    /**
+     * 获取重点事项提醒
+     * 包括：未读的、置顶的、或属于特定类型的（变更、到期、延期、风险）消息
+     * @param userId 接收者用户ID
+     * @return 重点消息列表
+     */
+    public List<MessageInfo> getKeyItemReminders(Long userId) {
+        // 定义需要提醒的消息类型
+        List<Integer> reminderTypes = Arrays.asList(
+                1, // 变更通知
+                2, // 即将到期通知
+                3, // 延期通知
+                4, // 延期反馈
+                5  // 延期风险告警
+        );
+
+        LambdaQueryWrapper<MessageInfo> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper
+                .eq(MessageInfo::getReceiverId, userId)
+                .eq(MessageInfo::getIsDeleted, 0)
+                .eq(MessageInfo::getReadStatus, 0) // 只查询未读消息
+                .and(wq -> wq.eq(MessageInfo::getIsTop, 1) // 条件1：是否置顶
+                        .or()
+                        .in(MessageInfo::getMessageType, reminderTypes) // 条件2：是否属于重点类型
+                )
+                .orderByDesc(MessageInfo::getIsTop) // 置顶的优先
+                .orderByDesc(MessageInfo::getCreateTime); // 然后按时间倒序
+
+        return this.list(queryWrapper);
+    }
+
 }
