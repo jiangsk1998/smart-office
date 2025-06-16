@@ -33,7 +33,7 @@ public class PersonnelPlanController {
     }
 
     @Operation(summary = "本周到期事项")
-    @GetMapping(value = "/{personName}/weekly-stats")
+    @GetMapping(value = "/{personName}/weekly/stats")
     public Result<PersonnelWeeklyTaskStatsResp> getPersonnelWeeklyTaskStats(
             @PathVariable("personName") String personName
     ) {
@@ -41,7 +41,7 @@ public class PersonnelPlanController {
     }
 
     @Operation(summary = "本周工作完成进度")
-    @GetMapping(value = "/{personName}/weekly-progress")
+    @GetMapping(value = "/{personName}/weekly/progress")
     public Result<PersonnelWeeklyProgressResp> getPersonnelWeeklyProgress(
             @PathVariable("personName") String personName
     ) {
@@ -49,7 +49,7 @@ public class PersonnelPlanController {
     }
 
     @Operation(summary = "月工作完成进度")
-    @GetMapping(value = "/{personName}/monthly-progress")
+    @GetMapping(value = "/{personName}/monthly/progress")
     public Result<PersonnelMonthlyProgressResp> getPersonnelMonthlyProgress(
             @PathVariable("personName") String personName
     ) {
@@ -57,7 +57,7 @@ public class PersonnelPlanController {
     }
 
     @Operation(summary = "上周未完成事项")
-    @GetMapping(value = "/{personName}/last-week-uncompleted")
+    @GetMapping(value = "/{personName}/lastWeekUncompleted")
     public Result<PersonnelWeeklyUncompletedStatsResp> getPersonnelWeeklyUncompletedStats(
             @PathVariable("personName") String personName
     ) {
@@ -65,7 +65,7 @@ public class PersonnelPlanController {
     }
 
     @Operation(summary = "个人待办事项")
-    @GetMapping(value = "/{personName}/todo-tasks")
+    @GetMapping(value = "/{personName}/todo/tasks")
     public ResultList<PersonnelTodoTaskResp> getPersonnelTodoTasks(
             @PathVariable("personName") String personName,
             @RequestParam(value = "start_date", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
