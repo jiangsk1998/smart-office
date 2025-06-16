@@ -68,25 +68,45 @@ public class PersonnelPlanController {
     @GetMapping(value = "/{personName}/todo/tasks")
     public ResultList<PersonnelTodoTaskResp> getPersonnelTodoTasks(
             @PathVariable("personName") String personName,
-            @RequestParam(value = "start_date", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            @RequestParam(value = "start_date", required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
             @Parameter(
                     name = "start_date",
-                    description = "筛选开始日期，格式yyyy-MM-dd",
-                    example = "2023-01-01",
-                    required = false
+                    description = "筛选开始日期（默认一个月前），格式yyyy-MM-dd",
+                    example = "2023-01-01"
             )
-
             LocalDate startDate,
-            @RequestParam(value = "end_date", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            @RequestParam(value = "end_date", required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
             @Parameter(
                     name = "end_date",
-                    description = "筛选结束日期，格式yyyy-MM-dd",
-                    example = "2023-01-01",
-                    required = false
+                    description = "筛选结束日期（默认今天），格式yyyy-MM-dd",
+                    example = "2023-01-31"
             )
             LocalDate endDate
     ) {
-        List<PersonnelTodoTaskResp> result = personnelPlanStory.getPersonnelTodoTasks(personName, startDate, endDate);
+        // 设置默认日期范围：最近一个月
+        LocalDate today = LocalDate.now();
+
+        // 处理开始日期默认值
+        if (startDate == null) {
+            startDate = today.minusMonths(1); // 默认一个月前
+        }
+
+        // 处理结束日期默认值
+        if (endDate == null) {
+            endDate = today; // 默认今天
+        }
+
+        // 添加日期范围有效性校验
+        if (startDate.isAfter(endDate)) {
+            throw new IllegalArgumentException("开始日期不能晚于结束日期");
+        }
+
+        List<PersonnelTodoTaskResp> result = personnelPlanStory.getPersonnelTodoTasks(
+                personName, startDate, endDate
+        );
+
         return ResUtil.list(result);
     }
 
