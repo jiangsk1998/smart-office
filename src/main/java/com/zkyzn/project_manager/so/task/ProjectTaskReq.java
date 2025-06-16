@@ -65,7 +65,6 @@ public class ProjectTaskReq {
     @JsonProperty("deliverable")
     private String deliverable;
 
-    @NotBlank(message = "成果类型不能为空")
     @Schema(description = "成果类型", requiredMode = Schema.RequiredMode.REQUIRED)
     @JsonProperty("deliverable_type")
     private String deliverableType;

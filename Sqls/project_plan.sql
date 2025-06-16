@@ -20,3 +20,7 @@ CREATE TABLE `tab_project_plan` (
                                     KEY `fk_plan_project` (`project_id`),
                                     CONSTRAINT `fk_plan_project` FOREIGN KEY (`project_id`) REFERENCES `tab_project_info` (`project_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='项目计划表';
+
+ALTER TABLE `tab_project_plan`
+    MODIFY COLUMN `deliverable` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '成果' AFTER `department`,
+    MODIFY COLUMN `deliverable_type` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '成果类型' AFTER `deliverable`;
