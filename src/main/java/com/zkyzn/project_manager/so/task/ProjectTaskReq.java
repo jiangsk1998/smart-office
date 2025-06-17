@@ -28,6 +28,11 @@ public class ProjectTaskReq {
     @JsonProperty("project_id")
     private Long projectId;
 
+    @NotNull(message = "关联的阶段ID不能为空")
+    @Schema(description = "关联的阶段ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @JsonProperty("phase_id")
+    private Long phaseId;
+
 
     @NotBlank(message = "任务包不能为空")
     @Schema(description = "任务包", requiredMode = Schema.RequiredMode.REQUIRED)
