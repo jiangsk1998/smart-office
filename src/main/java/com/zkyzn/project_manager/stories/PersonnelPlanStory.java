@@ -1,6 +1,8 @@
 package com.zkyzn.project_manager.stories;
 
+import com.baomidou.mybatisplus.extension.conditions.update.LambdaUpdateChainWrapper;
 import com.zkyzn.project_manager.models.MessageInfo;
+import com.zkyzn.project_manager.models.ProjectPlan;
 import com.zkyzn.project_manager.services.MessageInfoService;
 import com.zkyzn.project_manager.services.ProjectPlanService;
 import com.zkyzn.project_manager.so.personnel.*;
@@ -344,4 +346,8 @@ public class PersonnelPlanStory {
         return messageInfoService.getKeyItemsByUserId(currentUserId);
     }
 
+    public Boolean todoTaskIsTop(String taskId, Boolean isTop) {
+        LambdaUpdateChainWrapper<ProjectPlan> wrapper = projectPlanService.lambdaUpdate().set(ProjectPlan::getIsTop, isTop).eq(ProjectPlan::getProjectPlanId, taskId);
+        return projectPlanService.update(wrapper);
+    }
 }

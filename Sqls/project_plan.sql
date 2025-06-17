@@ -24,3 +24,6 @@ CREATE TABLE `tab_project_plan` (
 ALTER TABLE `tab_project_plan`
     MODIFY COLUMN `deliverable` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '成果' AFTER `department`,
     MODIFY COLUMN `deliverable_type` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '成果类型' AFTER `deliverable`;
+
+ALTER TABLE `project_manager`.`tab_project_plan`
+    ADD COLUMN `is_top` tinyint(1) NULL COMMENT '1是 0否' AFTER `phase_id`;

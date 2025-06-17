@@ -65,6 +65,15 @@ public class PersonnelPlanController {
         return ResUtil.ok(personnelPlanStory.getPersonnelWeeklyUncompletedStatsByPersonName(personName));
     }
 
+    @Operation(summary = "待办置顶")
+    @GetMapping(value = "/todo/task/{taskId}/isTop")
+    public Result<Boolean> getPersonnelWeeklyUncompletedStats(
+            @PathVariable("taskId") String taskId,@RequestParam Boolean isTop
+    ) {
+        return ResUtil.ok(personnelPlanStory.todoTaskIsTop(taskId,isTop));
+    }
+
+
     @Operation(summary = "个人待办事项")
     @GetMapping(value = "/{personName}/todo/tasks")
     public ResultList<PersonnelTodoTaskResp> getPersonnelTodoTasks(
