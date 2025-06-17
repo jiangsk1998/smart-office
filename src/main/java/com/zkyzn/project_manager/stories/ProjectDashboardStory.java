@@ -136,11 +136,13 @@ public class ProjectDashboardStory {
         RiskItem risk1 = new RiskItem();
         risk1.setRiskName("技术风险");
         risk1.setRiskDetail("关键技术难点尚未突破");
+        risk1.setRiskLevel("高风险");
         risks.add(risk1);
 
         RiskItem risk2 = new RiskItem();
         risk2.setRiskName("资源风险");
         risk2.setRiskDetail("关键技术人员短缺");
+        risk2.setRiskLevel("中风险");
         risks.add(risk2);
 
         return risks;
