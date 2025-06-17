@@ -52,4 +52,7 @@ public class PersonnelTodoTaskResp {
     
     @Schema(description = "是否里程碑任务")
     private Boolean isMilestone;
+
+    @Schema(description = "是否置顶")
+    private Boolean isTop;
 }
