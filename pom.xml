@@ -194,9 +194,13 @@
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
+                <!-- 包含所有文件和目录 -->
                 <includes>
-                    <include>**/*.xml</include>  <!-- Includes XML files -->
+                    <include>**/*.*</include>  <!-- 包含所有文件 -->
+                    <include>**/</include>     <!-- 包含所有目录 -->
                 </includes>
+                <!-- 可选：启用资源过滤（支持占位符替换） -->
+                <filtering>true</filtering>
             </resource>
         </resources>
     </build>
