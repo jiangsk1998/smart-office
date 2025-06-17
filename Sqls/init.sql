@@ -1,6 +1,6 @@
 create table project_manager.tab_user_info
 (
-    user_id       bigint      not null comment '用户Id'
+    user_id       bigint      auto_increment comment '用户Id'
         primary key,
     user_account  varchar(50) null comment '用户账号',
     user_name     varchar(50) null comment '用户名称',
