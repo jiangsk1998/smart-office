@@ -2,18 +2,18 @@ package com.zkyzn.project_manager.stories;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.zkyzn.project_manager.models.MessageInfo;
+import com.zkyzn.project_manager.models.ProjectInfo;
+import com.zkyzn.project_manager.models.User;
 import com.zkyzn.project_manager.services.MessageInfoService;
-import com.zkyzn.project_manager.utils.SecurityUtil;
+import com.zkyzn.project_manager.services.ProjectInfoService;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
-import org.docx4j.com.google.common.collect.Sets;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZonedDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 /**
@@ -24,6 +24,9 @@ public class MessageInfoStory {
 
     @Resource
     private MessageInfoService messageInfoService;
+
+    @Resource
+    private ProjectInfoService projectInfoService;
 
     /**
      * 批量发送消息给多个用户
@@ -45,6 +48,22 @@ public class MessageInfoStory {
         }
         // 批量发送
         return messageInfoService.saveBatch(messagesToSend);
+    }
+
+    /**
+     * 发送超期反馈消息给项目主管
+     * @param message
+     * @param projectNumber
+     * @return
+     */
+    public boolean postSendFeedbackMessage(MessageInfo message, String projectNumber) {
+
+        ProjectInfo projectInfo = projectInfoService.getByProjectNumber(projectNumber);
+        List<User> userList = projectInfo.getPlanSupervisors();
+        Set<Long> userIdSet = userList.stream()
+                .map(User::getUserId)
+                .collect(Collectors.toSet());
+        return sendMessages(message, userIdSet);
     }
 
     /**

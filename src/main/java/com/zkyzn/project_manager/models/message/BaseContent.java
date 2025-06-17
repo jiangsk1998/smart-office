@@ -19,7 +19,7 @@ import lombok.Setter;
         @JsonSubTypes.Type(value = ChangeNoticeContent.class, name = "changeNotice"), // 变更提醒
         @JsonSubTypes.Type(value = DueDateNoticeContent.class, name = "dueDateNotice"), // 即将到期提醒
         @JsonSubTypes.Type(value = DelayNoticeContent.class, name = "delayNotice"), // 延期原因填写通知
-        @JsonSubTypes.Type(value = DelayNoticeContent.class, name = "delayFeedback"), // 超期反馈表单发送
+        @JsonSubTypes.Type(value = DelayFeedbackContent.class, name = "delayFeedback"), // 超期反馈表单发送
         @JsonSubTypes.Type(value = DelayAlertContent.class, name = "delayAlert"), // 延期风险告警
 })
 public class BaseContent {

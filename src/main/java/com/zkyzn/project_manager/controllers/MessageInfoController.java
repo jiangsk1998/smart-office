@@ -15,12 +15,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
-import org.docx4j.com.google.common.collect.Sets;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -46,10 +44,7 @@ public class MessageInfoController {
         BaseContent content = messageInfo.getContent();
 
         if (content instanceof DelayFeedbackContent delayFeedbackContent) {
-            // Todo 获取当前超期反馈表消息接收人
-            Set<Long> userIdList = Sets.newHashSet();
-            userIdList.add(1L);
-            return ResUtil.ok(this.messageInfoStory.sendMessages(messageInfo, userIdList));
+            return ResUtil.ok(this.messageInfoStory.postSendFeedbackMessage(messageInfo, delayFeedbackContent.getProjectNumber()));
 
         } else {
             return ResUtil.fail("只允许发送超期反馈类型消息");
