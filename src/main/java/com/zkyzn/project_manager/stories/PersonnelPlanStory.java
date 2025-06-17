@@ -346,8 +346,10 @@ public class PersonnelPlanStory {
         return messageInfoService.getKeyItemsByUserId(currentUserId);
     }
 
-    public Boolean todoTaskIsTop(String taskId, Boolean isTop) {
-        LambdaUpdateChainWrapper<ProjectPlan> wrapper = projectPlanService.lambdaUpdate().set(ProjectPlan::getIsTop, isTop).eq(ProjectPlan::getProjectPlanId, taskId);
-        return projectPlanService.update(wrapper);
+    public boolean todoTaskIsTop(String taskId, boolean isTop) {
+        return projectPlanService.lambdaUpdate()
+                .eq(ProjectPlan::getProjectPlanId, taskId)
+                .set(ProjectPlan::getIsTop, isTop)
+                .update();
     }
 }
