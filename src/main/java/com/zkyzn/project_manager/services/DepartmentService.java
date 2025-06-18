@@ -5,6 +5,7 @@ import com.zkyzn.project_manager.mappers.DepartmentDao;
 import com.zkyzn.project_manager.models.Department;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -52,5 +53,26 @@ public class DepartmentService extends MPJBaseServiceImpl<DepartmentDao, Departm
         return allDepartments.stream()
                 .filter(department -> department.getParentId() == null)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * 根据部门ID获取部门信息
+     * @param departmentId 部门ID
+     * @return 部门实体或null
+     */
+    public Department getDepartmentById(Long departmentId) {
+        return getById(departmentId);
+    }
+
+    /**
+     * 根据部门ID列表获取部门信息
+     * @param departmentIds 部门ID列表
+     * @return 部门列表
+     */
+    public List<Department> listDepartmentsByIds(Collection<Long> departmentIds) {
+        if (departmentIds == null || departmentIds.isEmpty()) {
+            return List.of();
+        }
+        return listByIds(departmentIds);
     }
 }

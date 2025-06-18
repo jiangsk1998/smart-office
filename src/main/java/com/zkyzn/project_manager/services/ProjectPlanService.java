@@ -417,7 +417,7 @@ public class ProjectPlanService extends MPJBaseServiceImpl<ProjectPlanDao, Proje
      */
     public List<PersonnelTodoTaskResp> findTodoTasksForPerson(String personName, LocalDate startDate, LocalDate endDate) {
         // 定义待办事项的状态列表
-        List<String> statuses = Arrays.asList(TaskStatusEnum.NOT_STARTED.toString(), TaskStatusEnum.STOP.toString());
+        List<String> statuses = Arrays.asList(TaskStatusEnum.NOT_STARTED.getDisplayName(), TaskStatusEnum.STOP.getDisplayName());
 
         // 直接调用 Mapper 接口中定义的方法
         return baseMapper.findTodoTasksForPersonXML(personName, startDate, endDate, statuses);

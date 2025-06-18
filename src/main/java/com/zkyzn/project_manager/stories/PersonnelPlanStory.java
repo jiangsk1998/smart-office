@@ -1,7 +1,12 @@
 package com.zkyzn.project_manager.stories;
 
+import com.baomidou.mybatisplus.extension.conditions.update.LambdaUpdateChainWrapper;
+import com.zkyzn.project_manager.models.MessageInfo;
+import com.zkyzn.project_manager.models.ProjectPlan;
+import com.zkyzn.project_manager.services.MessageInfoService;
 import com.zkyzn.project_manager.services.ProjectPlanService;
 import com.zkyzn.project_manager.so.personnel.*;
+import com.zkyzn.project_manager.utils.SecurityUtil;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
@@ -26,8 +31,12 @@ public class PersonnelPlanStory {
     @Resource
     private ProjectPlanService projectPlanService;
 
+    @Resource
+    private MessageInfoService messageInfoService;
+
     /**
      * 获取个人每日到期任务统计
+     *
      * @param personName 责任人姓名
      * @return 每日任务统计
      */
@@ -67,6 +76,7 @@ public class PersonnelPlanStory {
 
     /**
      * 获取个人每周到期任务统计
+     *
      * @param personName 责任人姓名
      * @return 每周任务统计
      */
@@ -118,9 +128,10 @@ public class PersonnelPlanStory {
 
     /**
      * 计算个人单周的工作完成进度
-     * @param personName 责任人姓名
+     *
+     * @param personName    责任人姓名
      * @param weekStartDate 周开始日期
-     * @param weekEndDate 周结束日期
+     * @param weekEndDate   周结束日期
      * @return BigDecimal格式的进度百分比
      */
     private BigDecimal calculateWeeklyProgressForPerson(String personName, LocalDate weekStartDate, LocalDate weekEndDate) {
@@ -141,6 +152,7 @@ public class PersonnelPlanStory {
 
     /**
      * 获取个人周工作完成进度统计
+     *
      * @param personName 责任人姓名
      * @return 个人周工作进度
      */
@@ -190,6 +202,7 @@ public class PersonnelPlanStory {
 
     /**
      * 获取个人月度工作完成进度
+     *
      * @param personName 责任人姓名
      * @return 个人月度进度统计
      */
@@ -254,6 +267,7 @@ public class PersonnelPlanStory {
 
     /**
      * 获取个人周度未完成事项统计
+     *
      * @param personName 责任人姓名
      * @return 个人周度未完成事项统计
      */
@@ -303,9 +317,10 @@ public class PersonnelPlanStory {
 
     /**
      * 获取个人的待办事项列表
+     *
      * @param personName 责任人姓名
-     * @param startDate 开始日期（可选）
-     * @param endDate 结束日期（可选）
+     * @param startDate  开始日期（可选）
+     * @param endDate    结束日期（可选）
      * @return 待办事项列表
      */
     public List<PersonnelTodoTaskResp> getPersonnelTodoTasks(String personName, LocalDate startDate, LocalDate endDate) {
@@ -322,4 +337,19 @@ public class PersonnelPlanStory {
         return projectPlanService.findTodoTasksForPerson(personName, queryStartDate, queryEndDate);
     }
 
+    /**
+     * 获取本周重点事项
+     *
+     * @return
+     */
+    public List<MessageInfo> getWeeklyKeyItemsByUserId(Long currentUserId) {
+        return messageInfoService.getKeyItemsByUserId(currentUserId);
+    }
+
+    public boolean todoTaskIsTop(String taskId, boolean isTop) {
+        return projectPlanService.lambdaUpdate()
+                .eq(ProjectPlan::getProjectPlanId, taskId)
+                .set(ProjectPlan::getIsTop, isTop)
+                .update();
+    }
 }

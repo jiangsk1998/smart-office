@@ -12,6 +12,7 @@
         <result property="deliverable" column="deliverable"/>
         <result property="taskStatus" column="task_status"/>
         <result property="isMilestone" column="is_milestone"/>
+        <result property="isTop" column="is_top"/>
         <result property="projectName" column="project_name"/>
         <result property="projectNumber" column="project_number"/>
     </resultMap>
@@ -27,6 +28,7 @@
         pp.deliverable,
         pp.task_status,
         pp.is_milestone,
+        pp.is_top,
         pi.project_name,
         pi.project_number
         FROM
@@ -42,7 +44,7 @@
             #{item}
         </foreach>
         ORDER BY
-        pp.end_date ASC
+        pp.is_top DESC, pp.end_date ASC
     </select>
 
 </mapper>

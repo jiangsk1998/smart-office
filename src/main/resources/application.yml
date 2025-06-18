@@ -48,4 +48,9 @@ debug: true
 logging:
   level:
     org.springframework.boot: debug
+security:
+  # 盐
+  encodeKey: pma
+  privateKey: 123456
+  publicKey: 123456
 

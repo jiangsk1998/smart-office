@@ -3,8 +3,10 @@ package com.zkyzn.project_manager.stories;
 
 import com.zkyzn.project_manager.events.ProjectTaskChangeEvent;
 import com.zkyzn.project_manager.models.ProjectPlan;
+import com.zkyzn.project_manager.services.ProjectPhaseService;
 import com.zkyzn.project_manager.services.ProjectPlanService;
 import jakarta.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +33,8 @@ public class ProjectTaskStory {
      */
     @Resource
     private ApplicationEventPublisher eventPublisher;
+    @Autowired
+    private ProjectPhaseService projectPhaseService;
 
     /**
      * 创建一个新的项目任务。
@@ -46,6 +50,7 @@ public class ProjectTaskStory {
         LocalDateTime now = LocalDateTime.now();
         projectPlan.setCreateTime(now);
         projectPlan.setUpdateTime(now);
+        projectPlan.setTaskPackage(projectPhaseService.getById(projectPlan.getPhaseId()).getPhaseName());
 
         boolean success = projectPlanService.save(projectPlan);
         if (success) {

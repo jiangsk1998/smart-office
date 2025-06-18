@@ -28,11 +28,10 @@ public class ProjectTaskReq {
     @JsonProperty("project_id")
     private Long projectId;
 
-
-    @NotBlank(message = "任务包不能为空")
-    @Schema(description = "任务包", requiredMode = Schema.RequiredMode.REQUIRED)
-    @JsonProperty("task_package")
-    private String taskPackage;
+    @NotNull(message = "关联的阶段ID不能为空")
+    @Schema(description = "关联的阶段ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @JsonProperty("phase_id")
+    private Long phaseId;
 
     @NotBlank(message = "任务内容不能为空")
     @Schema(description = "任务内容", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -65,7 +64,6 @@ public class ProjectTaskReq {
     @JsonProperty("deliverable")
     private String deliverable;
 
-    @NotBlank(message = "成果类型不能为空")
     @Schema(description = "成果类型", requiredMode = Schema.RequiredMode.REQUIRED)
     @JsonProperty("deliverable_type")
     private String deliverableType;

@@ -16,4 +16,7 @@ public class RiskItem {
     // 风险详情
     private String riskDetail;
 
+    // 风险等级
+    private String riskLevel;
+
 }

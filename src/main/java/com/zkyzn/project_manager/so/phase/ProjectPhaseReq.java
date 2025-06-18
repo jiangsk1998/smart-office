@@ -29,6 +29,11 @@ public class ProjectPhaseReq {
     @JsonProperty(value = "project_id",required = true)
     private Long projectId;
 
+    @NotNull(message = "科室名称不能为空")
+    @Schema(description = "关联科室", requiredMode = Schema.RequiredMode.REQUIRED)
+    @JsonProperty(value = "department",required = true)
+    private String department;
+
     @NotBlank(message = "阶段名称不能为空")
     @Schema(description = "阶段名称", requiredMode = Schema.RequiredMode.REQUIRED)
     @JsonProperty(value = "phase_name",required = true)
