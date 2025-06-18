@@ -24,6 +24,7 @@ public class TokenController {
     private UserInfoService userInfoService;
 
 
+    @Deprecated
     @Operation(summary = "获取当前用户信息", security = @SecurityRequirement(name = "auth"))
     @GetMapping("/current")
     public Result<UserInfo> getCurrentAdminUser(
@@ -98,6 +99,7 @@ public class TokenController {
         return ResUtil.ok(user);
     }
 
+    @Deprecated
     @Operation(summary = "分页查询用户", security = @SecurityRequirement(name = "auth"))
     @GetMapping("/page")
     public Result<IPage<UserInfo>> getUserPage(
@@ -109,6 +111,7 @@ public class TokenController {
         return ResUtil.ok(userPage);
     }
 
+    @Deprecated
     @Operation(summary = "获取用户详情", security = @SecurityRequirement(name = "auth"))
     @GetMapping("/{userId}/detail")
     public Result<UserInfo> getUserDetail(@PathVariable Long userId) {
