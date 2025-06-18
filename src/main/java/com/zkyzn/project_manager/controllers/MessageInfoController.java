@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import jakarta.validation.Valid;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -63,6 +64,12 @@ public class MessageInfoController {
     @Operation(summary = "删除消息")
     public Result<Boolean> deleteMessageById(@PathVariable String id) {
         return ResUtil.ok(messageInfoService.deleteMessageById(id));
+    }
+
+    @DeleteMapping("/{id}/isTop")
+    @Operation(summary = "消息置顶")
+    public Result<Boolean> deleteMessageById(@PathVariable String id, @Valid @RequestParam Boolean isTop) {
+        return ResUtil.ok(messageInfoService.isTop(id,isTop));
     }
 
     @GetMapping("/query")  // 改为 POST 方法接收复杂查询条件
