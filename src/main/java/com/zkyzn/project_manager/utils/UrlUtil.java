@@ -16,12 +16,11 @@ public class UrlUtil {
 
     /**
      * 通过相对路径得到完整路径Url
-     * @param baseUrl
-     * @param relativePathStr
-     * @return
-     * @throws IOException
+     * @param baseUrl base url
+     * @param relativePathStr 相对路径
+     * @return URI
      */
-    public static URI getUrlByRelativePath(String baseUrl, String relativePathStr) throws IOException {
+    public static URI getUrlByRelativePath(String baseUrl, String relativePathStr) {
         return UriComponentsBuilder.fromUriString(baseUrl).buildAndExpand(relativePathStr).toUri();
     }
 }

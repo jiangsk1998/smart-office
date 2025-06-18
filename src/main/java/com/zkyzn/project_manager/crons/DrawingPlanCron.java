@@ -3,8 +3,13 @@ package com.zkyzn.project_manager.crons;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import cn.idev.excel.FastExcel;
+import cn.idev.excel.enums.CellExtraTypeEnum;
 import com.zkyzn.project_manager.converts.imports.DrawingPlanExcel;
 import com.zkyzn.project_manager.listener.excel.DrawingPlanImportListener;
+import com.zkyzn.project_manager.models.OldDrawingPlan;
+import com.zkyzn.project_manager.services.OldDrawingPlanService;
+import jakarta.annotation.Resource;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -27,32 +32,46 @@ import java.util.stream.Stream;
 @Component
 public class DrawingPlanCron {
 
-
     @Value("${file.old.plan}")
     String oldPlanDir;
 
+    @Resource
+    private OldDrawingPlanService  oldDrawingPlanService;
 
     /**
      * 每隔一段时间处理图纸计划相关数据
      */
     @Scheduled(cron = "0 */1 * * * *")
     public void ProcessDrawingPlan() throws IOException {
+        List<OldDrawingPlan> allPlan = oldDrawingPlanService.list();
+
         // 读取历史图纸列表
         try (Stream<Path> paths = Files.list(Paths.get(oldPlanDir))) {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/M/d");
             paths.filter(p -> p.toString().endsWith(".xls"))
                     .forEach(path -> {
-                        DrawingPlanImportListener listener = new DrawingPlanImportListener();
-                        FastExcel.read(path.toFile(), DrawingPlanExcel.class, listener).sheet().doRead();
-                        List<LocalDate> planDateStream = listener
-                                .getData()
-                                .stream()
-                                .map(DrawingPlanExcel::getPlanDate)
-                                .map(time -> LocalDate.parse(time, formatter))
-                                .toList();
-                        LocalDate maxDate = planDateStream.stream().max(LocalDate::compareTo).orElse(LocalDate.now());
-                        LocalDate minDate = planDateStream.stream().min(LocalDate::compareTo).orElse(LocalDate.now());
-                        System.out.println("导入成功，数据量: " + listener.getData().size());
+                        String md5String = DigestUtils.md5Hex(path.toFile().getAbsolutePath());
+                        if(allPlan.stream().noneMatch(plan -> plan.getFileHash().equals(md5String))) {
+                            DrawingPlanImportListener listener = new DrawingPlanImportListener();
+                            FastExcel.read(path.toFile(), DrawingPlanExcel.class, listener)
+                                    .extraRead(CellExtraTypeEnum.MERGE).sheet().doRead();
+                            List<LocalDate> planDateStream = listener
+                                    .getData()
+                                    .stream()
+                                    .map(DrawingPlanExcel::getPlanDate)
+                                    .map(time -> LocalDate.parse(time, formatter))
+                                    .toList();
+                            LocalDate maxDate = planDateStream.stream().max(LocalDate::compareTo).orElse(LocalDate.now());
+                            LocalDate minDate = planDateStream.stream().min(LocalDate::compareTo).orElse(LocalDate.now());
+
+                            OldDrawingPlan oldDrawingPlan = new OldDrawingPlan();
+                            oldDrawingPlan.setFileHash(md5String);
+                            oldDrawingPlan.setDrawingPlanName(path.getFileName().toString());
+                            oldDrawingPlan.setPlanStartDate(minDate);
+                            oldDrawingPlan.setPlanEndDate(maxDate);
+                            oldDrawingPlanService.save(oldDrawingPlan);
+                            System.out.println("导入成功，数据量: " + listener.getData().size());
+                        }
                     });
         }
     }
