@@ -6,9 +6,12 @@ import com.zkyzn.project_manager.enums.ProjectStatusEnum;
 import com.zkyzn.project_manager.events.ProjectPhaseChangeEvent;
 import com.zkyzn.project_manager.models.ProjectInfo;
 import com.zkyzn.project_manager.models.ProjectPhase;
+import com.zkyzn.project_manager.models.ProjectPlan;
 import com.zkyzn.project_manager.services.ProjectInfoService;
 import com.zkyzn.project_manager.services.ProjectPhaseService;
+import com.zkyzn.project_manager.services.ProjectPlanService;
 import jakarta.annotation.Resource;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,6 +44,9 @@ public class ProjectPhaseStory {
      */
     @Resource
     private ApplicationEventPublisher eventPublisher;
+
+    @Resource
+    private ProjectPlanService projectPlanService;
 
     /**
      * 创建一个新的项目阶段。
@@ -151,6 +157,13 @@ public class ProjectPhaseStory {
         projectPhase.setUpdateTime(ZonedDateTime.now());
 
         boolean success = projectPhaseService.updateById(projectPhase);
+
+        // 级联修改子任务的任务包名称
+        if (success && StringUtils.isNotBlank(projectPhase.getPhaseName())) {
+            this.projectPlanService.lambdaUpdate().eq(ProjectPlan::getPhaseId,projectPhase.getPhaseId())
+                    .set(ProjectPlan::getTaskPackage,projectPhase.getPhaseName()).update();
+        }
+
         if (success) {
             // 发布“更新”事件，包含变更前后的数据
             ProjectPhaseChangeEvent event = new ProjectPhaseChangeEvent(this, operatorId, "UPDATE", originalPhase, projectPhase);
