@@ -1,6 +1,7 @@
 package com.zkyzn.project_manager.stories;
 
 import com.zkyzn.project_manager.so.file.FileResp;
+import com.zkyzn.project_manager.utils.UrlUtil;
 import org.docx4j.jaxb.Context;
 import org.docx4j.openpackaging.contenttype.ContentType;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
@@ -185,7 +186,7 @@ public class FileStory {
                 file.setFileName(path.getFileName().toString());
                 file.setIsDirectory(path.toFile().isDirectory());
                 file.setSize(path.toFile().length());
-                file.setUri(Paths.get(baseUrl,relativeTempPath, file.getFileName()).toString());
+                file.setUri(UrlUtil.getUrlByRelativePath(Paths.get(relativeTempPath, file.getFileName()).toString()));
                 return file;
             }).toList();
         }
