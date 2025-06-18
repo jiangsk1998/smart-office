@@ -186,7 +186,12 @@ public class FileStory {
                 file.setFileName(path.getFileName().toString());
                 file.setIsDirectory(path.toFile().isDirectory());
                 file.setSize(path.toFile().length());
-                file.setUri(UrlUtil.getUrlByRelativePath(baseUrl,Paths.get(relativeTempPath, file.getFileName()).toString()).toString());
+                // TODO 暂时解决编译失败问题 @蒋挺
+                try {
+                    file.setUri(UrlUtil.getUrlByRelativePath(baseUrl,Paths.get(relativeTempPath, file.getFileName()).toString()).toString());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
                 return file;
             }).toList();
         }
