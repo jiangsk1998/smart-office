@@ -93,6 +93,9 @@ create table project_manager.tab_project_phase
 )
     comment '项目阶段表';
 
+ALTER TABLE `project_manager`.`tab_project_plan`
+    MODIFY COLUMN `phase_id` bigint NOT NULL COMMENT '项目阶段ID' AFTER `real_end_date`;
+
 
 
 

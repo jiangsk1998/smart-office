@@ -7,6 +7,7 @@ import com.github.yulichang.base.MPJBaseServiceImpl;
 import com.zkyzn.project_manager.mappers.MessageInfoDao;
 import com.zkyzn.project_manager.models.MessageInfo;
 import com.zkyzn.project_manager.so.message.MsgReq;
+import jakarta.validation.Valid;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -100,6 +101,7 @@ public class MessageInfoService extends MPJBaseServiceImpl<MessageInfoDao, Messa
     /**
      * 获取重点事项提醒
      * 包括：未读的、置顶的、或属于特定类型的（变更、到期、延期、风险）消息
+     *
      * @param userId 接收者用户ID
      * @return 重点消息列表
      */
@@ -129,4 +131,7 @@ public class MessageInfoService extends MPJBaseServiceImpl<MessageInfoDao, Messa
     }
 
 
+    public Boolean isTop(String id, @Valid Boolean isTop) {
+        return this.lambdaUpdate().eq(MessageInfo::getMessageId, id).set(MessageInfo::getIsTop, isTop).update();
+    }
 }
