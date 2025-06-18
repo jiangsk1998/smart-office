@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -25,6 +26,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 
@@ -175,20 +177,50 @@ public class FileStory {
      * @return 文件列表
      */
     public List<FileResp> dirPersonFolder(Integer id, String folder) throws Exception {
+        // 验证输入参数
+        if (id == null || folder == null || folder.isBlank()) {
+            throw new IllegalArgumentException("参数错误: id或folder为空");
+        }
+
+        // 构建文件路径
         String relativeTempPath = Paths.get("person", id.toString(), folder).toString();
         Path absolutePath = Paths.get(fileRootPath, relativeTempPath);
+
+        // 检查路径是否存在且是目录
         if (!Files.exists(absolutePath)) {
             return Collections.emptyList();
         }
-        try (final Stream<Path> stream = Files.list(absolutePath)) {
+        if (!Files.isDirectory(absolutePath)) {
+            throw new Exception("路径不是目录: " + absolutePath);
+        }
+
+        // 流处理资源管理
+        try (Stream<Path> stream = Files.list(absolutePath)) {
             return stream.map(path -> {
-                FileResp file = new FileResp();
-                file.setFileName(path.getFileName().toString());
-                file.setIsDirectory(path.toFile().isDirectory());
-                file.setSize(path.toFile().length());
-                file.setUri(UrlUtil.getUrlByRelativePath(baseUrl,Paths.get(relativeTempPath, file.getFileName()).toString()).toString());
-                return file;
-            }).toList();
+                try {
+                    FileResp file = new FileResp();
+                    file.setFileName(path.getFileName().toString());
+                    file.setIsDirectory(Files.isDirectory(path));
+                    file.setSize(Files.size(path));
+
+                    // 构建URL
+                    String relativeFilePath = Paths.get(relativeTempPath, file.getFileName()).toString();
+                    URI fileUrl = UrlUtil.getUrlByRelativePath(baseUrl, relativeFilePath);
+                    file.setUri(fileUrl.toString());
+
+                    return file;
+                } catch (IOException e) {
+                    // 文件操作异常时返回部分信息
+                    FileResp partialFile = new FileResp();
+                    partialFile.setFileName(path.getFileName().toString());
+                    partialFile.setIsDirectory(false);
+                    partialFile.setSize(-1L);
+                    partialFile.setUri("[无法获取完整信息]");
+                    return partialFile;
+                }
+            }).collect(Collectors.toList()); // 确保兼容性
+        } catch (IOException | SecurityException e) {
+            throw new Exception("无法访问目录: " + absolutePath, e);
         }
     }
 
