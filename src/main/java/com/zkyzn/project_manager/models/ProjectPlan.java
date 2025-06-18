@@ -32,6 +32,11 @@ public class ProjectPlan {
     @TableField("project_id")
     private Long projectId;
 
+    @NotBlank(message = "关联的项目ID不能为空")
+    @Schema(description = "关联的项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @TableField("phase_id")
+    private Long phaseId;
+
 
     @Schema(description = "任务置顶", requiredMode = Schema.RequiredMode.REQUIRED)
     @TableField("is_top")

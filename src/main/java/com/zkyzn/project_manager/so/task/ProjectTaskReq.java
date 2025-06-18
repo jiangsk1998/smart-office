@@ -33,12 +33,6 @@ public class ProjectTaskReq {
     @JsonProperty("phase_id")
     private Long phaseId;
 
-
-    @NotBlank(message = "任务包不能为空")
-    @Schema(description = "任务包", requiredMode = Schema.RequiredMode.REQUIRED)
-    @JsonProperty("task_package")
-    private String taskPackage;
-
     @NotBlank(message = "任务内容不能为空")
     @Schema(description = "任务内容", requiredMode = Schema.RequiredMode.REQUIRED)
     @JsonProperty("task_description")
