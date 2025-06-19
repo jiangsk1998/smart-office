@@ -227,7 +227,7 @@ public class ProjectDashboardStory {
      */
     private Progress calculateOverallProgress(Long projectId) {
         Long totalTasks = projectPlanService.countByProjectId(projectId);
-        Long completedTasks = projectPlanService.countByProjectIdAndStatus(projectId, TaskStatusEnum.COMPLETED.getDisplayName());
+        Long completedTasks = projectPlanService.countByProjectIdAndStatus(projectId, TaskStatusEnum.COMPLETED.name());
 
         Progress progress = new Progress();
         progress.setCurrentRate(calculateRate(completedTasks, totalTasks));

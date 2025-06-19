@@ -1,6 +1,5 @@
 package com.zkyzn.project_manager.services;
 
-
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.yulichang.base.MPJBaseServiceImpl;
 import com.github.yulichang.query.MPJLambdaQueryWrapper;
@@ -118,7 +117,7 @@ public class ProjectPlanService extends MPJBaseServiceImpl<ProjectPlanDao, Proje
         MPJLambdaQueryWrapper<ProjectPlan> wrapper = new MPJLambdaQueryWrapper<>();
         wrapper.select(ProjectPlan:: getProjectPlanId)
                 .eq(ProjectPlan::getProjectId, projectId)
-                .eq(ProjectPlan::getTaskStatus, TaskStatusEnum.COMPLETED.getDisplayName())
+                .eq(ProjectPlan::getTaskStatus, TaskStatusEnum.COMPLETED.name())
                 .ge(ProjectPlan::getRealEndDate, startOfLastWeek)
                 .le(ProjectPlan::getRealEndDate, endOfLastWeek);
 
@@ -129,7 +128,7 @@ public class ProjectPlanService extends MPJBaseServiceImpl<ProjectPlanDao, Proje
         MPJLambdaQueryWrapper<ProjectPlan> wrapper = new MPJLambdaQueryWrapper<>();
         wrapper.select(ProjectPlan:: getProjectPlanId)
                 .eq(ProjectPlan::getProjectId, projectId)
-                .ne(ProjectPlan::getTaskStatus, TaskStatusEnum.COMPLETED.getDisplayName())
+                .ne(ProjectPlan::getTaskStatus, TaskStatusEnum.COMPLETED.name())
                 .lt(ProjectPlan::getEndDate, LocalDate.now());
 
         return baseMapper.selectCount(wrapper);
@@ -151,7 +150,7 @@ public class ProjectPlanService extends MPJBaseServiceImpl<ProjectPlanDao, Proje
         MPJLambdaQueryWrapper<ProjectPlan> wrapper = new MPJLambdaQueryWrapper<>();
         wrapper.selectAll(ProjectPlan.class)
                 .eq(ProjectPlan::getProjectId, projectId)
-                .ne(ProjectPlan::getTaskStatus, TaskStatusEnum.COMPLETED.getDisplayName())
+                .ne(ProjectPlan::getTaskStatus, TaskStatusEnum.COMPLETED.name())
                 .ge(ProjectPlan::getEndDate, now)
                 .le(ProjectPlan::getEndDate, endDate)
                 .orderByAsc(ProjectPlan::getEndDate);
@@ -197,7 +196,7 @@ public class ProjectPlanService extends MPJBaseServiceImpl<ProjectPlanDao, Proje
         QueryWrapper<ProjectPlan> wrapper = new QueryWrapper<>();
         wrapper.select("department, COUNT(*) as task_count")
                 .eq("project_id", projectId)
-                .eq("task_status", "已完成")
+                .eq("task_status", TaskStatusEnum.COMPLETED.name())
                 .ge("real_end_date", start)
                 .le("real_end_date", end)
                 .groupBy("department");
@@ -249,7 +248,7 @@ public class ProjectPlanService extends MPJBaseServiceImpl<ProjectPlanDao, Proje
         QueryWrapper<ProjectPlan> wrapper = new QueryWrapper<>();
         wrapper.eq("project_id", projectId)
                 .eq("department", departmentName)
-                .eq("task_status", TaskStatusEnum.COMPLETED.getDisplayName())
+                .eq("task_status", TaskStatusEnum.COMPLETED.name())
                 .ge("end_date", start)
                 .le("end_date", end);
         return baseMapper.selectCount(wrapper);
@@ -261,7 +260,7 @@ public class ProjectPlanService extends MPJBaseServiceImpl<ProjectPlanDao, Proje
     public long countCompletedTasksByEndDateRange(String departmentName, LocalDate startDate, LocalDate endDate) {
         QueryWrapper<ProjectPlan> wrapper = new QueryWrapper<>();
         wrapper.eq("department", departmentName)
-                .eq("task_status", TaskStatusEnum.COMPLETED.getDisplayName()) // 增加了“已完成”的状态筛选
+                .eq("task_status", TaskStatusEnum.COMPLETED.name())
                 .ge("end_date", startDate)
                 .le("end_date", endDate);
         return baseMapper.selectCount(wrapper);
@@ -274,7 +273,7 @@ public class ProjectPlanService extends MPJBaseServiceImpl<ProjectPlanDao, Proje
     public long countCompletedTasksByDateRanges(String departmentName, LocalDate planStartDate, LocalDate planEndDate, LocalDate realEndDateCutoff) {
         QueryWrapper<ProjectPlan> wrapper = new QueryWrapper<>();
         wrapper.eq("department", departmentName)
-                .eq("task_status", TaskStatusEnum.COMPLETED.getDisplayName())
+                .eq("task_status", TaskStatusEnum.COMPLETED.name())
                 .ge("end_date", planStartDate)  // 任务应在本月内完成
                 .le("end_date", planEndDate)
                 .le("real_end_date", realEndDateCutoff); // 任务在指定日期或之前实际完成
@@ -291,7 +290,7 @@ public class ProjectPlanService extends MPJBaseServiceImpl<ProjectPlanDao, Proje
                 .ge("end_date", monthStartDate)
                 .le("end_date", monthEndDate)
                 .lt("end_date", LocalDate.now()) // 关键：截止日期已过
-                .notIn("task_status", Arrays.asList(TaskStatusEnum.COMPLETED.toString(), TaskStatusEnum.STOP.toString())); // 关键：状态不是“已完成”或“中止”
+                .notIn("task_status", Arrays.asList(TaskStatusEnum.COMPLETED.name(), TaskStatusEnum.STOP.name())); // 关键：状态不是“已完成”或“中止”
         return baseMapper.selectCount(wrapper);
     }
 
@@ -329,7 +328,7 @@ public class ProjectPlanService extends MPJBaseServiceImpl<ProjectPlanDao, Proje
         QueryWrapper<ProjectPlan> wrapper = new QueryWrapper<>();
         wrapper.eq("department", departmentName)
                 .eq("responsible_person", personName)
-                .eq("task_status", TaskStatusEnum.COMPLETED.getDisplayName())
+                .eq("task_status", TaskStatusEnum.COMPLETED.name())
                 .ge("end_date", startDate)
                 .le("end_date", endDate);
         return baseMapper.selectCount(wrapper);
@@ -373,7 +372,7 @@ public class ProjectPlanService extends MPJBaseServiceImpl<ProjectPlanDao, Proje
     public long countCompletedTasksForPersonByDateRange(String personName, LocalDate startDate, LocalDate endDate) {
         QueryWrapper<ProjectPlan> wrapper = new QueryWrapper<>();
         wrapper.eq("responsible_person", personName)
-                .eq("task_status", TaskStatusEnum.COMPLETED.getDisplayName())
+                .eq("task_status", TaskStatusEnum.COMPLETED.name())
                 .ge("end_date", startDate)
                 .le("end_date", endDate);
         return baseMapper.selectCount(wrapper);
@@ -386,7 +385,7 @@ public class ProjectPlanService extends MPJBaseServiceImpl<ProjectPlanDao, Proje
     public long countCompletedTasksForPersonByDateRanges(String personName, LocalDate planStartDate, LocalDate planEndDate, LocalDate realEndDateCutoff) {
         QueryWrapper<ProjectPlan> wrapper = new QueryWrapper<>();
         wrapper.eq("responsible_person", personName)
-                .eq("task_status", TaskStatusEnum.COMPLETED.getDisplayName())
+                .eq("task_status", TaskStatusEnum.COMPLETED.name())
                 .ge("end_date", planStartDate)
                 .le("end_date", planEndDate)
                 .le("real_end_date", realEndDateCutoff);
@@ -417,7 +416,7 @@ public class ProjectPlanService extends MPJBaseServiceImpl<ProjectPlanDao, Proje
      */
     public List<PersonnelTodoTaskResp> findTodoTasksForPerson(String personName, LocalDate startDate, LocalDate endDate) {
         // 定义待办事项的状态列表
-        List<String> statuses = Arrays.asList(TaskStatusEnum.NOT_STARTED.getDisplayName(), TaskStatusEnum.STOP.getDisplayName());
+        List<String> statuses = Arrays.asList(TaskStatusEnum.NOT_STARTED.name(), TaskStatusEnum.STOP.name());
 
         // 直接调用 Mapper 接口中定义的方法
         return baseMapper.findTodoTasksForPersonXML(personName, startDate, endDate, statuses);

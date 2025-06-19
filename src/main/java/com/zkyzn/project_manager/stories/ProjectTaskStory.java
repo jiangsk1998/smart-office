@@ -11,7 +11,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 
 /**
@@ -47,7 +47,7 @@ public class ProjectTaskStory {
      */
     @Transactional(rollbackFor = Exception.class)
     public Boolean createPlan(ProjectPlan projectPlan, Long operatorId) {
-        LocalDateTime now = LocalDateTime.now();
+        ZonedDateTime now = ZonedDateTime.now();
         projectPlan.setCreateTime(now);
         projectPlan.setUpdateTime(now);
         projectPlan.setTaskPackage(projectPhaseService.getById(projectPlan.getPhaseId()).getPhaseName());
@@ -79,7 +79,7 @@ public class ProjectTaskStory {
         }
 
         projectPlan.setTaskStatus(null); // 确保状态不会在此方法中被意外修改
-        projectPlan.setUpdateTime(LocalDateTime.now());
+        projectPlan.setUpdateTime(ZonedDateTime.now());
 
         boolean success = projectPlanService.updateById(projectPlan);
         if (success) {
@@ -111,7 +111,7 @@ public class ProjectTaskStory {
         ProjectPlan updateEntity = new ProjectPlan();
         updateEntity.setProjectPlanId(id);
         updateEntity.setTaskStatus(status);
-        updateEntity.setUpdateTime(LocalDateTime.now());
+        updateEntity.setUpdateTime(ZonedDateTime.now());
         boolean success = projectPlanService.updateById(updateEntity);
 
         updateEntity.setProjectId(currentPlan.getProjectId());

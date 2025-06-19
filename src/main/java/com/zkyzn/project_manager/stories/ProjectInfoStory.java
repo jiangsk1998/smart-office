@@ -44,9 +44,6 @@ public class ProjectInfoStory {
     @Resource
     private ProjectPhaseService projectPhaseService;
 
-    @Resource
-    private ProgressHistoryStory progressHistoryService;
-
     @Value("/opt/software/file")
     private String fileRootPath;
 
@@ -85,7 +82,7 @@ public class ProjectInfoStory {
                     List<String> responsiblePersons = new ArrayList<>();
 
                     //根据项目计划生成项目计划和项目阶段，插入相应的数据表中
-                    initPlanAndPhaseByDocument(projectDocument, projectInfo.getProjectId(), responsiblePersons);
+                    initPlanAndPhaseByDocument(projectDocument, projectInfo, responsiblePersons);
 
                     // 更新项目参与人信息，将responsiblePersons列表中的字符串以逗号分隔拼接
                     projectInfo.setProjectParticipants(String.join(" ", responsiblePersons));
@@ -142,7 +139,7 @@ public class ProjectInfoStory {
                         List<String> responsiblePersons = new ArrayList<>();
 
                         // 根据项目计划生成项目计划和项目阶段，插入相应的数据表中
-                        initPlanAndPhaseByDocument(projectDocumentReq, req.getProjectId(), responsiblePersons);
+                        initPlanAndPhaseByDocument(projectDocumentReq, req, responsiblePersons);
 
                         // 更新项目参与人信息，将responsiblePersons列表中的字符串以逗号分隔拼接
                         req.setProjectParticipants(String.join(",", responsiblePersons));
@@ -299,7 +296,7 @@ public class ProjectInfoStory {
      * @param planList
      * @return
      */
-    public List<ProjectPhase> generatePhases(List<ProjectPlan> planList) {
+    public List<ProjectPhase> generatePhases(List<ProjectPlan> planList, String department) {
         // 1. 按任务包分组
         Map<String, List<ProjectPlan>> plansByPackage = planList.stream()
                 .collect(Collectors.groupingBy(ProjectPlan::getTaskPackage));
@@ -354,8 +351,9 @@ public class ProjectInfoStory {
             phase.setResponsiblePerson(responsiblePerson);
             phase.setDeliverable(deliverable);
             phase.setDeliverableType(deliverableType);
+            phase.setDepartment(department);
             // 默认状态
-            phase.setPhaseStatus(PhaseStatusEnum.NOT_STARTED.getDisplayName());
+            phase.setPhaseStatus(PhaseStatusEnum.NOT_STARTED.name());
 
             phaseList.add(phase);
         }
@@ -367,19 +365,36 @@ public class ProjectInfoStory {
     /**
      * 根据项目计划生成项目计划和项目阶段，插入相应的数据表中
      * @param projectDocumentReq
-     * @param projectId
+     * @param project
      */
-    private void initPlanAndPhaseByDocument(ProjectDocumentReq projectDocumentReq, Long projectId, List<String> responsiblePersons) {
+    private void initPlanAndPhaseByDocument(ProjectDocumentReq projectDocumentReq, ProjectInfo project, List<String> responsiblePersons) {
         // 根据文件路径获取计划书，计划书是excel格式，需要解析计划书，获取任务列表
         String filePath = projectDocumentReq.getFilePath();
         filePath = FileUtil.getAbsolutePathByUrlAndRootPath(filePath, fileRootPath);
-        List<ProjectPlan> planList = ExcelUtil.parseProjectPlan(filePath, projectId, responsiblePersons);
+        List<ProjectPlan> planList = ExcelUtil.parseProjectPlan(filePath, project.getProjectId(), responsiblePersons);
         if (!planList.isEmpty()) {
-            projectPlanService.saveBatch(planList);
-
-            // 根据计划列表planList生成阶段列表
-            List<ProjectPhase> phaseList = generatePhases(planList);
+            // 1. 生成阶段列表（此时phaseId为空）
+            List<ProjectPhase> phaseList = generatePhases(planList, project.getDepartment());
+            // 2. 批量保存阶段并获取自动生成的phaseId
             projectPhaseService.saveBatch(phaseList);
+
+            // 3. 构建任务包名称到阶段ID的映射
+            Map<String, Long> taskPackageToPhaseIdMap = phaseList.stream()
+                    .collect(Collectors.toMap(
+                            ProjectPhase::getPhaseName,
+                            ProjectPhase::getPhaseId
+                    ));
+
+            // 4. 遍历所有任务，设置对应的阶段ID
+            for (ProjectPlan plan : planList) {
+                Long phaseId = taskPackageToPhaseIdMap.get(plan.getTaskPackage());
+                if (phaseId != null) {
+                    plan.setPhaseId(phaseId); // 关联阶段ID
+                }
+            }
+
+            // 5. 批量保存任务
+            projectPlanService.saveBatch(planList);
         }
     }
 }

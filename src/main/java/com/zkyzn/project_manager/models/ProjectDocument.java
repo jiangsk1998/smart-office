@@ -9,7 +9,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 /**
  * @author Mr-ti
@@ -58,7 +58,7 @@ public class ProjectDocument {
     @Schema(description = "上传时间")
     @TableField(value = "upload_time")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime uploadTime;
+    private ZonedDateTime uploadTime;
 
     @Schema(description = "文档版本")
     @TableField("version")

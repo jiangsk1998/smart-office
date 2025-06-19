@@ -89,7 +89,7 @@ public class ProjectPhaseService extends MPJBaseServiceImpl<ProjectPhaseDao, Pro
             LocalDate today = LocalDate.now();
 
             for (ProjectPlan plan : plans) {
-                if (TaskStatusEnum.COMPLETED.getDisplayName().equals(plan.getTaskStatus())) {
+                if (TaskStatusEnum.COMPLETED.name().equals(plan.getTaskStatus())) {
                     completedTasks++;
                 }
                 if (plan.getEndDate().isBefore(today) || plan.getEndDate().isEqual(today)) {

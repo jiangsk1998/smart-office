@@ -2,6 +2,7 @@
 package com.zkyzn.project_manager.stories;
 
 
+import com.zkyzn.project_manager.enums.PhaseStatusEnum;
 import com.zkyzn.project_manager.enums.ProjectStatusEnum;
 import com.zkyzn.project_manager.events.ProjectPhaseChangeEvent;
 import com.zkyzn.project_manager.models.ProjectInfo;
@@ -185,7 +186,7 @@ public class ProjectPhaseStory {
 
         // 2. 检查是否所有阶段都已完成
         boolean allCompleted = !phases.isEmpty() &&
-                phases.stream().allMatch(phase -> "已完成".equals(phase.getPhaseStatus()));
+                phases.stream().allMatch(phase -> PhaseStatusEnum.COMPLETED.name().equals(phase.getPhaseStatus()));
 
         // 3. 如果所有阶段都已完成，则更新项目状态为“已完结”
         if (allCompleted) {

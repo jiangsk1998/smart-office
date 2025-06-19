@@ -29,7 +29,7 @@ public class ProjectPhaseController {
     public Result<Boolean> postCreatePhase(@RequestBody @Valid ProjectPhaseReq projectPhaseReq) {
         ProjectPhase phase = new ProjectPhase();
         BeanUtil.copyProperties(projectPhaseReq, phase);
-        phase.setPhaseStatus(projectPhaseReq.getPhaseStatus().getDisplayName());
+        phase.setPhaseStatus(projectPhaseReq.getPhaseStatus().name());
         return ResUtil.ok(projectPhaseStory.createPhase(phase, SecurityUtil.getCurrentUserId()));
     }
 
@@ -47,7 +47,7 @@ public class ProjectPhaseController {
     @Operation(summary = "变更项目阶段状态")
     @OperLog(type = "UPDATE", desc = "变更项目阶段状态", targetType = ProjectPhase.class, idPosition = 0, recordOriginal = true)
     public Result<Boolean> putChangePhaseStatus(@PathVariable Long id, @RequestParam PhaseStatusEnum status) {
-        return ResUtil.ok(projectPhaseStory.changePhaseStatusById(id, status.getDisplayName(),SecurityUtil.getCurrentUserId()));
+        return ResUtil.ok(projectPhaseStory.changePhaseStatusById(id, status.name(),SecurityUtil.getCurrentUserId()));
     }
 
     @DeleteMapping("/{id}")

@@ -32,7 +32,7 @@ public class ProjectTaskController {
     public Result<Boolean> postCreatePlan(@RequestBody @Valid ProjectTaskReq task) {
         ProjectPlan projectPlan = new ProjectPlan();
         BeanUtil.copyProperties(task, projectPlan);
-        projectPlan.setTaskStatus(task.getTaskStatus().getDisplayName());
+        projectPlan.setTaskStatus(task.getTaskStatus().name());
         return ResUtil.ok(projectTaskStory.createPlan(projectPlan,SecurityUtil.getCurrentUserId()));
     }
 
@@ -50,7 +50,7 @@ public class ProjectTaskController {
     @Operation(summary = "变更项目任务状态")
     @OperLog(type = "UPDATE", desc = "变更项目任务状态", targetType = ProjectPlan.class, idPosition = 0, recordOriginal = true)
     public Result<Boolean> putChangePlanStatus(@PathVariable Long id, @RequestParam TaskStatusEnum status) {
-        return ResUtil.ok(projectTaskStory.changePlanStatus(id, status.getDisplayName(), SecurityUtil.getCurrentUserId()));
+        return ResUtil.ok(projectTaskStory.changePlanStatus(id, status.name(), SecurityUtil.getCurrentUserId()));
     }
 
     @DeleteMapping("/{id}")

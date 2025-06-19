@@ -1,7 +1,7 @@
 CREATE TABLE `tab_message_info` (
                                     `message_id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
-                                    `sender_id` varchar(32) COLLATE utf8mb4_general_ci NOT NULL COMMENT '发送者用户ID（字符串）',
-                                    `receiver_id` varchar(32) COLLATE utf8mb4_general_ci NOT NULL COMMENT '接收者用户ID（字符串）',
+                                    `sender_id` bigint NOT NULL COMMENT '发送者用户ID', -- 修改为bigint
+                                    `receiver_id` bigint NOT NULL COMMENT '接收者用户ID', -- 修改为bigint
                                     `title` varchar(200) COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '消息标题',
                                     `content` json NOT NULL COMMENT '消息内容（JSON结构）',
                                     `message_type` tinyint NOT NULL DEFAULT '1' COMMENT '消息类型：0=附件通知，1=变更通知，2=即将到期通知，3=延期通知,4=延期反馈，5=延期风险告警',
