@@ -85,7 +85,7 @@ public class ProjectInfoStory {
                     List<String> responsiblePersons = new ArrayList<>();
 
                     //根据项目计划生成项目计划和项目阶段，插入相应的数据表中
-                    initPlanAndPhaseByDocument(projectDocument, projectInfo.getProjectId(), responsiblePersons);
+                    initPlanAndPhaseByDocument(projectDocument, projectInfo, responsiblePersons);
 
                     // 更新项目参与人信息，将responsiblePersons列表中的字符串以逗号分隔拼接
                     projectInfo.setProjectParticipants(String.join(" ", responsiblePersons));
@@ -142,7 +142,7 @@ public class ProjectInfoStory {
                         List<String> responsiblePersons = new ArrayList<>();
 
                         // 根据项目计划生成项目计划和项目阶段，插入相应的数据表中
-                        initPlanAndPhaseByDocument(projectDocumentReq, req.getProjectId(), responsiblePersons);
+                        initPlanAndPhaseByDocument(projectDocumentReq, req, responsiblePersons);
 
                         // 更新项目参与人信息，将responsiblePersons列表中的字符串以逗号分隔拼接
                         req.setProjectParticipants(String.join(",", responsiblePersons));
@@ -299,7 +299,7 @@ public class ProjectInfoStory {
      * @param planList
      * @return
      */
-    public List<ProjectPhase> generatePhases(List<ProjectPlan> planList) {
+    public List<ProjectPhase> generatePhases(List<ProjectPlan> planList, String department) {
         // 1. 按任务包分组
         Map<String, List<ProjectPlan>> plansByPackage = planList.stream()
                 .collect(Collectors.groupingBy(ProjectPlan::getTaskPackage));
@@ -354,6 +354,7 @@ public class ProjectInfoStory {
             phase.setResponsiblePerson(responsiblePerson);
             phase.setDeliverable(deliverable);
             phase.setDeliverableType(deliverableType);
+            phase.setDepartment(department);
             // 默认状态
             phase.setPhaseStatus(PhaseStatusEnum.NOT_STARTED.getDisplayName());
 
@@ -367,18 +368,18 @@ public class ProjectInfoStory {
     /**
      * 根据项目计划生成项目计划和项目阶段，插入相应的数据表中
      * @param projectDocumentReq
-     * @param projectId
+     * @param project
      */
-    private void initPlanAndPhaseByDocument(ProjectDocumentReq projectDocumentReq, Long projectId, List<String> responsiblePersons) {
+    private void initPlanAndPhaseByDocument(ProjectDocumentReq projectDocumentReq, ProjectInfo project, List<String> responsiblePersons) {
         // 根据文件路径获取计划书，计划书是excel格式，需要解析计划书，获取任务列表
         String filePath = projectDocumentReq.getFilePath();
         filePath = FileUtil.getAbsolutePathByUrlAndRootPath(filePath, fileRootPath);
-        List<ProjectPlan> planList = ExcelUtil.parseProjectPlan(filePath, projectId, responsiblePersons);
+        List<ProjectPlan> planList = ExcelUtil.parseProjectPlan(filePath, project.getProjectId(), responsiblePersons);
         if (!planList.isEmpty()) {
             projectPlanService.saveBatch(planList);
 
             // 根据计划列表planList生成阶段列表
-            List<ProjectPhase> phaseList = generatePhases(planList);
+            List<ProjectPhase> phaseList = generatePhases(planList, project.getDepartment());
             projectPhaseService.saveBatch(phaseList);
         }
     }
