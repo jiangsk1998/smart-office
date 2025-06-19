@@ -24,11 +24,6 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     @Resource
     private  UserInfoService userInfoService; // 注入 UserInfoService
 
-    // 构造器注入
-    public JwtTokenFilter(JwtUtil jwtUtil, UserInfoService userInfoService) {
-        this.jwtUtil = jwtUtil;
-        this.userInfoService = userInfoService;
-    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
