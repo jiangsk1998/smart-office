@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import com.zkyzn.project_manager.enums.PhaseStatusEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -54,9 +55,9 @@ public class ProjectInfo {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate endDate;
 
-    @Schema(description = "项目状态")
+    @Schema(description = "项目状态（NOT_STARTED/IN_PROGRESS/COMPLETED/OVERDUE）", defaultValue = "NOT_STARTED")
     @TableField("status")
-    private String status;
+    private String status = PhaseStatusEnum.NOT_STARTED.name();
 
     @Schema(description = "项目当前阶段")
     @TableField("current_phase")
@@ -95,7 +96,7 @@ public class ProjectInfo {
 
     @Schema(description = "是否收藏")
     @TableField("is_favorite")
-    private Boolean isFavorite;
+    private Boolean isFavorite = false;
 
     @Schema(description = "创建人ID")
     @TableField("creator_id")

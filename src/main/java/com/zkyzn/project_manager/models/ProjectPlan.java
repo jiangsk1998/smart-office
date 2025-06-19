@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import com.zkyzn.project_manager.enums.TaskStatusEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -11,7 +12,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 
 /**
@@ -32,8 +32,7 @@ public class ProjectPlan {
     @TableField("project_id")
     private Long projectId;
 
-    @NotBlank(message = "关联的项目ID不能为空")
-    @Schema(description = "关联的项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "关联的阶段ID")
     @TableField("phase_id")
     private Long phaseId;
 
@@ -90,16 +89,16 @@ public class ProjectPlan {
     @Schema(description = "创建时间")
     @TableField(value = "create_time")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private LocalDateTime createTime;
+    private ZonedDateTime createTime;
 
     @Schema(description = "修改时间")
     @TableField(value = "update_time")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private LocalDateTime updateTime;
+    private ZonedDateTime updateTime;
 
-    @Schema(description = "任务状态")
+    @Schema(description = "任务状态（NOT_STARTED/IN_PROGRESS/COMPLETED/STOP）", defaultValue = "NOT_STARTED")
     @TableField(value = "task_status")
-    private String taskStatus;
+    private String taskStatus = TaskStatusEnum.NOT_STARTED.name();
 
     @Schema(description = "实际开始时间", requiredMode = Schema.RequiredMode.REQUIRED)
     @TableField("real_start_date")

@@ -44,9 +44,6 @@ public class ProjectInfoStory {
     @Resource
     private ProjectPhaseService projectPhaseService;
 
-    @Resource
-    private ProgressHistoryStory progressHistoryService;
-
     @Value("/opt/software/file")
     private String fileRootPath;
 
@@ -356,7 +353,7 @@ public class ProjectInfoStory {
             phase.setDeliverableType(deliverableType);
             phase.setDepartment(department);
             // 默认状态
-            phase.setPhaseStatus(PhaseStatusEnum.NOT_STARTED.getDisplayName());
+            phase.setPhaseStatus(PhaseStatusEnum.NOT_STARTED.name());
 
             phaseList.add(phase);
         }
@@ -376,11 +373,28 @@ public class ProjectInfoStory {
         filePath = FileUtil.getAbsolutePathByUrlAndRootPath(filePath, fileRootPath);
         List<ProjectPlan> planList = ExcelUtil.parseProjectPlan(filePath, project.getProjectId(), responsiblePersons);
         if (!planList.isEmpty()) {
-            projectPlanService.saveBatch(planList);
-
-            // 根据计划列表planList生成阶段列表
+            // 1. 生成阶段列表（此时phaseId为空）
             List<ProjectPhase> phaseList = generatePhases(planList, project.getDepartment());
+            // 2. 批量保存阶段并获取自动生成的phaseId
             projectPhaseService.saveBatch(phaseList);
+
+            // 3. 构建任务包名称到阶段ID的映射
+            Map<String, Long> taskPackageToPhaseIdMap = phaseList.stream()
+                    .collect(Collectors.toMap(
+                            ProjectPhase::getPhaseName,
+                            ProjectPhase::getPhaseId
+                    ));
+
+            // 4. 遍历所有任务，设置对应的阶段ID
+            for (ProjectPlan plan : planList) {
+                Long phaseId = taskPackageToPhaseIdMap.get(plan.getTaskPackage());
+                if (phaseId != null) {
+                    plan.setPhaseId(phaseId); // 关联阶段ID
+                }
+            }
+
+            // 5. 批量保存任务
+            projectPlanService.saveBatch(planList);
         }
     }
 }

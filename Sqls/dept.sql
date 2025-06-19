@@ -1,8 +1,8 @@
 -- ----------------------------
 -- Table structure for departments
 -- ----------------------------
-DROP TABLE IF EXISTS `department`;
-CREATE TABLE `departments` (
+DROP TABLE IF EXISTS `tab_department`;
+CREATE TABLE `tab_department` (
                                `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '部门ID',
                                `name` VARCHAR(100) NOT NULL COMMENT '部门名称',
                                `parent_id` BIGINT NULL DEFAULT NULL COMMENT '上级部门ID，NULL表示根节点',
@@ -17,13 +17,13 @@ CREATE TABLE `departments` (
 -- Records of departments
 -- ----------------------------
 -- 清空旧数据
-DELETE FROM `department`;
+DELETE FROM `tab_department`;
 
 -- 重置自增ID
-ALTER TABLE `department` AUTO_INCREMENT = 1;
+ALTER TABLE `tab_department` AUTO_INCREMENT = 1;
 
 -- 插入数据
-INSERT INTO `department` (`id`, `name`, `parent_id`, `dept_type`) VALUES
+INSERT INTO `tab_department` (`id`, `name`, `parent_id`, `dept_type`) VALUES
 -- 根节点 (L0)
 (1, '上海分部', NULL, '分部'),
 

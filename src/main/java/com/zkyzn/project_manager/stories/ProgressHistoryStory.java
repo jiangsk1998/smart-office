@@ -47,7 +47,7 @@ public class ProgressHistoryStory {
             return BigDecimal.ZERO;
         }
 
-        long completed = projectPlanService.countByProjectIdTaskStatusAndRealEndDate(projectId, TaskStatusEnum.COMPLETED.getDisplayName(), date);
+        long completed = projectPlanService.countByProjectIdTaskStatusAndRealEndDate(projectId, TaskStatusEnum.COMPLETED.name(), date);
 
         return BigDecimal.valueOf(completed)
                 .divide(BigDecimal.valueOf(total), 4, RoundingMode.HALF_UP);

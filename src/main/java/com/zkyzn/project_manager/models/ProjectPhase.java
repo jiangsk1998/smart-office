@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import com.zkyzn.project_manager.enums.PhaseStatusEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -37,10 +38,10 @@ public class ProjectPhase {
     @TableField("phase_name")
     private String phaseName;
 
-    @Schema(description = "阶段状态（未开始/进行中/已完成/已延期/已取消）",
-            defaultValue = "未开始")
+    @Schema(description = "阶段状态（NOT_STARTED/IN_PROGRESS/COMPLETED/STOP）",
+            defaultValue = "NOT_STARTED")
     @TableField("phase_status")
-    private String phaseStatus = "未开始";
+    private String phaseStatus = PhaseStatusEnum.NOT_STARTED.name();
 
     @NotNull(message = "开始时间不能为空")
     @Schema(description = "开始时间", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -58,6 +59,10 @@ public class ProjectPhase {
     @Schema(description = "负责人姓名", requiredMode = Schema.RequiredMode.REQUIRED)
     @TableField("responsible_person")
     private String responsiblePerson;
+
+    @Schema(description = "科室")
+    @TableField("department")
+    private String department;
 
     @Schema(description = "阶段整体成果描述")
     @TableField("deliverable")

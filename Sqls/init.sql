@@ -1,18 +1,16 @@
 create table project_manager.tab_user_info
 (
-    user_id       bigint      auto_increment comment '用户Id'
+    user_id       bigint auto_increment comment '用户Id'
         primary key,
-    user_account  varchar(50) null comment '用户账号',
-    user_name     varchar(50) null comment '用户名称',
-    user_password varchar(50) null comment '用户密码',
-    create_time   datetime    null comment '创建时间',
-    update_time   datetime    null comment '更新时间',
-    is_delete     int         null,
-    department_id bigint      null comment '部门ID'
+    user_account  varchar(50)   null comment '用户账号',
+    user_name     varchar(50)   null comment '用户名称',
+    user_password varchar(1024) null comment '用户密码',
+    create_time   datetime      null comment '创建时间',
+    update_time   datetime      null comment '更新时间',
+    is_delete     int           null,
+    department_id bigint        null comment '部门ID'
 )
     comment '用户信息表';
-
-
 
 
 
@@ -32,7 +30,7 @@ create table project_manager.tab_project_info
     technical_leader      varchar(50)                          null comment '技术负责人姓名',
     plan_supervisors      json                                 null comment '计划主管列表',
     project_participants  varchar(50)                          null comment '项目参与人',
-    status                varchar(50)                          null comment '项目状态',
+    status                varchar(50)   default 'NOT_STARTED'  null comment '项目状态（NOT_STARTED/IN_PROGRESS/COMPLETED/OVERDUE）',
     current_phase         varchar(50)                          null comment '项目当前阶段',
     is_favorite           tinyint(1) default 0                 null comment '是否被收藏',
     creator_id            bigint                               null comment '创建人ID',
@@ -43,8 +41,6 @@ create table project_manager.tab_project_info
     update_time           datetime   default CURRENT_TIMESTAMP null on update CURRENT_TIMESTAMP comment '修改时间'
 )
     comment '项目信息表';
-
-
 
 
 
@@ -70,18 +66,16 @@ create table project_manager.tab_project_document
     comment '项目文档存储表';
 
 
-
-
-
 create table project_manager.tab_project_phase
 (
     phase_id           bigint auto_increment comment '阶段唯一ID'
         primary key,
     project_id         bigint                                not null comment '关联项目ID',
     phase_name         varchar(100)                          not null comment '阶段名称',
-    phase_status       varchar(50) default '未开始'          not null comment '阶段状态（未开始/进行中/已完成/已延期/已取消）',
+    phase_status       varchar(50) default 'NOT_STARTED'     not null comment '阶段状态（NOT_STARTED/IN_PROGRESS/COMPLETED/STOP）',
     start_date         date                                  not null comment '开始时间',
     end_date           date                                  not null comment '结束时间',
+    department         varchar(50)                           null comment '科室',
     responsible_person varchar(50)                           not null comment '负责人姓名',
     deliverable        varchar(255)                          null comment '阶段整体成果描述',
     deliverable_type   varchar(50)                           null comment '成果类型',
@@ -92,11 +86,6 @@ create table project_manager.tab_project_phase
             on delete cascade
 )
     comment '项目阶段表';
-
-ALTER TABLE `project_manager`.`tab_project_plan`
-    MODIFY COLUMN `phase_id` bigint NOT NULL COMMENT '项目阶段ID' AFTER `real_end_date`;
-
-
 
 
 
@@ -116,7 +105,7 @@ create table project_manager.tab_project_plan
     is_milestone       tinyint(1) default 0                 null comment '是否里程碑任务',
     create_time        datetime   default CURRENT_TIMESTAMP null comment '创建时间',
     update_time        datetime   default CURRENT_TIMESTAMP null on update CURRENT_TIMESTAMP comment '修改时间',
-    task_status        varchar(16)                          null comment '任务状态',
+    task_status        varchar(16)  default 'NOT_STARTED'   null comment '任务状态（NOT_STARTED/IN_PROGRESS/COMPLETED/STOP）',
     real_start_date    date                                 null comment '实际开始时间',
     real_end_date      date                                 null comment '实际结束时间',
     phase_id           bigint                               null comment '项目阶段ID',
@@ -126,11 +115,6 @@ create table project_manager.tab_project_plan
             on delete cascade
 )
     comment '项目计划表';
-
-
-
-
-
 
 
 
@@ -171,7 +155,6 @@ create table project_manager.tab_project_favorite
             on delete cascade
 )
     comment '项目收藏表';
-
 
 
 
@@ -234,4 +217,17 @@ create index idx_project
 
 create index idx_target
     on project_manager.tab_operation_log (operate_target, target_id);
+
+create table project_manager.tab_old_drawing_plan
+(
+    old_drawing_plan_id int auto_increment
+        primary key,
+    drawing_plan_name   varchar(256) null comment '图纸计划名称',
+    file_hash           varchar(120) null comment '图纸计划Hash',
+    plan_start_date     date         null comment '计划开始日期',
+    plan_end_date       date         null comment '计划结束日期'
+)
+    comment '历史图纸计划';
+
+
 
