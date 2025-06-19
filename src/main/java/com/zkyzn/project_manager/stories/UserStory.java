@@ -51,6 +51,7 @@ public class UserStory {
 
         UserDetailResp userDetailResp = new UserDetailResp();
         // 将 userInfo 的字段复制到 userDetailResp
+        userDetailResp.setUserAccount(userInfo.getUserAccount());
         userDetailResp.setUserId(userInfo.getUserId());
         userDetailResp.setUserName(userInfo.getUserName());
         userDetailResp.setCreateTime(userInfo.getCreateTime());
