@@ -1,11 +1,9 @@
 package com.zkyzn.project_manager.crons;
 
-import cn.hutool.core.date.DateTime;
-import cn.hutool.core.date.DateUtil;
 import cn.idev.excel.FastExcel;
 import cn.idev.excel.enums.CellExtraTypeEnum;
 import com.zkyzn.project_manager.converts.imports.DrawingPlanExcel;
-import com.zkyzn.project_manager.listener.excel.DrawingPlanImportListener;
+import com.zkyzn.project_manager.listener.excel.GenericImportListener;
 import com.zkyzn.project_manager.models.OldDrawingPlan;
 import com.zkyzn.project_manager.services.OldDrawingPlanService;
 import jakarta.annotation.Resource;
@@ -14,13 +12,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Stream;
@@ -52,7 +48,7 @@ public class DrawingPlanCron {
                     .forEach(path -> {
                         String md5String = DigestUtils.md5Hex(path.toFile().getAbsolutePath());
                         if(allPlan.stream().noneMatch(plan -> plan.getFileHash().equals(md5String))) {
-                            DrawingPlanImportListener listener = new DrawingPlanImportListener();
+                            GenericImportListener<DrawingPlanExcel> listener = new GenericImportListener<>();
                             FastExcel.read(path.toFile(), DrawingPlanExcel.class, listener)
                                     .extraRead(CellExtraTypeEnum.MERGE).sheet().doRead();
                             List<LocalDate> planDateStream = listener

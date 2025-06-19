@@ -3,7 +3,7 @@ package com.zkyzn.project_manager.stories;
 import cn.idev.excel.FastExcel;
 import cn.idev.excel.enums.CellExtraTypeEnum;
 import com.zkyzn.project_manager.converts.imports.DrawingPlanExcel;
-import com.zkyzn.project_manager.listener.excel.DrawingPlanImportListener;
+import com.zkyzn.project_manager.listener.excel.GenericImportListener;
 import com.zkyzn.project_manager.models.OldDrawingPlan;
 import com.zkyzn.project_manager.services.OldDrawingPlanService;
 import jakarta.annotation.Resource;
@@ -52,7 +52,7 @@ public class DrawingPlanStory {
         Files.createDirectories(newFilePath.getParent()); // 创建目录（如果不存在）
 
         // 读取历史的Excel表格
-        DrawingPlanImportListener listener = new DrawingPlanImportListener();
+        GenericImportListener<DrawingPlanExcel> listener = new GenericImportListener();
         FastExcel.read(filePath.toFile(), DrawingPlanExcel.class, listener)
                 .extraRead(CellExtraTypeEnum.MERGE).sheet().doRead();
 
