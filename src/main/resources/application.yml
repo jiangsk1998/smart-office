@@ -14,6 +14,18 @@ spring:
       idle-timeout: 600
       max-lifetime: 180000
       connection-timeout: 30000
+  data:
+    redis:
+      host: 192.168.1.111
+      port: 6379
+      password: Qwer123!@#
+      timeout: 5000ms # 连接超时时间
+      lettuce:
+        pool:
+          max-active: 8 # 连接池最大连接数
+          max-idle: 8   # 连接池最大空闲连接数
+          min-idle: 0   # 连接池最小空闲连接数
+          max-wait: -1  # 连接池最大阻塞等待时间（-1表示无限制）
 
   jackson:
     property-naming-strategy: SNAKE_CASE

@@ -46,9 +46,13 @@ public class UserInfoController {
     @Operation(summary = "获取当前用户详情（包含部门和角色信息）")
     @GetMapping("/currentUser/detail")
     public Result<UserDetailResp> geCurrentUserDetail() {
-        UserDetailResp userDetail = userStory.getUserDetailById(SecurityUtil.getCurrentUserId());
+        Long currentUserId = SecurityUtil.getCurrentUserId();
+        if (currentUserId == null) {
+            return ResUtil.fail("用户未登录"); // 如果无法获取当前用户ID，表示未登录
+        }
+        UserDetailResp userDetail = userStory.getUserDetailById(currentUserId);
         if (userDetail == null) {
-            return ResUtil.fail("用户不存在");
+            return ResUtil.fail("用户不存在"); // 理论上不会发生，因为ID是从已认证用户获取的
         }
         return ResUtil.ok(userDetail);
     }

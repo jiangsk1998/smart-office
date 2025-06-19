@@ -1,6 +1,5 @@
 package com.zkyzn.project_manager.services;
 
-
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.yulichang.base.MPJBaseServiceImpl;
 import com.github.yulichang.query.MPJLambdaQueryWrapper;
@@ -197,7 +196,7 @@ public class ProjectPlanService extends MPJBaseServiceImpl<ProjectPlanDao, Proje
         QueryWrapper<ProjectPlan> wrapper = new QueryWrapper<>();
         wrapper.select("department, COUNT(*) as task_count")
                 .eq("project_id", projectId)
-                .eq("task_status", "已完成")
+                .eq("task_status", TaskStatusEnum.COMPLETED.name())
                 .ge("real_end_date", start)
                 .le("real_end_date", end)
                 .groupBy("department");

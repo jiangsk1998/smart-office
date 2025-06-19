@@ -72,7 +72,6 @@ public class ProjectTaskReq {
     @JsonProperty("is_milestone")
     private Boolean isMilestone = false;
 
-
     @Schema(description = "任务状态",
             requiredMode = Schema.RequiredMode.REQUIRED,
             implementation = TaskStatusEnum.class) // 关键修改
