@@ -27,7 +27,7 @@ public class ProjectPlan {
     @TableId(value = "project_plan_id", type = IdType.AUTO)
     private Long projectPlanId;
 
-    @NotBlank(message = "关联的项目ID不能为空")
+    @NotNull(message = "关联的阶段ID不能为空") // 从 NotBlank 改为 NotNull，因为可能是Long类型
     @Schema(description = "关联的项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @TableField("project_id")
     private Long projectId;

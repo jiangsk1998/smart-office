@@ -5,11 +5,15 @@ import com.zkyzn.project_manager.models.UserInfo;
 import com.zkyzn.project_manager.services.UserInfoService;
 import com.zkyzn.project_manager.so.Result;
 import com.zkyzn.project_manager.so.ResultList;
+import com.zkyzn.project_manager.utils.JwtUtil; // 引入 JwtUtil
 import com.zkyzn.project_manager.utils.ResUtil;
+import com.zkyzn.project_manager.utils.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder; // 引入加密类
 import org.springframework.web.bind.annotation.*;
 
 import java.time.ZonedDateTime;
@@ -23,25 +27,8 @@ public class TokenController {
     @Resource
     private UserInfoService userInfoService;
 
-
-    @Deprecated
-    @Operation(summary = "获取当前用户信息", security = @SecurityRequirement(name = "auth"))
-    @GetMapping("/current")
-    public Result<UserInfo> getCurrentAdminUser(
-            @RequestParam(name = "user_id") Long userId
-    ) {
-        return ResUtil.ok(userInfoService.GetByUserId(userId));
-    }
-
-
-    //获取所有用户信息
-    @Operation(summary = "获取所有用户信息")
-    @GetMapping("/all")
-    public ResultList<UserInfo> getAllUsers(
-    ) {
-        List<UserInfo> list = userInfoService.list();
-        return ResUtil.list(list);
-    }
+    // 引入BCryptPasswordEncoder用于密码加密
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Operation(summary = "用户注册", description = "创建新用户")
     @PostMapping("/register")
@@ -51,13 +38,46 @@ public class TokenController {
             return ResUtil.fail("用户账号已存在");
         }
 
-        // 设置创建时间
+        // 密码加密存储
+        userInfo.setUserPassword(passwordEncoder.encode(userInfo.getUserPassword()));
         userInfo.setCreateTime(ZonedDateTime.now());
         userInfo.setUpdateTime(ZonedDateTime.now());
 
-        // 保存用户（密码需要前端加密后传输）
         userInfoService.save(userInfo);
         return ResUtil.ok(userInfo);
+    }
+
+    @Operation(summary = "用户登录")
+    @PostMapping("/login")
+    public Result<String> login( // 返回String类型，代表JWT Token
+            @RequestParam String userAccount,
+            @RequestParam String userPassword) {
+
+        UserInfo user = userInfoService.GetByUserAccount(userAccount);
+        if (user == null) {
+            return ResUtil.fail("用户不存在");
+        }
+
+        // 验证密码
+        if (!passwordEncoder.matches(userPassword, user.getUserPassword())) { // 使用passwordEncoder.matches进行密码比对
+            return ResUtil.fail("密码错误");
+        }
+
+        // 登录成功，生成JWT Token并返回
+        String token = JwtUtil.createToken(user.getUserId()); // 使用新的createToken方法
+        return ResUtil.ok(token);
+    }
+
+    @Operation(summary = "用户登出", security = @SecurityRequirement(name = "auth"))
+    @PostMapping("/logout")
+    public Result<Boolean> logout() {
+        Long currentUserId = SecurityUtil.getCurrentUserId();
+        if (currentUserId != null) {
+            JwtUtil.invalidateToken(currentUserId); // 使Redis中的Token失效
+            SecurityContextHolder.clearContext(); // 清除SecurityContext中的认证信息
+            return ResUtil.ok(true);
+        }
+        return ResUtil.fail("未登录或获取用户ID失败");
     }
 
     @Operation(summary = "更新用户信息", security = @SecurityRequirement(name = "auth"))
@@ -65,6 +85,11 @@ public class TokenController {
     public Result<UserInfo> updateUser(@RequestBody UserInfo userInfo) {
         // 设置更新时间
         userInfo.setUpdateTime(ZonedDateTime.now());
+
+        // 如果密码被修改，也需要加密
+        if (userInfo.getUserPassword() != null && !userInfo.getUserPassword().isEmpty()) {
+            userInfo.setUserPassword(passwordEncoder.encode(userInfo.getUserPassword()));
+        }
 
         if (userInfoService.updateById(userInfo)) {
             return ResUtil.ok(userInfo);
@@ -79,25 +104,6 @@ public class TokenController {
         return ResUtil.ok(userInfoService.removeById(userId));
     }
 
-    @Operation(summary = "用户登录")
-    @PostMapping("/login")
-    public Result<UserInfo> login(
-            @RequestParam String userAccount,
-            @RequestParam String userPassword) {
-
-        UserInfo user = userInfoService.GetByUserAccount(userAccount);
-        if (user == null) {
-            return ResUtil.fail("用户不存在");
-        }
-
-        // 实际项目中密码需加密比较
-        if (!user.getUserPassword().equals(userPassword)) {
-            return ResUtil.fail("密码错误");
-        }
-
-        // 返回用户信息（实际项目中应返回token）
-        return ResUtil.ok(user);
-    }
 
     @Deprecated
     @Operation(summary = "分页查询用户", security = @SecurityRequirement(name = "auth"))
@@ -130,8 +136,26 @@ public class TokenController {
             return ResUtil.fail("用户不存在");
         }
 
-        user.setUserPassword(newPassword); // 实际项目中需加密
+        user.setUserPassword(passwordEncoder.encode(newPassword)); // 密码加密
         user.setUpdateTime(ZonedDateTime.now());
         return ResUtil.ok(userInfoService.updateById(user));
+    }
+    
+    //获取所有用户信息
+    @Operation(summary = "获取所有用户信息")
+    @GetMapping("/all")
+    public ResultList<UserInfo> getAllUsers(
+    ) {
+        List<UserInfo> list = userInfoService.list();
+        return ResUtil.list(list);
+    }
+    
+     @Deprecated
+    @Operation(summary = "获取当前用户信息", security = @SecurityRequirement(name = "auth"))
+    @GetMapping("/current")
+    public Result<UserInfo> getCurrentAdminUser(
+            @RequestParam(name = "user_id") Long userId
+    ) {
+        return ResUtil.ok(userInfoService.GetByUserId(userId));
     }
 }

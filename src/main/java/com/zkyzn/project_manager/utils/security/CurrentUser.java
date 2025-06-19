@@ -18,9 +18,9 @@ public class CurrentUser implements UserDetails {
     private final boolean credentialsNonExpired;
     private final boolean enabled;
     private final String username;
-    private final Integer adminId;
+    private final Long adminId;
 
-    public CurrentUser(String username, Integer adminId, boolean enabled, boolean accountNonExpired, boolean credentialsNonExpired, boolean accountNonLocked, Collection<? extends GrantedAuthority> authorities) {
+    public CurrentUser(String username, Long adminId, boolean enabled, boolean accountNonExpired, boolean credentialsNonExpired, boolean accountNonLocked, Collection<? extends GrantedAuthority> authorities) {
         Assert.isTrue(username != null && !username.isEmpty(), "Cannot pass null or empty values to constructor");
         this.username = username;
         this.enabled = enabled;
@@ -120,7 +120,7 @@ public class CurrentUser implements UserDetails {
 
     public static final class UserBuilder {
         private String username;
-        private Integer adminId;
+        private Long adminId;
         private List<GrantedAuthority> authorities = new ArrayList<>();
 
         private UserBuilder() {
@@ -132,7 +132,7 @@ public class CurrentUser implements UserDetails {
             return this;
         }
 
-        public UserBuilder adminId(Integer adminId) {
+        public UserBuilder adminId(Long adminId) {
             Assert.notNull(adminId, "username cannot be null");
             this.adminId = adminId;
             return this;
