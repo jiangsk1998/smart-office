@@ -16,6 +16,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 
@@ -55,9 +56,13 @@ public class DrawingPlanStory {
         DrawingPlanImportListener listener = new DrawingPlanImportListener();
         FastExcel.read(filePath.toFile(), DrawingPlanExcel.class, listener)
                 .extraRead(CellExtraTypeEnum.MERGE).sheet().doRead();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/M/d");
 
-        listener.getData().stream().forEach(plan -> {
 
+        listener.getData().forEach(plan -> {
+            long subDays = LocalDate.parse(plan.getPlanDate(),formatter).until(oldDrawingPlan.getPlanStartDate(), ChronoUnit.DAYS);
+            long newDays = (long) (subDays * scaleRatio);
+            plan.setPlanDate(start.plusDays(newDays).format(formatter));
         });
 
         try (FileOutputStream fos = new FileOutputStream(newFilePath.toFile())) {
