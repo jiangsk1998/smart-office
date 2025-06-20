@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDate;
+import java.util.List;
 
 /**
  * @author Mr-ti
@@ -161,5 +162,19 @@ public class ProjectInfoService extends MPJBaseServiceImpl<ProjectInfoDao, Proje
         wrapper.orderByDesc(ProjectInfo::getCreateTime);
         return baseMapper.selectPage(page, wrapper);
     }
-}
 
+    /**
+     * 获取指定日期到期但未完成的项目列表。
+     *
+     * @param dueDate     截止日期
+     * @param completedStatus 已完成状态的名称
+     * @return 延期项目列表
+     */
+    public List<ProjectInfo> getDelayedProjects(LocalDate dueDate, String completedStatus) {
+        MPJLambdaQueryWrapper<ProjectInfo> wrapper = new MPJLambdaQueryWrapper<>();
+        wrapper.selectAll(ProjectInfo.class) // 选择所有字段
+                .eq(ProjectInfo::getEndDate, dueDate) // 结束日期是指定日期
+                .ne(ProjectInfo::getStatus, completedStatus); // 状态不是“已完成”
+        return baseMapper.selectList(wrapper);
+    }
+}

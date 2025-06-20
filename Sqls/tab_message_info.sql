@@ -15,3 +15,6 @@ CREATE TABLE `tab_message_info` (
                                     `is_deleted` tinyint NOT NULL DEFAULT '0' COMMENT '逻辑删除标志：0=正常，1=删除',
                                     PRIMARY KEY (`message_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='消息表';
+
+ALTER TABLE `project_manager`.`tab_message_info`
+    ADD COLUMN `is_reply_required` tinyint ZEROFILL NOT NULL COMMENT '是否需要回复：0=否，1=是' AFTER `is_deleted`;
