@@ -48,4 +48,14 @@ public class ResUtil {
         result.setErr(err);
         return result;
     }
+
+    public static <T> Result<T> fail(Integer code,String failMsg) {
+        Result<T> result = new Result<>();
+        result.setOk(false);
+        Err err = new Err();
+        err.setCode(code);
+        err.setMsg(failMsg);
+        result.setErr(err);
+        return result;
+    }
 }

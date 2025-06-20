@@ -102,4 +102,8 @@ public class MessageInfo {
     @TableField("is_deleted")
     @TableLogic
     private Boolean isDeleted = false;
+
+    @Schema(description = "是否需要回复：0=否，1=是")
+    @TableField("is_reply_required")
+    private Boolean isReplyRequired = false;
 }

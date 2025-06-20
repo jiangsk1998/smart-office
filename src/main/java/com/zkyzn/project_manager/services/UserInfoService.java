@@ -45,4 +45,12 @@ public class UserInfoService extends MPJBaseServiceImpl<UserInfoDao, UserInfo> {
 
         return baseMapper.selectPage(page, wrapper);
     }
+
+
+    public UserInfo getUserInfoByName(String userName) {
+        MPJLambdaQueryWrapper<UserInfo> queryWrapper = new MPJLambdaQueryWrapper<>();
+        queryWrapper.selectAll(UserInfo.class)
+                .eq(UserInfo::getUserName,userName);
+        return baseMapper.selectOne(queryWrapper);
+    }
 }

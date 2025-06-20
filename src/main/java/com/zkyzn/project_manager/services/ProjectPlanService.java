@@ -422,5 +422,19 @@ public class ProjectPlanService extends MPJBaseServiceImpl<ProjectPlanDao, Proje
         return baseMapper.findTodoTasksForPersonXML(personName, startDate, endDate, statuses);
     }
 
-
+    /**
+     * 获取指定日期到期但未完成的任务列表。
+     *
+     * @param dueDate     截止日期
+     * @param completedStatus 已完成状态的名称
+     * @param stopStatus  中止状态的名称
+     * @return 延期任务列表
+     */
+    public List<ProjectPlan> getDelayedTasks(LocalDate dueDate, String completedStatus, String stopStatus) {
+        MPJLambdaQueryWrapper<ProjectPlan> wrapper = new MPJLambdaQueryWrapper<>();
+        wrapper.selectAll(ProjectPlan.class) // 选择所有字段
+                .eq(ProjectPlan::getEndDate, dueDate) // 结束日期是指定日期
+                .notIn(ProjectPlan::getTaskStatus, Arrays.asList(completedStatus, stopStatus)); // 状态不是“已完成”或“中止”
+        return baseMapper.selectList(wrapper);
+    }
 }
