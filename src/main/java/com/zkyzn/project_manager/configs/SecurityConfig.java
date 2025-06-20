@@ -4,6 +4,7 @@ package com.zkyzn.project_manager.configs;
 import com.zkyzn.project_manager.filters.JwtTokenFilter;
 import jakarta.annotation.Resource;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -19,6 +20,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @EnableMethodSecurity()
 public class SecurityConfig {
+
+    @Value("${security.jwt.enabled:true}") // 默认值为true，如果yml中未配置则使用此默认值
+    private boolean jwtSecurityEnabled;
 
     @Resource
     private JwtTokenFilter jwtTokenFilter; // 直接通过构造器注入
@@ -37,23 +41,36 @@ public class SecurityConfig {
 
     /**
      * 认证基本配置
+     *
      * @return 配置链路
      */
     @Bean
     SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/swagger-ui/**").permitAll() // 保持Swagger路径开放
-                        .requestMatchers("/swagger-resources/**").permitAll()
-                        .requestMatchers("/swagger-ui.html").permitAll()
-                        .requestMatchers("/v3/api-docs/**").permitAll()
-                        .requestMatchers("/api/token/login", "/api/token/register").permitAll() // 允许登录和注册接口匿名访问
-                        .anyRequest().authenticated()) // 其他所有请求都需要认证
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
+        if (jwtSecurityEnabled) {
+            // 如果鉴权开启，则配置鉴权规则
+            httpSecurity.authorizeHttpRequests(auth -> auth
+                            .requestMatchers("/swagger-ui/**").permitAll() // 保持Swagger路径开放
+                            .requestMatchers("/swagger-resources/**").permitAll()
+                            .requestMatchers("/swagger-ui.html").permitAll()
+                            .requestMatchers("/v3/api-docs/**").permitAll()
+                            .requestMatchers("/api/token/login", "/api/token/register").permitAll() // 允许登录和注册接口匿名访问
+                            .anyRequest().authenticated()) // 其他所有请求都需要认证
+                    .csrf(AbstractHttpConfigurer::disable)
+                    .formLogin(AbstractHttpConfigurer::disable)
+                    .httpBasic(AbstractHttpConfigurer::disable)
+                    .addFilterAfter(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class); // 使用注入的JwtTokenFilter
+        } else {
+            httpSecurity.authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
+        }
+        httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
-                .httpBasic(AbstractHttpConfigurer::disable)
-                .addFilterAfter(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class); // 使用注入的JwtTokenFilter
+                .httpBasic(AbstractHttpConfigurer::disable); // HTTP Basic 通常也应该在完全放开时禁用
+
         return httpSecurity.build();
     }
+
 }

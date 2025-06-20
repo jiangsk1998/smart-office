@@ -2,7 +2,7 @@ spring:
   application:
     name: "project_manager"
   datasource:
-    url: jdbc:mysql://192.168.1.111:3306/project_manager?characterEncoding=utf-8&useSSL=false&serverTimezone=UTC
+    url: jdbc:mysql://192.168.1.111:3306/project_manager_dev?characterEncoding=utf-8&useSSL=false&serverTimezone=UTC
     username: project
     password: project
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -60,9 +60,9 @@ debug: true
 logging:
   level:
     org.springframework.boot: debug
+    com.zkyzn.project_manager.crons.DelayNoticeCron: debug # 新增这一行，用于调试定时任务
+    org.springframework.scheduling.annotation.ScheduledAnnotationBeanPostProcessor: debug # 用于查看定时任务的调度信息
 security:
-  # 盐
-  encodeKey: pma
-  privateKey: 123456
-  publicKey: 123456
+  jwt:
+    enabled: false
 
