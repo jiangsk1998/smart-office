@@ -4,7 +4,7 @@ import cn.idev.excel.context.AnalysisContext;
 import cn.idev.excel.enums.CellExtraTypeEnum;
 import cn.idev.excel.event.AnalysisEventListener;
 import cn.idev.excel.metadata.CellExtra;
-import com.zkyzn.project_manager.models.excel.ProjectPlanExcel;
+import com.zkyzn.project_manager.converts.imports.ProjectPlanExcel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -71,7 +71,6 @@ public class ProjectPlanImportListener extends AnalysisEventListener<ProjectPlan
         System.out.println("项目计划导入完成，共读取: " + dataList.size() + " 条数据");
     }
 
-    // 以下方法保持不变...
     private Object getValueByColumnIndex(ProjectPlanExcel data, int columnIndex) {
         switch (columnIndex) {
             case 0: return data.getSerialNumber();

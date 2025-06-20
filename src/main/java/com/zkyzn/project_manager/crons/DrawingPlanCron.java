@@ -48,7 +48,7 @@ public class DrawingPlanCron {
                     .forEach(path -> {
                         String md5String = DigestUtils.md5Hex(path.toFile().getAbsolutePath());
                         if(allPlan.stream().noneMatch(plan -> plan.getFileHash().equals(md5String))) {
-                            GenericImportListener<DrawingPlanExcel> listener = new GenericImportListener<>();
+                            GenericImportListener<DrawingPlanExcel> listener = new GenericImportListener<>(null);
                             FastExcel.read(path.toFile(), DrawingPlanExcel.class, listener)
                                     .extraRead(CellExtraTypeEnum.MERGE).sheet().doRead();
                             List<LocalDate> planDateStream = listener

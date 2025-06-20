@@ -10,6 +10,8 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum DocumentTypeEnum {
+    PROJECT_CONTRACT("项目合同"),
+    PROJECT_PAYMENT("项目款项"),
     PROJECT_PLAN("项目计划"),
     DRAWING_CATALOG("图纸目录"),
     PRODUCTION_MEETING("生产会材料"),

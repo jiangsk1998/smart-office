@@ -1,15 +1,18 @@
 package com.zkyzn.project_manager.stories;
 
+import cn.idev.excel.FastExcel;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.zkyzn.project_manager.converts.imports.ContractNodeExcel;
+import com.zkyzn.project_manager.converts.imports.PaymentNodeExcel;
 import com.zkyzn.project_manager.enums.DocumentTypeEnum;
 import com.zkyzn.project_manager.enums.Operator;
 import com.zkyzn.project_manager.enums.PhaseStatusEnum;
+import com.zkyzn.project_manager.listener.excel.GenericImportListener;
 import com.zkyzn.project_manager.models.ProjectInfo;
 import com.zkyzn.project_manager.models.ProjectPhase;
 import com.zkyzn.project_manager.models.ProjectPlan;
 import com.zkyzn.project_manager.services.*;
 import com.zkyzn.project_manager.so.project.dashboard.PhaseDetail;
-import com.zkyzn.project_manager.so.project.dashboard.Progress;
 import com.zkyzn.project_manager.so.project.info.*;
 import com.zkyzn.project_manager.utils.ExcelUtil;
 import com.zkyzn.project_manager.utils.FileUtil;
@@ -19,11 +22,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.File;
 import java.time.LocalDate;
-import java.time.YearMonth;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -43,6 +44,12 @@ public class ProjectInfoStory {
 
     @Resource
     private ProjectPhaseService projectPhaseService;
+
+    @Resource
+    private ContractNodeService contractNodeService;
+
+    @Resource
+    private PaymentNodeService paymentNodeService;
 
     @Value("/opt/software/file")
     private String fileRootPath;
@@ -87,6 +94,44 @@ public class ProjectInfoStory {
                     // 更新项目参与人信息，将responsiblePersons列表中的字符串以逗号分隔拼接
                     projectInfo.setProjectParticipants(String.join(" ", responsiblePersons));
                     insert = projectInfoService.updateById(projectInfo);
+                }
+                if (DocumentTypeEnum.PROJECT_CONTRACT.getChineseName().equals(projectDocument.getDocumentType())) {
+
+                    // 根据文件路径获取项目合同，项目合同是excel格式，需要解析
+                    String filePath = projectDocument.getFilePath();
+                    filePath = FileUtil.getAbsolutePathByUrlAndRootPath(filePath, fileRootPath);
+
+                    // 创建要跳过的行号集合（行号从0开始）
+                    Set<Integer> skipRows = new HashSet<>();
+                    // 模版中第二行是合计，跳过第二行（索引为1）
+                    skipRows.add(1);
+                    GenericImportListener<ContractNodeExcel> listener = new GenericImportListener(skipRows);
+                    File file = new File(filePath);
+                    FastExcel.read(file, ContractNodeExcel.class, listener)
+                            .sheet()
+                            .doRead();
+                    List<ContractNodeExcel> contractList = listener.getData();
+                    contractList.forEach(contract -> contract.setProjectId(projectId));
+                    contractNodeService.saveBatchProjectContractExcel(contractList);
+                }
+                if (DocumentTypeEnum.PROJECT_PAYMENT.getChineseName().equals(projectDocument.getDocumentType())) {
+
+                    // 根据文件路径获取项目款项，项目款项是excel格式，需要解析
+                    String filePath = projectDocument.getFilePath();
+                    filePath = FileUtil.getAbsolutePathByUrlAndRootPath(filePath, fileRootPath);
+
+                    // 创建要跳过的行号集合（行号从0开始）
+                    Set<Integer> skipRows = new HashSet<>();
+                    // 模版中第二行是合计，跳过第二行（索引为1）
+                    skipRows.add(1);
+                    GenericImportListener<PaymentNodeExcel> listener = new GenericImportListener(skipRows);
+                    File file = new File(filePath);
+                    FastExcel.read(file, PaymentNodeExcel.class, listener)
+                            .sheet()
+                            .doRead();
+                    List<PaymentNodeExcel> paymentList = listener.getData();
+                    paymentList.forEach(payment -> payment.setProjectId(projectId));
+                    paymentNodeService.saveBatchProjectPaymentExcel(paymentList);
                 }
             }
         }

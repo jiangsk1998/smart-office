@@ -18,47 +18,84 @@ create table project_manager.tab_project_info
 (
     project_id            bigint auto_increment comment '项目唯一ID'
         primary key,
-    project_number        varchar(50)                          not null comment '项目工号',
-    project_name          varchar(255)                         not null comment '项目名称',
-    department            varchar(50)                          not null comment '所属科室',
-    start_date            date                                 not null comment '立项时间',
-    end_date              date                                 not null comment '结束时间',
-    responsible_leader_id bigint                               null comment '分管领导ID',
-    technical_leader_id   bigint                               null comment '技术负责人ID',
-    plan_supervisor_id    bigint                               null comment '计划主管ID',
-    responsible_leader    varchar(50)                          null comment '分管领导姓名',
-    technical_leader      varchar(50)                          null comment '技术负责人姓名',
-    plan_supervisors      json                                 null comment '计划主管列表',
-    project_participants  varchar(50)                          null comment '项目参与人',
-    status                varchar(50)   default 'NOT_STARTED'  null comment '项目状态（NOT_STARTED/IN_PROGRESS/COMPLETED/OVERDUE）',
-    current_phase         varchar(50)                          null comment '项目当前阶段',
-    is_favorite           tinyint(1) default 0                 null comment '是否被收藏',
-    creator_id            bigint                               null comment '创建人ID',
-    creator_name          varchar(50)                          null comment '创建人姓名',
-    create_time           datetime   default CURRENT_TIMESTAMP null comment '创建时间',
-    updater_id            bigint                               null comment '最后修改人ID',
-    updater_name          varchar(50)                          null comment '最后修改人姓名',
-    update_time           datetime   default CURRENT_TIMESTAMP null on update CURRENT_TIMESTAMP comment '修改时间'
+    project_number        varchar(50)                           not null comment '项目工号',
+    project_name          varchar(255)                          not null comment '项目名称',
+    department            varchar(50)                           not null comment '所属科室',
+    start_date            date                                  not null comment '立项时间',
+    end_date              date                                  not null comment '结束时间',
+    responsible_leader_id bigint                                null comment '分管领导ID',
+    technical_leader_id   bigint                                null comment '技术负责人ID',
+    plan_supervisor_id    bigint                                null comment '计划主管ID',
+    responsible_leader    varchar(50)                           null comment '分管领导姓名',
+    technical_leader      varchar(50)                           null comment '技术负责人姓名',
+    plan_supervisors      json                                  null comment '计划主管列表',
+    project_participants  varchar(50)                           null comment '项目参与人',
+    status                varchar(50) default 'NOT_STARTED'     null comment '项目状态（NOT_STARTED/IN_PROGRESS/COMPLETED/OVERDUE）',
+    current_phase         varchar(50)                           null comment '项目当前阶段',
+    is_favorite           tinyint(1)  default 0                 null comment '是否被收藏',
+    creator_id            bigint                                null comment '创建人ID',
+    creator_name          varchar(50)                           null comment '创建人姓名',
+    create_time           datetime    default CURRENT_TIMESTAMP null comment '创建时间',
+    updater_id            bigint                                null comment '最后修改人ID',
+    updater_name          varchar(50)                           null comment '最后修改人姓名',
+    update_time           datetime    default CURRENT_TIMESTAMP null on update CURRENT_TIMESTAMP comment '修改时间'
 )
     comment '项目信息表';
 
 
+CREATE TABLE project_manager.tab_contract_node
+(
+    node_id              BIGINT AUTO_INCREMENT COMMENT '合同节点唯一ID' PRIMARY KEY,
+    project_id           BIGINT       NOT NULL COMMENT '关联项目ID',
+    contract_name        VARCHAR(255) NOT NULL COMMENT '合同名称',
+    project_number       VARCHAR(50)  NOT NULL COMMENT '项目工号',
+    contract_party       VARCHAR(100) NOT NULL COMMENT '合同甲方',
+    planned_payment_date DATE         NOT NULL COMMENT '计划到款日期',
+    payment_node_name    VARCHAR(255) NOT NULL COMMENT '到款节点名称',
+    create_time          DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time          DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
 
+    CONSTRAINT fk_contract_node_project FOREIGN KEY (project_id)
+        REFERENCES project_manager.tab_project_info (project_id)
+        ON DELETE CASCADE
+) COMMENT '合同节点表';
+
+CREATE TABLE project_manager.tab_payment_node
+(
+    payment_id          BIGINT AUTO_INCREMENT COMMENT '付款节点唯一ID' PRIMARY KEY,
+    project_id          BIGINT         NOT NULL COMMENT '关联项目ID',
+    project_number        VARCHAR(50)    NOT NULL COMMENT '项目工号',
+    payment_node_name   VARCHAR(255)   NOT NULL COMMENT '到款节点名称',
+    receivable          DECIMAL(18, 2) NOT NULL COMMENT '应收款（万元）',
+    department_director VARCHAR(50) COMMENT '部室主管',
+    invoice_status      VARCHAR(20) DEFAULT 'PENDING' COMMENT '开票状态（PENDING/WARNING/PROCESSING/COMPLETED）',
+    payment_status      VARCHAR(20) DEFAULT 'PENDING' COMMENT '到款状态（PENDING/WARNING/PROCESSING/COMPLETED）',
+    section_chief       VARCHAR(50) COMMENT '分管科长',
+    department_leader   VARCHAR(50) COMMENT '分管部领导',
+    client_stakeholder  VARCHAR(50) COMMENT '甲方干系人',
+    contact_info        VARCHAR(20) COMMENT '联系方式',
+    create_time         DATETIME    DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time         DATETIME    DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+
+    CONSTRAINT fk_payment_node_project FOREIGN KEY (project_id)
+        REFERENCES project_manager.tab_project_info (project_id)
+        ON DELETE CASCADE
+) COMMENT '项目付款节点表';
 
 create table project_manager.tab_project_document
 (
     project_document_id bigint auto_increment comment '文档唯一ID'
         primary key,
-    project_id          bigint                                                                                  not null comment '关联项目ID',
-    document_type       enum ('项目计划', '图纸目录', '生产会材料', '汇报材料', '二次统计', '合并文档', '其他') not null comment '文档类型',
-    document_name       varchar(255)                                                                            not null comment '文档名称',
-    file_path           varchar(500)                                                                            not null comment '文件存储路径',
-    uploader_id         bigint                                                                                  null comment '上传人ID',
-    uploader_name       varchar(50)                                                                             null comment '上传人姓名',
-    upload_time         datetime   default CURRENT_TIMESTAMP                                                    null comment '上传时间',
-    version             varchar(50)                                                                             null comment '文档版本',
-    description         text                                                                                    null comment '文档描述',
-    is_latest           tinyint(1) default 1                                                                    null comment '是否最新版本',
+    project_id          bigint                                                                                                          not null comment '关联项目ID',
+    document_type       enum ('项目款项', '项目合同', '项目计划', '图纸目录', '生产会材料', '汇报材料', '二次统计', '合并文档', '其他') not null comment '文档类型',
+    document_name       varchar(255)                                                                                                    not null comment '文档名称',
+    file_path           varchar(500)                                                                                                    not null comment '文件存储路径',
+    uploader_id         bigint                                                                                                          null comment '上传人ID',
+    uploader_name       varchar(50)                                                                                                     null comment '上传人姓名',
+    upload_time         datetime   default CURRENT_TIMESTAMP                                                                            null comment '上传时间',
+    version             varchar(50)                                                                                                     null comment '文档版本',
+    description         text                                                                                                            null comment '文档描述',
+    is_latest           tinyint(1) default 1                                                                                            null comment '是否最新版本',
     constraint fk_project_doc
         foreign key (project_id) references project_manager.tab_project_info (project_id)
             on delete cascade
@@ -93,23 +130,23 @@ create table project_manager.tab_project_plan
 (
     project_plan_id    bigint auto_increment comment '计划项唯一ID'
         primary key,
-    project_id         bigint                               not null comment '关联项目ID',
-    task_package       varchar(255)                         not null comment '任务包',
-    task_description   text                                 not null comment '任务内容',
-    start_date         date                                 not null comment '开始时间',
-    end_date           date                                 not null comment '结束时间',
-    responsible_person varchar(50)                          not null comment '责任人',
-    department         varchar(50)                          not null comment '科室',
-    deliverable        varchar(255)                         null comment '成果',
-    deliverable_type   varchar(50)                          null comment '成果类型',
-    is_milestone       tinyint(1) default 0                 null comment '是否里程碑任务',
-    create_time        datetime   default CURRENT_TIMESTAMP null comment '创建时间',
-    update_time        datetime   default CURRENT_TIMESTAMP null on update CURRENT_TIMESTAMP comment '修改时间',
-    task_status        varchar(16)  default 'NOT_STARTED'   null comment '任务状态（NOT_STARTED/IN_PROGRESS/COMPLETED/STOP）',
-    real_start_date    date                                 null comment '实际开始时间',
-    real_end_date      date                                 null comment '实际结束时间',
-    phase_id           bigint                               null comment '项目阶段ID',
-    is_top             tinyint(1)                           null comment '1是 0否',
+    project_id         bigint                                not null comment '关联项目ID',
+    task_package       varchar(255)                          not null comment '任务包',
+    task_description   text                                  not null comment '任务内容',
+    start_date         date                                  not null comment '开始时间',
+    end_date           date                                  not null comment '结束时间',
+    responsible_person varchar(50)                           not null comment '责任人',
+    department         varchar(50)                           not null comment '科室',
+    deliverable        varchar(255)                          null comment '成果',
+    deliverable_type   varchar(50)                           null comment '成果类型',
+    is_milestone       tinyint(1)  default 0                 null comment '是否里程碑任务',
+    create_time        datetime    default CURRENT_TIMESTAMP null comment '创建时间',
+    update_time        datetime    default CURRENT_TIMESTAMP null on update CURRENT_TIMESTAMP comment '修改时间',
+    task_status        varchar(16) default 'NOT_STARTED'     null comment '任务状态（NOT_STARTED/IN_PROGRESS/COMPLETED/STOP）',
+    real_start_date    date                                  null comment '实际开始时间',
+    real_end_date      date                                  null comment '实际结束时间',
+    phase_id           bigint                                null comment '项目阶段ID',
+    is_top             tinyint(1)                            null comment '1是 0否',
     constraint fk_plan_project
         foreign key (project_id) references project_manager.tab_project_info (project_id)
             on delete cascade

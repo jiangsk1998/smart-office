@@ -53,7 +53,7 @@ public class DrawingPlanStory {
         Files.createDirectories(newFilePath.getParent()); // 创建目录（如果不存在）
 
         // 读取历史的Excel表格
-        GenericImportListener<DrawingPlanExcel> listener = new GenericImportListener();
+        GenericImportListener<DrawingPlanExcel> listener = new GenericImportListener(null);
         FastExcel.read(filePath.toFile(), DrawingPlanExcel.class, listener)
                 .extraRead(CellExtraTypeEnum.MERGE).sheet().doRead();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/M/d");
