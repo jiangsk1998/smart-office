@@ -7,11 +7,13 @@ import com.zkyzn.project_manager.enums.TaskStatusEnum;
 import com.zkyzn.project_manager.mappers.ProjectPlanDao;
 import com.zkyzn.project_manager.models.ProjectPlan;
 import com.zkyzn.project_manager.so.personnel.PersonnelTodoTaskResp;
+import com.zkyzn.project_manager.so.project.ai.MonthlyPlansDTO;
 import com.zkyzn.project_manager.so.project.dashboard.ChangeRecord;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -435,6 +437,48 @@ public class ProjectPlanService extends MPJBaseServiceImpl<ProjectPlanDao, Proje
         wrapper.selectAll(ProjectPlan.class) // 选择所有字段
                 .eq(ProjectPlan::getEndDate, dueDate) // 结束日期是指定日期
                 .notIn(ProjectPlan::getTaskStatus, Arrays.asList(completedStatus, stopStatus)); // 状态不是“已完成”或“中止”
+        return baseMapper.selectList(wrapper);
+    }
+
+    /**
+     * 获取本月和下个月的工作计划
+     */
+    public MonthlyPlansDTO getMonthlyPlans() {
+        LocalDate now = LocalDate.now();
+
+        // 计算本月范围
+        YearMonth currentMonth = YearMonth.from(now);
+        LocalDate firstDayOfCurrentMonth = currentMonth.atDay(1);
+        LocalDate lastDayOfCurrentMonth = currentMonth.atEndOfMonth();
+
+        // 计算下个月范围
+        YearMonth nextMonth = currentMonth.plusMonths(1);
+        LocalDate firstDayOfNextMonth = nextMonth.atDay(1);
+        LocalDate lastDayOfNextMonth = nextMonth.atEndOfMonth();
+
+        // 查询本月计划
+        List<ProjectPlan> currentMonthPlans = getPlansByEndDateRange(firstDayOfCurrentMonth, lastDayOfCurrentMonth);
+
+        // 查询下个月计划
+        List<ProjectPlan> nextMonthPlans = getPlansByEndDateRange(firstDayOfNextMonth, lastDayOfNextMonth);
+
+        // 创建返回对象
+        MonthlyPlansDTO dto = new MonthlyPlansDTO();
+        dto.setCurrentMonthPlans(currentMonthPlans);
+        dto.setNextMonthPlans(nextMonthPlans);
+
+        return dto;
+    }
+
+    /**
+     * 根据结束日期范围查询计划
+     */
+    private List<ProjectPlan> getPlansByEndDateRange(LocalDate start, LocalDate end) {
+        MPJLambdaQueryWrapper<ProjectPlan> wrapper = new MPJLambdaQueryWrapper<>();
+        wrapper.selectAll(ProjectPlan.class)
+                .between(ProjectPlan::getEndDate, start, end)
+                .orderByAsc(ProjectPlan::getEndDate);  // 按结束日期升序排序
+
         return baseMapper.selectList(wrapper);
     }
 }
