@@ -9,6 +9,7 @@ import com.zkyzn.project_manager.so.ResultList;
 import com.zkyzn.project_manager.so.message.MsgReq;
 import com.zkyzn.project_manager.stories.MessageInfoStory;
 import com.zkyzn.project_manager.utils.ResUtil;
+import com.zkyzn.project_manager.utils.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -39,8 +40,8 @@ public class MessageInfoController {
     @PostMapping
     @Operation(summary = "发送超期反馈")
     public Result<Boolean> postSendFeedbackMessage(@RequestBody MessageInfo messageInfo) {
-        // Todo 获取当前用户
-        messageInfo.setSenderId(1L);
+
+        messageInfo.setSenderId(SecurityUtil.getCurrentUserId());
 
         BaseContent content = messageInfo.getContent();
 
@@ -89,8 +90,8 @@ public class MessageInfoController {
 
         // 构建查询条件
         MsgReq req = new MsgReq();
-        // Todo 获取当前用户
-        req.setUserId(1L);
+
+        req.setUserId(SecurityUtil.getCurrentUserId());
         req.setMessageTypes(messageTypes);
         req.setReadStatus(readStatus);
         req.setKeyword(keyword);
