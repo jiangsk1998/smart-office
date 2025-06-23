@@ -67,6 +67,7 @@ public class WeeklyReportCron {
         Map<Long, String> projectIdToNameMap = allProjects.stream()
                 .collect(Collectors.toMap(ProjectInfo::getProjectId, ProjectInfo::getProjectName));
 
+
         LocalDate today = LocalDate.now();
         LocalDate lastMonday = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)).minusWeeks(1);
         LocalDate lastSunday = lastMonday.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
@@ -76,18 +77,17 @@ public class WeeklyReportCron {
 
 
         for (UserInfo user : allUsers) {
-            String personName = user.getUserName();
+            String responsiblePerson = user.getUserName(); // 获取责任人姓名
 
             List<ProjectPlan> completedPlans = projectPlanService.getPlansByDateRangeAndStatusForPerson(
-                    personName, lastMonday, lastSunday, TaskStatusEnum.COMPLETED.name());
+                    responsiblePerson, lastMonday, lastSunday, TaskStatusEnum.COMPLETED.name());
 
             List<ProjectPlan> uncompletedPlans = projectPlanService.getPlansByDateRangeAndUncompletedStatusForPerson(
-                    personName, lastMonday, lastSunday, TaskStatusEnum.COMPLETED.name(), TaskStatusEnum.STOP.name());
+                    responsiblePerson, lastMonday, lastSunday, TaskStatusEnum.COMPLETED.name(), TaskStatusEnum.STOP.name());
 
             List<ProjectPlan> thisWeekDuePlans = projectPlanService.getPlansByDateRangeForPerson(
-                    personName, thisMonday, thisSunday);
+                    responsiblePerson, thisMonday, thisSunday);
 
-            // 在这里进行类型转换，将 ProjectPlan 列表转换为 TaskItem 列表
             List<TaskItem> completedTasks = mapProjectPlansToTaskItems(completedPlans, projectIdToNameMap);
             List<TaskItem> uncompletedTasks = mapProjectPlansToTaskItems(uncompletedPlans, projectIdToNameMap);
             List<TaskItem> thisWeekDueTasks = mapProjectPlansToTaskItems(thisWeekDuePlans, projectIdToNameMap);
@@ -96,7 +96,7 @@ public class WeeklyReportCron {
                     lastMonday,
                     lastSunday,
                     "WEEKLY",
-                    personName,
+                    responsiblePerson, // 传入责任人姓名
                     completedTasks,
                     uncompletedTasks,
                     thisWeekDueTasks
@@ -107,25 +107,19 @@ public class WeeklyReportCron {
                     .receiverId(user.getUserId())
                     .title("【周度报告】你的任务周报 (" + reportContent.getReportPeriod() + ")")
                     .content(reportContent)
-                    .messageType(0)
+                    .messageType(6)
                     .readStatus(false)
                     .isTop(false)
                     .isReplyRequired(false)
                     .build();
 
             messageInfoStory.sendMessage(message);
-            logger.info("已向用户 {} 发送周度报告。", personName);
+            logger.info("已向用户 {} 发送周度报告。", responsiblePerson);
         }
 
         logger.info("定时任务：周度报告发送完成。");
     }
 
-    /**
-     * 将 ProjectPlan 列表转换为 TaskItem 列表，并根据 projectId 填充 projectName。
-     * @param projectPlans ProjectPlan 列表
-     * @param projectIdToNameMap 项目ID到名称的映射
-     * @return TaskItem 列表
-     */
     private List<TaskItem> mapProjectPlansToTaskItems(List<ProjectPlan> projectPlans, Map<Long, String> projectIdToNameMap) {
         return projectPlans.stream()
                 .map(plan -> TaskItem.builder()

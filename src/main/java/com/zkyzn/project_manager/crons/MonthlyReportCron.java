@@ -107,7 +107,7 @@ public class MonthlyReportCron {
                     .receiverId(user.getUserId())
                     .title("【月度报告】你的任务月报 (" + reportContent.getReportPeriod() + ")")
                     .content(reportContent)
-                    .messageType(0)
+                    .messageType(6)
                     .readStatus(false)
                     .isTop(false)
                     .isReplyRequired(false)

@@ -1,9 +1,6 @@
 package com.zkyzn.project_manager;
 
-import com.zkyzn.project_manager.crons.DelayNoticeCron;
-import com.zkyzn.project_manager.crons.DueDateNoticeCron;
-import com.zkyzn.project_manager.crons.MonthlyReportCron;
-import com.zkyzn.project_manager.crons.WeeklyReportCron;
+import com.zkyzn.project_manager.crons.*;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,6 +19,9 @@ class MainApplicationTests {
 
     @Resource
     private MonthlyReportCron monthlyReportCron;
+
+    @Resource
+    private AnnualReportCron annualReportCron;
 
     @Test
     void contextLoads() {
@@ -45,5 +45,10 @@ class MainApplicationTests {
     @Test
     void monthlyReportCron() {
         monthlyReportCron.sendMonthlyReports();
+    }
+
+    @Test
+    void annualReportCron() {
+        annualReportCron.sendAnnualReports();
     }
 }

@@ -34,5 +34,21 @@ public interface ProjectPlanDao extends MPJBaseMapper<ProjectPlan> {
             @Param("statuses") List<String> statuses
     );
 
+    Integer countPlansByDateRangeAndStatusForPerson(
+            @Param("personName") String personName,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate,
+            @Param("status") String status);
 
+    Integer countPlansByDateRangeAndUncompletedStatusForPerson(
+            @Param("personName") String personName,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate,
+            @Param("completedStatus") String completedStatus,
+            @Param("stopStatus") String stopStatus);
+
+    Integer countPlansByDateRangeForPerson(
+            @Param("personName") String personName,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate);
 }

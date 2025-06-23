@@ -47,4 +47,24 @@
         pp.is_top DESC, pp.end_date ASC
     </select>
 
+    <select id="countPlansByDateRangeAndStatusForPerson" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM tab_project_plan
+        WHERE responsible_person = #{personName} AND DATE(end_date) BETWEEN #{startDate} AND #{endDate}
+          AND task_status = #{status}
+    </select>
+
+    <select id="countPlansByDateRangeAndUncompletedStatusForPerson" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM tab_project_plan
+        WHERE responsible_person = #{personName} AND DATE(end_date) BETWEEN #{startDate} AND #{endDate}
+          AND task_status NOT IN (#{completedStatus}, #{stopStatus})
+    </select>
+
+    <select id="countPlansByDateRangeForPerson" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM tab_project_plan
+        WHERE responsible_person = #{personName} AND DATE(end_date) BETWEEN #{startDate} AND #{endDate}
+    </select>
+
 </mapper>

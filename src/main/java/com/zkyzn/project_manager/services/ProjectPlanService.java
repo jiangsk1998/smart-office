@@ -539,4 +539,26 @@ public class ProjectPlanService extends MPJBaseServiceImpl<ProjectPlanDao, Proje
         return baseMapper.selectList(wrapper); // 使用 selectList 进行单表查询
     }
 
+    /**
+     * 计算指定人员、日期范围和状态的任务数量
+     */
+    public Integer countPlansByDateRangeAndStatusForPerson(
+            String responsiblePerson, LocalDate startDate, LocalDate endDate, String status) { // 修正参数名
+        return baseMapper.countPlansByDateRangeAndStatusForPerson(responsiblePerson, startDate, endDate, status);
+    }
+
+    /**
+     * 计算指定人员、日期范围和非指定状态的任务数量 (用于未完成/中止)
+     */
+    public Integer countPlansByDateRangeAndUncompletedStatusForPerson(
+            String responsiblePerson, LocalDate startDate, LocalDate endDate, String completedStatus, String stopStatus) { // 修正参数名
+        return baseMapper.countPlansByDateRangeAndUncompletedStatusForPerson(responsiblePerson, startDate, endDate, completedStatus, stopStatus);
+    }
+
+    /**
+     * 计算指定人员、日期范围内的所有任务数量
+     */
+    public Integer countPlansByDateRangeForPerson(String responsiblePerson, LocalDate startDate, LocalDate endDate) { // 修正参数名
+        return baseMapper.countPlansByDateRangeForPerson(responsiblePerson, startDate, endDate);
+    }
 }
