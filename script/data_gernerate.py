@@ -171,7 +171,7 @@ def main():
                 updater = random.choice(current_dept_users)
 
 
-                plan_supervisors_json = json.dumps([{"userId": u['user_id'], "userName": u['user_name']} for u in plan_supervisors_users])
+                plan_supervisors_json = json.dumps([{"user_id": u['user_id'], "user_name": u['user_name']} for u in plan_supervisors_users])
                 project_participants = ", ".join([u['user_name'] for u in current_dept_users])
 
                 sql_project = """
