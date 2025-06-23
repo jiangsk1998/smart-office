@@ -45,7 +45,7 @@ public class DueDateNoticeCron {
     @Resource
     private UserInfoService userInfoService;
 
-    private static final Long SYSTEM_USER_ID = 1L; // Assuming system user ID
+    private static final Long SYSTEM_USER_ID = 1L;
 
     /**
      * 每天凌晨1点执行，检查明天到期的项目和任务

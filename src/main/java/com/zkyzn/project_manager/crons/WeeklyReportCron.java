@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 public class WeeklyReportCron {
 
     private static final Logger logger = LoggerFactory.getLogger(WeeklyReportCron.class);
-    private static final Long SYSTEM_USER_ID = 1L; // 假设系统发送通知的用户ID
+    private static final Long SYSTEM_USER_ID = 1L;
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE;
 
     @Resource

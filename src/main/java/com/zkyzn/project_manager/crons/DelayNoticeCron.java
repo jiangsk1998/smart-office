@@ -43,7 +43,7 @@ public class DelayNoticeCron {
     @Resource
     private UserInfoService userInfoService;
 
-    private static final Long SYSTEM_USER_ID = 1L; // 假设系统发送通知的用户ID
+    private static final Long SYSTEM_USER_ID = 1L; // Todo 抽离为公共常量
 
 
     /**
