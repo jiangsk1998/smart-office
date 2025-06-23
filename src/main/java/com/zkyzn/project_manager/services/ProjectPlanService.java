@@ -1,10 +1,12 @@
 package com.zkyzn.project_manager.services;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.yulichang.base.MPJBaseServiceImpl;
 import com.github.yulichang.query.MPJLambdaQueryWrapper;
 import com.zkyzn.project_manager.enums.TaskStatusEnum;
 import com.zkyzn.project_manager.mappers.ProjectPlanDao;
+import com.zkyzn.project_manager.models.ProjectInfo;
 import com.zkyzn.project_manager.models.ProjectPlan;
 import com.zkyzn.project_manager.so.personnel.PersonnelTodoTaskResp;
 import com.zkyzn.project_manager.so.project.ai.MonthlyPlansDTO;
@@ -481,4 +483,60 @@ public class ProjectPlanService extends MPJBaseServiceImpl<ProjectPlanDao, Proje
 
         return baseMapper.selectList(wrapper);
     }
+    /**
+     * 获取指定责任人在日期范围内的任务列表。
+     * 单表查询。
+     * @param personName 责任人姓名
+     * @param startDate 开始日期
+     * @param endDate 结束日期
+     * @return 任务列表
+     */
+    public List<ProjectPlan> getPlansByDateRangeForPerson(String personName, LocalDate startDate, LocalDate endDate) {
+        LambdaQueryWrapper<ProjectPlan> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(ProjectPlan::getResponsiblePerson, personName)
+                .ge(ProjectPlan::getEndDate, startDate)
+                .le(ProjectPlan::getEndDate, endDate)
+                .orderByAsc(ProjectPlan::getEndDate);
+        return baseMapper.selectList(wrapper); // 使用 selectList 进行单表查询
+    }
+
+    /**
+     * 获取指定责任人在日期范围内且指定状态的任务列表。
+     * 单表查询。
+     * @param personName 责任人姓名
+     * @param startDate 开始日期
+     * @param endDate 结束日期
+     * @param status 任务状态
+     * @return 任务列表
+     */
+    public List<ProjectPlan> getPlansByDateRangeAndStatusForPerson(String personName, LocalDate startDate, LocalDate endDate, String status) {
+        LambdaQueryWrapper<ProjectPlan> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(ProjectPlan::getResponsiblePerson, personName)
+                .eq(ProjectPlan::getTaskStatus, status)
+                .ge(ProjectPlan::getRealEndDate, startDate)
+                .le(ProjectPlan::getRealEndDate, endDate)
+                .orderByAsc(ProjectPlan::getRealEndDate);
+        return baseMapper.selectList(wrapper); // 使用 selectList 进行单表查询
+    }
+
+    /**
+     * 获取指定责任人在日期范围内，且不处于指定“已完成”和“中止”状态的任务列表。
+     * 单表查询。
+     * @param personName 责任人姓名
+     * @param startDate 开始日期
+     * @param endDate 结束日期
+     * @param completedStatus 已完成状态
+     * @param stopStatus 中止状态
+     * @return 任务列表
+     */
+    public List<ProjectPlan> getPlansByDateRangeAndUncompletedStatusForPerson(String personName, LocalDate startDate, LocalDate endDate, String completedStatus, String stopStatus) {
+        LambdaQueryWrapper<ProjectPlan> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(ProjectPlan::getResponsiblePerson, personName)
+                .ge(ProjectPlan::getEndDate, startDate)
+                .le(ProjectPlan::getEndDate, endDate)
+                .notIn(ProjectPlan::getTaskStatus, Arrays.asList(completedStatus, stopStatus))
+                .orderByAsc(ProjectPlan::getEndDate);
+        return baseMapper.selectList(wrapper); // 使用 selectList 进行单表查询
+    }
+
 }

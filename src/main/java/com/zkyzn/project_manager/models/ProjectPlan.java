@@ -32,6 +32,9 @@ public class ProjectPlan {
     @TableField("project_id")
     private Long projectId;
 
+    @TableField(exist = false) // 标记为非数据库字段，通过关联查询或Service层设置
+    private String projectName; // 新增：项目名称，需要确保在查询时填充此字段
+
     @Schema(description = "关联的阶段ID")
     @TableField("phase_id")
     private Long phaseId;

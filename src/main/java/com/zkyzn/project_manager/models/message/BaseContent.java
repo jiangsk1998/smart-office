@@ -21,6 +21,7 @@ import lombok.Setter;
         @JsonSubTypes.Type(value = DelayNoticeContent.class, name = "delayNotice"), // 延期原因填写通知
         @JsonSubTypes.Type(value = DelayFeedbackContent.class, name = "delayFeedback"), // 超期反馈表单发送
         @JsonSubTypes.Type(value = DelayAlertContent.class, name = "delayAlert"), // 延期风险告警
+        @JsonSubTypes.Type(value = ReportContent.class, name = "report"), // 周度，年度，月度报告
 })
 public class BaseContent {
 }

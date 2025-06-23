@@ -57,7 +57,7 @@ public class MessageInfo {
     private BaseContent content;
 
 
-    @Schema(description = "消息类型：0=附件通知，1=变更通知，2=即将到期通知，3=延期通知,4=延期反馈，5=延期风险告警")
+    @Schema(description = "消息类型：0=附件通知，1=变更通知，2=即将到期通知，3=延期通知,4=延期反馈，5=延期风险告警,6=定时报告")
     @TableField("message_type")
     @NotBlank(message = "消息类型不能为空")
     private Integer messageType;

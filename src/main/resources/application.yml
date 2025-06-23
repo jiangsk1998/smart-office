@@ -61,6 +61,7 @@ logging:
   level:
     org.springframework.boot: debug
     com.zkyzn.project_manager.crons.DelayNoticeCron: debug # 新增这一行，用于调试定时任务
+    com.zkyzn.project_manager.crons.WeeklyReportCron: debug
     org.springframework.scheduling.annotation.ScheduledAnnotationBeanPostProcessor: debug # 用于查看定时任务的调度信息
 security:
   jwt:

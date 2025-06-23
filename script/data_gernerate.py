@@ -65,7 +65,7 @@ def main():
         cursor.execute("SELECT user_id, user_name, department_id FROM tab_user_info")
         all_users = cursor.fetchall()
 
-
+        # Create a map for quick user lookup by department and name
         users_by_dept = {}
         for user in all_users:
             dept_id = user.get('department_id')
@@ -74,7 +74,7 @@ def main():
                     users_by_dept[dept_id] = []
                 users_by_dept[dept_id].append(user)
 
-
+        # Verify if departments have users
         for dept in leaf_departments:
             if dept['id'] not in users_by_dept or not users_by_dept[dept['id']]:
                 print(f"Warning: Department '{dept['name']}' (ID: {dept['id']}) has no users. Projects will not be generated for it.")
@@ -85,11 +85,11 @@ def main():
         total_phases = 0
         total_tasks = 0
 
-
+        # Define the date range for new data (June 1st, 2025 to Dec 31st, 2025)
         start_date_range = datetime(2025, 6, 1).date()
         end_date_range = datetime(2025, 12, 31).date()
 
-
+        # Calculate total days in the range
         total_days_in_range = (end_date_range - start_date_range).days + 1
 
         for dept in leaf_departments:
@@ -101,39 +101,34 @@ def main():
             if not current_dept_users:
                 continue
 
-
+            # Identify roles for this department based on user names
             responsible_leader_user = next((u for u in current_dept_users if '领导' in u['user_name']), None)
             technical_leader_user = next((u for u in current_dept_users if '技术' in u['user_name']), None)
             plan_supervisors_users = [u for u in current_dept_users if '主管' in u['user_name']]
 
-
+            # Fallback if specific roles are not found, assign random users
             if not responsible_leader_user and current_dept_users:
                 responsible_leader_user = random.choice(current_dept_users)
             if not technical_leader_user and current_dept_users:
                 technical_leader_user = random.choice(current_dept_users)
-
             if not plan_supervisors_users and current_dept_users:
-
                 plan_supervisors_users = random.sample(current_dept_users, min(3, len(current_dept_users)))
 
-
+            # Skip if essential roles are still missing
             if not responsible_leader_user or not technical_leader_user or not plan_supervisors_users:
                 print(f"Warning: Department '{dept_name}' (ID: {dept_id}) lacks sufficient users for responsible roles. Skipping project generation for this department.")
                 continue
 
 
             num_projects_for_dept = 10 if dept_type == '专业科室' else 1
-
             if dept_type == '专业科室' and len(current_dept_users) < 5:
                 num_projects_for_dept = max(1, len(current_dept_users) // 2)
 
             print(f"Generating {num_projects_for_dept} projects for department: {dept_name}")
 
             for i in range(num_projects_for_dept):
-
                 proj_start_day_offset = random.randint(0, total_days_in_range // 2)
                 proj_start_date = start_date_range + timedelta(days=proj_start_day_offset)
-
 
                 min_duration = timedelta(days=30)
                 max_duration = min(timedelta(days=180), end_date_range - proj_start_date)
@@ -147,14 +142,12 @@ def main():
                     duration_days = random.randint(min_duration.days, max_duration.days)
                     proj_end_date = proj_start_date + timedelta(days=duration_days)
 
-
                 current_date = datetime.now().date()
                 if random.random() < 0.25:
                     past_days_offset = random.randint(1, 90)
                     proj_end_date = current_date - timedelta(days=past_days_offset)
-
                     proj_start_date = proj_end_date - timedelta(days=random.randint(15, 60))
-                    if proj_start_date < datetime(2025, 1, 1).date(): # Avoid dates too far in past
+                    if proj_start_date < datetime(2025, 1, 1).date():
                         proj_start_date = datetime(2025, 1, 1).date()
 
 
@@ -169,7 +162,6 @@ def main():
 
                 creator = random.choice(current_dept_users)
                 updater = random.choice(current_dept_users)
-
 
                 plan_supervisors_json = json.dumps([{"user_id": u['user_id'], "user_name": u['user_name']} for u in plan_supervisors_users])
                 project_participants = ", ".join([u['user_name'] for u in current_dept_users])
@@ -191,7 +183,6 @@ def main():
 
                 num_phases = random.randint(10, 20)
                 for j in range(num_phases):
-
                     phase_start_date = fake.date_between(start_date=proj_start_date, end_date=proj_end_date)
                     phase_end_date = fake.date_between(start_date=phase_start_date, end_date=proj_end_date)
 
@@ -203,7 +194,7 @@ def main():
 
                     phase_name = f"阶段 {j+1}: {fake.word()}规划"
                     phase_responsible_person = random.choice(current_dept_users)['user_name']
-                    deliverable = fake.file_name() # Removed 'category' argument
+                    deliverable = fake.file_name()
                     deliverable_type = random.choice(["文档", "原型", "代码", "报告"])
 
                     sql_phase = """
@@ -219,9 +210,60 @@ def main():
                     ))
                     total_phases += 1
 
-                    num_tasks = random.randint(5, 15) # At least 5 tasks
-                    for k in range(num_tasks):
+                    # --- Ensure daily tasks are created within the overall range ---
+                    # Calculate relevant date range for tasks within this phase, clipped to overall_range
+                    task_min_date = max(phase_start_date, start_date_range)
+                    task_max_date = min(phase_end_date, end_date_range)
 
+                    current_task_date = task_min_date
+                    while current_task_date <= task_max_date:
+                        task_end_date = current_task_date # Task ends on this specific day
+
+                        # Determine task start date (before or on end_date, and within phase_start_date)
+                        if task_end_date < phase_start_date: # Should not happen with correct task_min_date
+                            task_start_date = task_end_date
+                        else:
+                            # Start date can be up to 30 days before end_date or on phase_start_date
+                            earliest_start_for_task = max(phase_start_date, task_end_date - timedelta(days=30))
+                            task_start_date = fake.date_between(start_date=earliest_start_for_task, end_date=task_end_date)
+
+                        task_status = "NOT_STARTED"
+                        real_start_date = None
+                        real_end_date = None
+
+                        if task_end_date < current_date:
+                            task_status = random.choice(["COMPLETED", "STOP"])
+                            if task_status == "COMPLETED":
+                                # Real dates should be on or after planned start date and on or before planned end date
+                                real_start_date = fake.date_between(start_date=task_start_date, end_date=task_end_date)
+                                real_end_date = fake.date_between(start_date=real_start_date, end_date=task_end_date)
+                        elif task_start_date <= current_date <= task_end_date:
+                            task_status = "IN_PROGRESS"
+
+                        task_description = f"日常任务 (到期: {task_end_date}): {fake.sentence(nb_words=5)}"
+                        task_responsible_person = random.choice(current_dept_users)['user_name']
+                        task_deliverable = fake.file_name()
+                        task_deliverable_type = random.choice(["文档", "演示", "代码片段"])
+
+                        sql_task = """
+                        INSERT INTO tab_project_plan (project_id, phase_id, is_top, task_package, task_description, 
+                                                      start_date, end_date, responsible_person, department, 
+                                                      deliverable, deliverable_type, is_milestone, 
+                                                      create_time, update_time, task_status, real_start_date, real_end_date)
+                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                        """
+                        execute_and_commit(cursor, sql_task, (
+                            project_id, phase_id, random.choice([True, False]), phase_name, task_description,
+                            task_start_date, task_end_date, task_responsible_person, dept_name,
+                            task_deliverable, task_deliverable_type, random.choice([True, False]),
+                            datetime.now(), datetime.now(), task_status, real_start_date, real_end_date
+                        ))
+                        total_tasks += 1
+                        current_task_date += timedelta(days=1) # Move to the next day
+
+                    # --- Add additional random tasks for the phase, if desired, beyond the daily guarantee ---
+                    num_additional_tasks = random.randint(0, 5) # Add a few more random tasks per phase
+                    for k_add in range(num_additional_tasks):
                         task_start_date = fake.date_between(start_date=phase_start_date, end_date=phase_end_date)
                         task_end_date = fake.date_between(start_date=task_start_date, end_date=phase_end_date)
 
@@ -232,15 +274,14 @@ def main():
                         if task_end_date < current_date:
                             task_status = random.choice(["COMPLETED", "STOP"])
                             if task_status == "COMPLETED":
-
                                 real_start_date = fake.date_between(start_date=task_start_date, end_date=task_end_date)
                                 real_end_date = fake.date_between(start_date=real_start_date, end_date=task_end_date)
                         elif task_start_date <= current_date <= task_end_date:
                             task_status = "IN_PROGRESS"
 
-                        task_description = f"任务 {k+1}: {fake.sentence(nb_words=6)}"
+                        task_description = f"补充任务 {k_add+1}: {fake.sentence(nb_words=6)}"
                         task_responsible_person = random.choice(current_dept_users)['user_name']
-                        task_deliverable = fake.file_name() # Removed 'category' argument
+                        task_deliverable = fake.file_name()
                         task_deliverable_type = random.choice(["文档", "演示", "代码片段"])
 
                         sql_task = """
@@ -258,6 +299,7 @@ def main():
                         ))
                         total_tasks += 1
 
+
         conn.commit()
         print("\n--- Data insertion complete ---")
         print(f"Total projects inserted: {total_projects}")
@@ -267,7 +309,7 @@ def main():
     except mysql.connector.Error as err:
         print(f"Database error: {err}")
         if conn:
-            conn.rollback() # Rollback on error
+            conn.rollback()
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
         if conn:
