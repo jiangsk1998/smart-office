@@ -82,9 +82,10 @@ public class TokenController {
 
     @Operation(summary = "更新用户信息", security = @SecurityRequirement(name = "auth"))
     @PutMapping("/{userId}")
-    public Result<UserInfo> updateUser(@RequestBody UserInfo userInfo) {
+    public Result<UserInfo> updateUser(@RequestBody UserInfo userInfo,@PathVariable Long userId) {
         // 设置更新时间
         userInfo.setUpdateTime(ZonedDateTime.now());
+        userInfo.setUserId(userId);
 
         // 如果密码被修改，也需要加密
         if (userInfo.getUserPassword() != null && !userInfo.getUserPassword().isEmpty()) {
