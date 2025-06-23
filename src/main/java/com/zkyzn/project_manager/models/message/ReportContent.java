@@ -1,19 +1,22 @@
 package com.zkyzn.project_manager.models.message;
 
-import com.zkyzn.project_manager.models.ProjectPlan; // 假设ProjectPlan模型已经存在且包含所需字段
+// import com.zkyzn.project_manager.models.ProjectPlan; // 不再直接引用 ProjectPlan
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter; // 导入 DateTimeFormatter
+import java.time.temporal.WeekFields;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Locale;
+// import java.util.stream.Collectors; // 如果不使用 stream 转换 ProjectPlan，则不需要
 
 /**
- * 周度报告消息内容
+ * 周报/月报消息内容
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -21,20 +24,20 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class ReportContent extends BaseContent {
 
-    // 使用 ISO_LOCAL_DATE 格式化日期，例如 "2025-06-23"
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE;
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE; // YYYY-MM-dd
 
-    private String reportDate; // 报告日期
-    private String personName;    // 报告所属人姓名
+    private String reportPeriod; // 报告周期，可以是"YYYY-WW" (周) 或 "YYYY-MM" (月)
+    private String reportType;   // 报告类型，例如 "WEEKLY" 或 "MONTHLY"
+    private String personName;   // 报告所属人姓名
 
-    // 本周已完成任务列表
+    // 本期已完成任务列表
     private List<TaskItem> completedTasks;
 
-    // 本周未完成任务列表
+    // 本期未完成任务列表 (计划本期完成但未完成的)
     private List<TaskItem> uncompletedTasks;
 
-    // 下周应完成任务列表
-    private List<TaskItem> nextTasks;
+    // 下期应完成任务列表 (计划下期完成的)
+    private List<TaskItem> nextPeriodTasks;
 
     // 用于封装任务信息的内部类
     @Data
@@ -42,53 +45,53 @@ public class ReportContent extends BaseContent {
     @AllArgsConstructor
     @Builder
     public static class TaskItem {
-        private String projectName;
+        private String projectName;     // 项目名称
         private String taskPackage;     // 任务包
         private String taskDescription; // 任务描述
-        private String startDate;    // 任务开始日期
-        private String endDate;      // 任务结束日期/计划完成日期
-        private String status;          // 任务状态 (如果需要)
+        private String startDate;       // 任务开始日期
+        private String endDate;         // 任务结束日期/计划完成日期
+        private String status;          // 任务状态 (如果需要，例如对于未完成任务)
     }
 
+    /**
+     * 构建周报/月报内容
+     * @param periodStartDate 报告周期的开始日期 (例如周一或月第一天)
+     * @param periodEndDate   报告周期的结束日期 (例如周日或月最后一天)
+     * @param type            报告类型 ("WEEKLY" 或 "MONTHLY")
+     * @param personName      报告所属人姓名
+     * @param completedTasks  本期已完成任务项列表 (TaskItem)
+     * @param uncompletedTasks 本期未完成任务项列表 (TaskItem)
+     * @param nextPeriodTasks 下期应完成任务项列表 (TaskItem)
+     * @return ReportContent 实例
+     */
     public static ReportContent from(
-            LocalDate reportDate,
+            LocalDate periodStartDate,
+            LocalDate periodEndDate,
+            String type, // "WEEKLY" or "MONTHLY"
             String personName,
-            List<ProjectPlan> completedPlans,
-            List<ProjectPlan> uncompletedPlans,
-            List<ProjectPlan> nextWeekPlans
+            List<TaskItem> completedTasks,  // <--- 修改为 List<TaskItem>
+            List<TaskItem> uncompletedTasks, // <--- 修改为 List<TaskItem>
+            List<TaskItem> nextPeriodTasks   // <--- 修改为 List<TaskItem>
     ) {
         ReportContent content = new ReportContent();
-        content.setReportDate(reportDate.format(DATE_FORMATTER));
+        content.setReportType(type);
         content.setPersonName(personName);
 
-        content.setCompletedTasks(completedPlans.stream()
-                .map(plan -> TaskItem.builder()
-                        .projectName(plan.getProjectName())
-                        .taskPackage(plan.getTaskPackage())
-                        .taskDescription(plan.getTaskDescription())
-                        // 将 LocalDate 格式化为 String
-                        .startDate(plan.getStartDate() != null ? plan.getStartDate().format(DATE_FORMATTER) : null)
-                        .endDate(plan.getRealEndDate() != null ? plan.getRealEndDate().format(DATE_FORMATTER) : (plan.getEndDate() != null ? plan.getEndDate().format(DATE_FORMATTER) : null)) // 已完成任务优先使用实际结束日期
-                        .build())
-                .collect(Collectors.toList()));
+        if ("WEEKLY".equalsIgnoreCase(type)) {
+            WeekFields weekFields = WeekFields.of(Locale.getDefault());
+            int weekOfYear = periodStartDate.get(weekFields.weekOfWeekBasedYear());
+            int year = periodStartDate.get(weekFields.weekBasedYear());
+            content.setReportPeriod(String.format("%d-W%02d", year, weekOfYear));
+        } else if ("MONTHLY".equalsIgnoreCase(type)) {
+            content.setReportPeriod(periodStartDate.format(DateTimeFormatter.ofPattern("yyyy-MM")));
+        } else {
+            content.setReportPeriod(periodStartDate.format(DATE_FORMATTER) + " ~ " + periodEndDate.format(DATE_FORMATTER));
+        }
 
-        content.setUncompletedTasks(uncompletedPlans.stream()
-                .map(plan -> TaskItem.builder()
-                        .taskPackage(plan.getTaskPackage())
-                        .taskDescription(plan.getTaskDescription())
-                        // 将 LocalDate 格式化为 String
-                        .endDate(plan.getEndDate() != null ? plan.getEndDate().format(DATE_FORMATTER) : null)
-                        .build())
-                .collect(Collectors.toList()));
-
-        content.setNextTasks(nextWeekPlans.stream()
-                .map(plan -> TaskItem.builder()
-                        .taskPackage(plan.getTaskPackage())
-                        .taskDescription(plan.getTaskDescription())
-                        // 将 LocalDate 格式化为 String
-                        .endDate(plan.getEndDate() != null ? plan.getEndDate().format(DATE_FORMATTER) : null)
-                        .build())
-                .collect(Collectors.toList()));
+        // 直接设置已转换好的 TaskItem 列表
+        content.setCompletedTasks(completedTasks);
+        content.setUncompletedTasks(uncompletedTasks);
+        content.setNextPeriodTasks(nextPeriodTasks);
 
         return content;
     }
