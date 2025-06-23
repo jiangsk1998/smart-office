@@ -8,9 +8,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDate;
-import java.time.ZonedDateTime;
-
 /**
  * 延期风险通知
  * @author Jiangsk

@@ -77,6 +77,8 @@ public class MessageInfoStory {
         // 创建深度拷贝防止原始对象被修改
         MessageInfo copy = new MessageInfo();
         BeanUtil.copyProperties(template, copy);
+        //消息ID为Null
+        copy.setMessageId(null);
 
         // 设置接收者ID
         copy.setReceiverId(userId);
@@ -102,6 +104,7 @@ public class MessageInfoStory {
         if (message == null || message.getReceiverId() == null) {
             return false;
         }
+        message.setCreateTime(ZonedDateTime.now());
         return this.messageInfoService.save(message);
     }
 
