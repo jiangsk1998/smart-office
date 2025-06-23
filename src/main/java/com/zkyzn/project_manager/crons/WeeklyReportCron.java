@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.zkyzn.project_manager.constants.AppConstants.SYSTEM_USER_ID;
+
 /**
  * 周度报告定时任务
  * 每周一上午9点发送周报给所有用户
@@ -33,7 +35,7 @@ import java.util.stream.Collectors;
 public class WeeklyReportCron {
 
     private static final Logger logger = LoggerFactory.getLogger(WeeklyReportCron.class);
-    private static final Long SYSTEM_USER_ID = 1L;
+
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE;
 
     @Resource

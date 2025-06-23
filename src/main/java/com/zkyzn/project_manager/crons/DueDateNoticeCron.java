@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.zkyzn.project_manager.constants.AppConstants.SYSTEM_USER_ID;
+
 /**
  * T+1 到期通知定时任务
  * 每天检查明天到期的项目和任务，如果未完成则发送即将到期通知给相关负责人。
@@ -44,8 +46,6 @@ public class DueDateNoticeCron {
 
     @Resource
     private UserInfoService userInfoService;
-
-    private static final Long SYSTEM_USER_ID = 1L;
 
     /**
      * 每天凌晨1点执行，检查明天到期的项目和任务

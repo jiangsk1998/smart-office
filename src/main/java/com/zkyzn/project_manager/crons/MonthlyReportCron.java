@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.zkyzn.project_manager.constants.AppConstants.SYSTEM_USER_ID;
+
 /**
  * 月度报告定时任务
  * 每月1号上午9点发送月报给所有用户，包含上月已完成、上月未完成和本月应完成的任务列表。
@@ -32,7 +34,7 @@ import java.util.stream.Collectors;
 public class MonthlyReportCron {
 
     private static final Logger logger = LoggerFactory.getLogger(MonthlyReportCron.class);
-    private static final Long SYSTEM_USER_ID = 1L;
+
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE;
 
     @Resource

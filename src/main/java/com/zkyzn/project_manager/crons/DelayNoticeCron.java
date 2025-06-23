@@ -1,5 +1,6 @@
 package com.zkyzn.project_manager.crons;
 
+import com.zkyzn.project_manager.constants.AppConstants;
 import com.zkyzn.project_manager.enums.TaskStatusEnum;
 import com.zkyzn.project_manager.models.MessageInfo;
 import com.zkyzn.project_manager.models.ProjectInfo;
@@ -43,8 +44,6 @@ public class DelayNoticeCron {
     @Resource
     private UserInfoService userInfoService;
 
-    private static final Long SYSTEM_USER_ID = 1L; // Todo 抽离为公共常量
-
 
     /**
      * 每天凌晨2点执行，检查前一天到期的项目和任务
@@ -84,7 +83,7 @@ public class DelayNoticeCron {
 
             // 构建消息
             MessageInfo message = MessageInfo.builder()
-                    .senderId(SYSTEM_USER_ID)
+                    .senderId(AppConstants.SYSTEM_USER_ID)
                     .title("任务延期通知: " + task.getTaskDescription())
                     .content(content)
                     .messageType(3) // 消息类型：3=延期通知

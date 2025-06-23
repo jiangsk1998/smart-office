@@ -1,5 +1,6 @@
 package com.zkyzn.project_manager.crons;
 
+import com.zkyzn.project_manager.constants.AppConstants;
 import com.zkyzn.project_manager.enums.TaskStatusEnum;
 import com.zkyzn.project_manager.models.MessageInfo;
 import com.zkyzn.project_manager.models.ProjectInfo;
@@ -33,7 +34,6 @@ import java.util.stream.Collectors;
 public class AnnualReportCron {
 
     private static final Logger logger = LoggerFactory.getLogger(AnnualReportCron.class);
-    private static final Long SYSTEM_USER_ID = 1L;
 
     @Resource
     private UserInfoService userInfoService;
@@ -92,7 +92,7 @@ public class AnnualReportCron {
             );
 
             MessageInfo message = MessageInfo.builder()
-                    .senderId(SYSTEM_USER_ID)
+                    .senderId(AppConstants.SYSTEM_USER_ID)
                     .receiverId(user.getUserId())
                     .title("【年度报告】你的任务年报 (" + reportContent.getReportPeriod() + " 年度)")
                     .content(reportContent)
