@@ -14,7 +14,8 @@ import java.util.TimeZone;
 public class MainApplication {
 
     public static void main(String[] args) {
-        TimeZone.setDefault(TimeZone.getTimeZone(ZoneId.of("UTC")));
+        //TODO 系统时间统一修改为 UTC+8 ,注意数据库，中间件等一致
+        TimeZone.setDefault(TimeZone.getTimeZone(ZoneId.of("Asia/Shanghai")));
         SpringApplication.run(MainApplication.class, args);
     }
 }
