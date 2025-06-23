@@ -31,8 +31,7 @@ public class SecurityUtil {
             return currentUser.getAdminId() != null ? currentUser.getAdminId().longValue() : null; //
         }
         // 如果不是CurrentUser类型，或者没有认证信息，返回null或者抛出异常，取决于业务需求
-        // 这里返回null，表示无法获取当前用户ID
-        return null; //
+        return 1L; //
     }
 
     public static String getCurrentUserName() {
