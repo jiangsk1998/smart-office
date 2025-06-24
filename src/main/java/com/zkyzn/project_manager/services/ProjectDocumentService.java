@@ -3,8 +3,10 @@ package com.zkyzn.project_manager.services;
 
 import com.github.yulichang.base.MPJBaseServiceImpl;
 import com.github.yulichang.query.MPJLambdaQueryWrapper;
+import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import com.zkyzn.project_manager.mappers.ProjectDecumentDao;
 import com.zkyzn.project_manager.models.ProjectDocument;
+import com.zkyzn.project_manager.models.ProjectInfo;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -61,5 +63,13 @@ public class ProjectDocumentService extends MPJBaseServiceImpl<ProjectDecumentDa
                 .last("LIMIT 1");
 
         return baseMapper.selectOne(wrapper);
+    }
+
+    public List<ProjectDocument> getByDepartment(String department) {
+        MPJLambdaWrapper<ProjectDocument> wrapper = new MPJLambdaWrapper<>();
+        wrapper.selectAll(ProjectDocument.class)
+                .innerJoin(ProjectInfo.class, on -> on.eq(ProjectDocument::getProjectId, ProjectInfo::getProjectId))
+                .eq(ProjectInfo::getDepartment, department);
+        return baseMapper.selectList(wrapper);
     }
 }

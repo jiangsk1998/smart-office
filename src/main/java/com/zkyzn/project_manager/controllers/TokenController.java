@@ -86,7 +86,7 @@ public class TokenController {
         }
 
         // 验证密码
-        if (!passwordEncoder.matches(userPassword, rawPassword)) { // 使用passwordEncoder.matches进行密码比对
+        if (!passwordEncoder.matches(rawPassword, user.getUserPassword())) { // 使用passwordEncoder.matches进行密码比对
             return ResUtil.fail("密码错误");
         }
 

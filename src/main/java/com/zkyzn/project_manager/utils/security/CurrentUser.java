@@ -19,12 +19,16 @@ public class CurrentUser implements UserDetails {
     private final boolean enabled;
     private final String username;
     private final Long adminId;
+    private final Long departmentId;
+    private final String departmentName;
 
-    public CurrentUser(String username, Long adminId, boolean enabled, boolean accountNonExpired, boolean credentialsNonExpired, boolean accountNonLocked, Collection<? extends GrantedAuthority> authorities) {
+    public CurrentUser(String username, Long adminId, Long departmentId, String departmentName, boolean enabled, boolean accountNonExpired, boolean credentialsNonExpired, boolean accountNonLocked, Collection<? extends GrantedAuthority> authorities) {
         Assert.isTrue(username != null && !username.isEmpty(), "Cannot pass null or empty values to constructor");
         this.username = username;
         this.enabled = enabled;
         this.adminId = adminId;
+        this.departmentId = departmentId;
+        this.departmentName = departmentName;
         this.accountNonExpired = accountNonExpired;
         this.credentialsNonExpired = credentialsNonExpired;
         this.accountNonLocked = accountNonLocked;
@@ -121,6 +125,8 @@ public class CurrentUser implements UserDetails {
     public static final class UserBuilder {
         private String username;
         private Long adminId;
+        private Long departmentId;
+        private String departmentName;
         private List<GrantedAuthority> authorities = new ArrayList<>();
 
         private UserBuilder() {
@@ -135,6 +141,18 @@ public class CurrentUser implements UserDetails {
         public UserBuilder adminId(Long adminId) {
             Assert.notNull(adminId, "username cannot be null");
             this.adminId = adminId;
+            return this;
+        }
+
+        public UserBuilder departmentId(Long departmentId) {
+            Assert.notNull(departmentId, "departmentId cannot be null");
+            this.departmentId = departmentId;
+            return this;
+        }
+
+        public UserBuilder departmentName(String departmentName) {
+            Assert.notNull(departmentName, "departmentName cannot be null");
+            this.departmentName = departmentName;
             return this;
         }
 
@@ -156,7 +174,7 @@ public class CurrentUser implements UserDetails {
         }
 
         public UserDetails build() {
-            return new CurrentUser(this.username, adminId,true, true, true, true, this.authorities);
+            return new CurrentUser(this.username, adminId,departmentId, departmentName, true, true, true, true, this.authorities);
         }
     }
 }

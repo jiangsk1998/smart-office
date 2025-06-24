@@ -4,10 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zkyzn.project_manager.models.ProjectInfo;
 import com.zkyzn.project_manager.so.Result;
 import com.zkyzn.project_manager.so.ResultList;
-import com.zkyzn.project_manager.so.project.info.ProjectDetailResp;
-import com.zkyzn.project_manager.so.project.info.ProjectInfoReq;
-import com.zkyzn.project_manager.so.project.info.ProjectImportReq;
-import com.zkyzn.project_manager.so.project.info.ProjectInfoResp;
+import com.zkyzn.project_manager.so.project.info.*;
 import com.zkyzn.project_manager.stories.ProjectInfoStory;
 import com.zkyzn.project_manager.utils.ResUtil;
 import io.swagger.v3.oas.annotations.Operation;
@@ -144,6 +141,15 @@ public class ProjectInfoController {
     ) {
         ProjectDetailResp detail = projectInfoStory.getProjectDetail(projectNumber);
         return ResUtil.ok(detail);
+    }
+
+    @Operation(summary = "项目资源管理器")
+    @PostMapping("/folder")
+    public ResultList<ProjectFolderResp> getFolder(
+            @RequestBody ProjectFolderReq req
+    ) {
+        List<ProjectFolderResp> result = projectInfoStory.getAllProjectFolderByDepartment(req);
+        return ResUtil.list(result);
     }
 }
 

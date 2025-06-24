@@ -47,6 +47,11 @@ public class ProjectDocument {
     @TableField("file_path")
     private String filePath;
 
+    @NotBlank(message = "文件大小不能为空")
+    @Schema(description = "文件大小", requiredMode = Schema.RequiredMode.REQUIRED)
+    @TableField("file_size")
+    private Long fileSize;
+
     @Schema(description = "上传人Id")
     @TableField("uploader_id")
     private String uploaderId;

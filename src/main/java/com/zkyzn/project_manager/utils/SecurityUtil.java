@@ -34,6 +34,22 @@ public class SecurityUtil {
         return 1L; //
     }
 
+    public static Long getCurrentUserDepartmentId() {
+        UserDetails userDetails = getCurrentUser();
+        if (userDetails instanceof CurrentUser currentUser) {
+            return currentUser.getDepartmentId() != null ? currentUser.getDepartmentId().longValue() : null;
+        }
+        return -1L;
+    }
+
+    public static String getCurrentUserDepartmentName() {
+        UserDetails userDetails = getCurrentUser();
+        if (userDetails instanceof CurrentUser currentUser) {
+            return currentUser.getDepartmentName();
+        }
+        return "";
+    }
+
     public static String getCurrentUserName() {
         UserDetails userDetails = getCurrentUser(); //
         if (userDetails instanceof CurrentUser currentUser) { //

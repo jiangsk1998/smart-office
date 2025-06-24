@@ -75,4 +75,12 @@ public class DepartmentService extends MPJBaseServiceImpl<DepartmentDao, Departm
         }
         return listByIds(departmentIds);
     }
+
+    public String getDepartmentNameById(Long departmentId) {
+        Department department = getById(departmentId);
+        if (department == null) {
+            return "";
+        }
+        return department.getName();
+    }
 }

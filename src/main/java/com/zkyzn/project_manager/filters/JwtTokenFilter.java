@@ -2,6 +2,7 @@ package com.zkyzn.project_manager.filters;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.zkyzn.project_manager.models.UserInfo; // 引入 UserInfo
+import com.zkyzn.project_manager.services.DepartmentService;
 import com.zkyzn.project_manager.services.UserInfoService; // 引入 UserInfoService
 import com.zkyzn.project_manager.utils.JwtUtil;
 import com.zkyzn.project_manager.utils.security.CurrentUser;
@@ -23,6 +24,8 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
     @Resource
     private  UserInfoService userInfoService; // 注入 UserInfoService
+    @Resource
+    private DepartmentService departmentService;
 
 
     @Override
@@ -49,6 +52,8 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                             // 构建UserDetails对象，使用 userAccount 作为 username
                             UserDetails userDetails = CurrentUser.withUsername(userInfo.getUserName())// 使用实际的userAccount作为username
                                     .adminId(userInfo.getUserId()) // adminId 仍然是 Long 类型，这里转换为 longValue()
+                                    .departmentId(userInfo.getDepartmentId())
+                                    .departmentName(departmentService.getDepartmentNameById(userInfo.getDepartmentId()))
                                     .roles("USER") // 赋予默认角色，可以根据实际业务从数据库加载用户角色
                                     .build();
 

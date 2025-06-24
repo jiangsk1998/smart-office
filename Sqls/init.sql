@@ -90,6 +90,7 @@ create table project_manager.tab_project_document
     document_type       enum ('项目款项', '项目合同', '项目计划', '图纸目录', '生产会材料', '汇报材料', '二次统计', '合并文档', '其他') not null comment '文档类型',
     document_name       varchar(255)                                                                                                    not null comment '文档名称',
     file_path           varchar(500)                                                                                                    not null comment '文件存储路径',
+    file_size           bigint                                                                                                          not null comment '文件大小',
     uploader_id         bigint                                                                                                          null comment '上传人ID',
     uploader_name       varchar(50)                                                                                                     null comment '上传人姓名',
     upload_time         datetime   default CURRENT_TIMESTAMP                                                                            null comment '上传时间',

@@ -8,6 +8,7 @@ import com.zkyzn.project_manager.enums.DocumentTypeEnum;
 import com.zkyzn.project_manager.enums.Operator;
 import com.zkyzn.project_manager.enums.PhaseStatusEnum;
 import com.zkyzn.project_manager.listener.excel.GenericImportListener;
+import com.zkyzn.project_manager.models.ProjectDocument;
 import com.zkyzn.project_manager.models.ProjectInfo;
 import com.zkyzn.project_manager.models.ProjectPhase;
 import com.zkyzn.project_manager.models.ProjectPlan;
@@ -16,7 +17,9 @@ import com.zkyzn.project_manager.so.project.dashboard.PhaseDetail;
 import com.zkyzn.project_manager.so.project.info.*;
 import com.zkyzn.project_manager.utils.ExcelUtil;
 import com.zkyzn.project_manager.utils.FileUtil;
+import com.zkyzn.project_manager.utils.SecurityUtil;
 import jakarta.annotation.Resource;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -53,6 +56,9 @@ public class ProjectInfoStory {
 
     @Value("/opt/software/file")
     private String fileRootPath;
+
+    @Resource
+    private FileStory fileStory;
 
     /**
      * 创建项目, 所有异常都会触发回滚
@@ -440,6 +446,37 @@ public class ProjectInfoStory {
 
             // 5. 批量保存任务
             projectPlanService.saveBatch(planList);
+        }
+    }
+
+    public List<ProjectFolderResp> getAllProjectFolderByDepartment(ProjectFolderReq req) {
+        List<ProjectDocument> projectDocuments = projectDocumentService.getByDepartment(SecurityUtil.getCurrentUserDepartmentName());
+        if (StringUtils.isBlank(req.getDocumentType())) {
+            // 返回目录
+            return projectDocuments.stream().collect(Collectors.groupingBy(ProjectDocument::getDocumentType))
+                    .entrySet().stream().map(entry -> {
+                        ProjectFolderResp projectFolderResp = new ProjectFolderResp();
+                        projectFolderResp.setFileName(entry.getKey());
+                        projectFolderResp.setDocumentType(entry.getKey());
+                        projectFolderResp.setIsDirectory(Boolean.TRUE);
+                        projectFolderResp.setSize(entry.getValue().stream().mapToLong(ProjectDocument::getFileSize).sum());
+                        projectFolderResp.setUri(entry.getKey());
+                        return projectFolderResp;
+                    }).collect(Collectors.toList());
+        } else {
+            return projectDocuments.stream()
+                    .filter(doc -> req.getDocumentType().equals(doc.getDocumentType()))
+                    .sorted(Comparator.comparing(ProjectDocument::getUploadTime).reversed())
+                    .map(doc -> {
+                        ProjectFolderResp projectFolderResp = new ProjectFolderResp();
+                        projectFolderResp.setFileName(doc.getDocumentName());
+                        projectFolderResp.setDocumentType(doc.getDocumentType());
+                        projectFolderResp.setIsDirectory(Boolean.FALSE);
+                        projectFolderResp.setSize(doc.getFileSize());
+                        projectFolderResp.setUri(doc.getFilePath());
+                        return projectFolderResp;
+                    })
+                    .collect(Collectors.toList());
         }
     }
 }
