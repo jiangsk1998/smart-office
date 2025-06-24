@@ -2,6 +2,7 @@ package com.zkyzn.project_manager.services;
 
 
 import com.github.yulichang.base.MPJBaseServiceImpl;
+import com.github.yulichang.query.MPJLambdaQueryWrapper;
 import com.zkyzn.project_manager.converts.imports.ContractNodeExcel;
 import com.zkyzn.project_manager.mappers.ContractNodeDao;
 import com.zkyzn.project_manager.models.ContractNode;
@@ -51,5 +52,17 @@ public class ContractNodeService extends MPJBaseServiceImpl<ContractNodeDao, Con
 
         // 2. 批量保存
         return saveBatchContractNodes(contractNodes);
+    }
+
+    public List<ContractNode> findByProjectId(Long projectId) {
+        MPJLambdaQueryWrapper<ContractNode> wrapper = new MPJLambdaQueryWrapper<>();
+        wrapper.eq(ContractNode::getProjectId, projectId);
+        return baseMapper.selectList(wrapper);
+    }
+
+    public List<ContractNode> findByProjectNumber(String projectNumber) {
+        MPJLambdaQueryWrapper<ContractNode> wrapper = new MPJLambdaQueryWrapper<>();
+        wrapper.eq(ContractNode::getProjectNumber, projectNumber);
+        return baseMapper.selectList(wrapper);
     }
 }

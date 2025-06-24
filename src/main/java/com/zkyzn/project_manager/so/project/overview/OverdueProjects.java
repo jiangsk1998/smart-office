@@ -16,7 +16,7 @@ public class OverdueProjects {
     /**
      * 当前超期项目个数
      */
-    private Integer count;
+    private Long count;
 
     /**
      * 与前一天相比的变化百分比
@@ -26,5 +26,5 @@ public class OverdueProjects {
     /**
      * 最近10天超期项目个数列表
      */
-    private List<Integer> last10Days;
+    private List<Long> last10Days;
 }

@@ -14,17 +14,17 @@ import java.util.List;
 public class ActiveProjects {
 
     /**
-     * 当前本月项目进度百分比
+     * 当前执行中项目个数
      */
-    private BigDecimal currentRate;
+    private Long count;
 
     /**
      * 与前一天相比的变化百分比
      */
-    private BigDecimal dailyChange;
+    private BigDecimal dailyChangePercentage;
 
     /**
-     * 最近10天本月项目进度百分比列表
+     * 最近10天执行中项目个数列表
      */
-    private List<BigDecimal> last10Days;
+    private List<Long> last10Days;
 }

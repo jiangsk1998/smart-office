@@ -2,6 +2,7 @@ package com.zkyzn.project_manager.services;
 
 
 import com.github.yulichang.base.MPJBaseServiceImpl;
+import com.github.yulichang.query.MPJLambdaQueryWrapper;
 import com.zkyzn.project_manager.converts.imports.PaymentNodeExcel;
 import com.zkyzn.project_manager.mappers.PaymentNodeDao;
 import com.zkyzn.project_manager.models.PaymentNode;
@@ -56,5 +57,23 @@ public class PaymentNodeService extends MPJBaseServiceImpl<PaymentNodeDao, Payme
 
         // 2. 批量保存
         return saveBatchPaymentNodes(paymentNodeList);
+    }
+
+    public List<PaymentNode> findByStatusIn(List<String> statuses) {
+        MPJLambdaQueryWrapper<PaymentNode> wrapper = new MPJLambdaQueryWrapper<>();
+        wrapper.in(PaymentNode::getPaymentStatus, statuses);
+        return baseMapper.selectList(wrapper);
+    }
+
+    public List<PaymentNode> findByProjectId(Long projectId) {
+        MPJLambdaQueryWrapper<PaymentNode> wrapper = new MPJLambdaQueryWrapper<>();
+        wrapper.eq(PaymentNode::getProjectId, projectId);
+        return baseMapper.selectList(wrapper);
+    }
+
+    public List<PaymentNode> findByProjectNumber(String projectNumber) {
+        MPJLambdaQueryWrapper<PaymentNode> wrapper = new MPJLambdaQueryWrapper<>();
+        wrapper.eq(PaymentNode::getProjectNumber, projectNumber);
+        return baseMapper.selectList(wrapper);
     }
 }

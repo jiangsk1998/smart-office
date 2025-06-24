@@ -561,4 +561,25 @@ public class ProjectPlanService extends MPJBaseServiceImpl<ProjectPlanDao, Proje
     public Integer countPlansByDateRangeForPerson(String responsiblePerson, LocalDate startDate, LocalDate endDate) { // 修正参数名
         return baseMapper.countPlansByDateRangeForPerson(responsiblePerson, startDate, endDate);
     }
+
+
+    public Set<String> findActiveResponsiblePersons() {
+        MPJLambdaQueryWrapper<ProjectPlan> wrapper = new MPJLambdaQueryWrapper<>();
+        wrapper.select(ProjectPlan::getResponsiblePerson)
+                .ne(ProjectPlan::getTaskStatus, TaskStatusEnum.COMPLETED.name());
+        return baseMapper.selectList(wrapper).stream()
+                .map(ProjectPlan::getResponsiblePerson)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+    }
+
+
+    public int countActiveResponsiblePersonsByDate(LocalDate date) {
+        MPJLambdaQueryWrapper<ProjectPlan> wrapper = new MPJLambdaQueryWrapper<>();
+        wrapper.select(ProjectPlan::getResponsiblePerson)
+                .ne(ProjectPlan::getTaskStatus, TaskStatusEnum.COMPLETED.name())
+                .le(ProjectPlan::getStartDate, date)
+                .ge(ProjectPlan::getEndDate, date);
+        return baseMapper.selectList(wrapper).size();
+    }
 }

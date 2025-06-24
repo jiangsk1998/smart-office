@@ -3,6 +3,7 @@ package com.zkyzn.project_manager.services;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.yulichang.base.MPJBaseServiceImpl;
 import com.github.yulichang.query.MPJLambdaQueryWrapper;
+import com.zkyzn.project_manager.enums.ProjectStatusEnum;
 import com.zkyzn.project_manager.mappers.ProjectInfoDao;
 import com.zkyzn.project_manager.models.ProjectInfo;
 import org.springframework.stereotype.Service;
@@ -176,5 +177,29 @@ public class ProjectInfoService extends MPJBaseServiceImpl<ProjectInfoDao, Proje
                 .eq(ProjectInfo::getEndDate, dueDate) // 结束日期是指定日期
                 .ne(ProjectInfo::getStatus, completedStatus); // 状态不是“已完成”
         return baseMapper.selectList(wrapper);
+    }
+
+    public List<ProjectInfo> findByStatus(String status) {
+        MPJLambdaQueryWrapper<ProjectInfo> wrapper = new MPJLambdaQueryWrapper<>();
+        wrapper.selectAll(ProjectInfo.class)
+                .eq(ProjectInfo::getStatus, status);
+        return baseMapper.selectList(wrapper);
+    }
+
+    public long countOverdueProjectsByDate(LocalDate date) {
+        MPJLambdaQueryWrapper<ProjectInfo> wrapper = new MPJLambdaQueryWrapper<>();
+        wrapper.select(ProjectInfo::getProjectId)
+                .eq(ProjectInfo::getStatus, ProjectStatusEnum.OVERDUE.name())
+                .le(ProjectInfo::getEndDate, date);
+        return baseMapper.selectCount(wrapper);
+    }
+
+    public long countActiveProjectsByDate(LocalDate date) {
+        MPJLambdaQueryWrapper<ProjectInfo> wrapper = new MPJLambdaQueryWrapper<>();
+        wrapper.select(ProjectInfo::getProjectId)
+                .eq(ProjectInfo::getStatus, ProjectStatusEnum.IN_PROGRESS.name())
+                .le(ProjectInfo::getStartDate, date)
+                .ge(ProjectInfo::getEndDate, date);
+        return baseMapper.selectCount(wrapper);
     }
 }
