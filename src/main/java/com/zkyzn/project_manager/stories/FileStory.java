@@ -206,8 +206,14 @@ public class FileStory {
             throw new IllegalArgumentException("参数错误: id或folder为空");
         }
 
+        String root = "/";
+
+        if (root.equals(folder)) {
+            return getFileResp(id);
+        }
+
         // 构建文件路径
-        String relativeTempPath = Paths.get("person", id.toString(), folder).toString();
+        String relativeTempPath = Paths.get("person", id.toString(), root).toString();
         Path absolutePath = Paths.get(fileRootPath, relativeTempPath);
 
         // 检查路径是否存在且是目录
@@ -218,13 +224,10 @@ public class FileStory {
             throw new Exception("路径不是目录: " + absolutePath);
         }
 
-        if ("/".equals(folder)) {
-            return getFileResp(id);
-        }
-
         // 流处理资源管理
         try (Stream<Path> stream = Files.list(absolutePath)) {
-            return stream.map(path -> {
+            return stream.filter(path -> path.toString().contains(folder))
+                    .map(path -> {
                 try {
                     FileResp file = new FileResp();
                     file.setFileName(path.getFileName().toString());
