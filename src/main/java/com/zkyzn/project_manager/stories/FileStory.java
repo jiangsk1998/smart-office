@@ -269,56 +269,56 @@ public class FileStory {
         projectPlan.setFileName("项目计划");
         projectPlan.setIsDirectory(true);
         projectPlan.setSize(0L);
-        projectPlan.setUri(UrlUtil.getUrlByRelativePath(baseUrl, "/person/" + id + "/项目计划").toString());
+        projectPlan.setUri("项目计划");
         fileRespList.add(projectPlan);
 
         FileResp drawDirectory = new FileResp();
         drawDirectory.setFileName("图纸目录");
         drawDirectory.setIsDirectory(true);
         drawDirectory.setSize(0L);
-        drawDirectory.setUri(UrlUtil.getUrlByRelativePath(baseUrl, "person/" + id + "/图纸目录").toString());
+        projectPlan.setUri("图纸目录");
         fileRespList.add(drawDirectory);
 
         FileResp productionMeetingMaterials = new FileResp();
         productionMeetingMaterials.setFileName("生产会材料");
         productionMeetingMaterials.setIsDirectory(true);
         productionMeetingMaterials.setSize(0L);
-        productionMeetingMaterials.setUri(UrlUtil.getUrlByRelativePath(baseUrl, "person/" + id + "/生产会材料").toString());
+        projectPlan.setUri("生产会材料");
         fileRespList.add(productionMeetingMaterials);
 
         FileResp reportMaterials = new FileResp();
         reportMaterials.setFileName("汇报材料");
         reportMaterials.setIsDirectory(true);
         reportMaterials.setSize(0L);
-        reportMaterials.setUri(UrlUtil.getUrlByRelativePath(baseUrl, "person/" + id + "/汇报材料").toString());
+        projectPlan.setUri("汇报材料");
         fileRespList.add(reportMaterials);
 
         FileResp secondaryStatistics = new FileResp();
         secondaryStatistics.setFileName("二次统计");
         secondaryStatistics.setIsDirectory(true);
         secondaryStatistics.setSize(0L);
-        secondaryStatistics.setUri(UrlUtil.getUrlByRelativePath(baseUrl, "person/" + id + "/二次统计").toString());
+        projectPlan.setUri("二次统计");
         fileRespList.add(secondaryStatistics);
 
         FileResp mergeDocument = new FileResp();
         mergeDocument.setFileName("合并文档");
         mergeDocument.setIsDirectory(true);
         mergeDocument.setSize(0L);
-        mergeDocument.setUri(UrlUtil.getUrlByRelativePath(baseUrl, "person/" + id + "/合并文档").toString());
+        projectPlan.setUri("合并文档");
         fileRespList.add(mergeDocument);
 
         FileResp projectContract = new FileResp();
         projectContract.setFileName("项目合同");
         projectContract.setIsDirectory(true);
         projectContract.setSize(0L);
-        projectContract.setUri(UrlUtil.getUrlByRelativePath(baseUrl, "person/" + id + "/项目合同").toString());
+        projectPlan.setUri("项目合同");
         fileRespList.add(projectContract);
 
         FileResp other = new FileResp();
         other.setFileName("其他");
         other.setIsDirectory(true);
         other.setSize(0L);
-        other.setUri(UrlUtil.getUrlByRelativePath(baseUrl, "person/" + id + "/其他").toString());
+        projectPlan.setUri("其他");
         fileRespList.add(other);
         return fileRespList;
     }
