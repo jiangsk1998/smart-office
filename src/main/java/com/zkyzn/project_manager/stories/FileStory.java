@@ -24,10 +24,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.text.SimpleDateFormat;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -221,6 +218,10 @@ public class FileStory {
             throw new Exception("路径不是目录: " + absolutePath);
         }
 
+        if ("/".equals(folder)) {
+            return getFileResp(id);
+        }
+
         // 流处理资源管理
         try (Stream<Path> stream = Files.list(absolutePath)) {
             return stream.map(path -> {
@@ -252,7 +253,76 @@ public class FileStory {
     }
 
     /**
+     * 如果folder是根目录。默认添加目录项目计划，图纸目录，生产会材料，汇报材料，二次统计，合并文档，项目合同，其他
+     *
+     * @param id
+     * @return
+     */
+    private List<FileResp> getFileResp(Long id) {
+
+        List<FileResp> fileRespList = new ArrayList<>();
+
+        FileResp projectPlan = new FileResp();
+        projectPlan.setFileName("项目计划");
+        projectPlan.setIsDirectory(true);
+        projectPlan.setSize(0L);
+        projectPlan.setUri(UrlUtil.getUrlByRelativePath(baseUrl, "/person/" + id + "/项目计划").toString());
+        fileRespList.add(projectPlan);
+
+        FileResp drawDirectory = new FileResp();
+        drawDirectory.setFileName("图纸目录");
+        drawDirectory.setIsDirectory(true);
+        drawDirectory.setSize(0L);
+        drawDirectory.setUri(UrlUtil.getUrlByRelativePath(baseUrl, "person/" + id + "/图纸目录").toString());
+        fileRespList.add(drawDirectory);
+
+        FileResp productionMeetingMaterials = new FileResp();
+        productionMeetingMaterials.setFileName("生产会材料");
+        productionMeetingMaterials.setIsDirectory(true);
+        productionMeetingMaterials.setSize(0L);
+        productionMeetingMaterials.setUri(UrlUtil.getUrlByRelativePath(baseUrl, "person/" + id + "/生产会材料").toString());
+        fileRespList.add(productionMeetingMaterials);
+
+        FileResp reportMaterials = new FileResp();
+        reportMaterials.setFileName("汇报材料");
+        reportMaterials.setIsDirectory(true);
+        reportMaterials.setSize(0L);
+        reportMaterials.setUri(UrlUtil.getUrlByRelativePath(baseUrl, "person/" + id + "/汇报材料").toString());
+        fileRespList.add(reportMaterials);
+
+        FileResp secondaryStatistics = new FileResp();
+        secondaryStatistics.setFileName("二次统计");
+        secondaryStatistics.setIsDirectory(true);
+        secondaryStatistics.setSize(0L);
+        secondaryStatistics.setUri(UrlUtil.getUrlByRelativePath(baseUrl, "person/" + id + "/二次统计").toString());
+        fileRespList.add(secondaryStatistics);
+
+        FileResp mergeDocument = new FileResp();
+        mergeDocument.setFileName("合并文档");
+        mergeDocument.setIsDirectory(true);
+        mergeDocument.setSize(0L);
+        mergeDocument.setUri(UrlUtil.getUrlByRelativePath(baseUrl, "person/" + id + "/合并文档").toString());
+        fileRespList.add(mergeDocument);
+
+        FileResp projectContract = new FileResp();
+        projectContract.setFileName("项目合同");
+        projectContract.setIsDirectory(true);
+        projectContract.setSize(0L);
+        projectContract.setUri(UrlUtil.getUrlByRelativePath(baseUrl, "person/" + id + "/项目合同").toString());
+        fileRespList.add(projectContract);
+
+        FileResp other = new FileResp();
+        other.setFileName("其他");
+        other.setIsDirectory(true);
+        other.setSize(0L);
+        other.setUri(UrlUtil.getUrlByRelativePath(baseUrl, "person/" + id + "/其他").toString());
+        fileRespList.add(other);
+        return fileRespList;
+    }
+
+    /**
      * 通过相对路径获取完整路径
+     *
      * @param path 相对路径
      * @return 绝对路径类
      */
