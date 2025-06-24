@@ -2,6 +2,7 @@ package com.zkyzn.project_manager.stories;
 
 import com.zkyzn.project_manager.so.file.FileResp;
 import com.zkyzn.project_manager.utils.UrlUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.docx4j.jaxb.Context;
 import org.docx4j.openpackaging.contenttype.ContentType;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
@@ -21,6 +22,7 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
@@ -34,6 +36,7 @@ import java.util.stream.Stream;
  * 文件相关故事
  * 作用是将复杂业务都堆积在此处
  */
+@Slf4j
 @Service
 public class FileStory {
 
@@ -120,8 +123,32 @@ public class FileStory {
      * @param relativePaths 临时文件目录
      * @return 是否成功
      */
-    public boolean moveFilesToProject(Integer id, List<String> relativePaths) {
-        return true;
+    public boolean moveFilesToProject(Long id, List<String> relativePaths) {
+        boolean result = true;
+
+        for (String relativePath : relativePaths) {
+            try {
+                // 分解原路径各部分
+                Path path = Paths.get(relativePath);
+                String dateLevelDir = path.getName(path.getNameCount() - 2).toString();
+                String fileName = path.getFileName().toString();
+
+                // 构建源路径
+                Path sourcePath = Paths.get(fileRootPath, relativePath);
+                // 构建目标路径
+                Path targetDir = Paths.get(fileRootPath, "project", id.toString(), dateLevelDir);
+                Path targetPath = targetDir.resolve(fileName);
+
+                // 创建目标目录
+                Files.createDirectories(targetDir);
+                // 移动文件
+                Files.move(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING);
+            } catch (IOException e) {
+                log.error("移动临时文件至项目目录文件夹下失败：" + relativePath, e);
+                result = false;
+            }
+        }
+        return result;
     }
 
     /**
