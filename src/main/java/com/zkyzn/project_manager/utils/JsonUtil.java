@@ -1,6 +1,7 @@
 package com.zkyzn.project_manager.utils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -20,6 +21,8 @@ public class JsonUtil {
         objectMapper.registerModule(new JavaTimeModule());
         // Configure to not write dates as timestamps
         objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+        objectMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
     }
 
     /**
