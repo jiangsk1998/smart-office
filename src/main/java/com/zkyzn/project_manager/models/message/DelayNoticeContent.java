@@ -42,4 +42,9 @@ public class DelayNoticeContent extends BaseContent{
     @JsonProperty("current_phase")
     private String currentPhase;
 
+    @NotBlank(message = "任务名称")
+    @Schema(description = "任务名称", requiredMode = Schema.RequiredMode.REQUIRED)
+    @JsonProperty("task_name")
+    private String taskName;
+
 }

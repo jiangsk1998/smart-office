@@ -80,6 +80,7 @@ public class DelayNoticeCron {
             content.setStartDate(task.getStartDate().format(formatter));
             content.setEndDate(task.getEndDate().format(formatter));
             content.setCurrentPhase(task.getTaskPackage()); // 任务的“任务包”通常对应阶段名称
+            content.setTaskName(task.getTaskDescription());
 
             // 构建消息
             MessageInfo message = MessageInfo.builder()

@@ -36,19 +36,19 @@ public class MessageInfo {
 
     @Schema(description = "发送者用户ID（字符串）")
     @TableField("sender_id")
-    @NotBlank(message = "发送者用户ID不能为空")
+//    @NotBlank(message = "发送者用户ID不能为空")
     private Long senderId;
 
 
     @Schema(description = "接收者用户ID（字符串）")
     @TableField("receiver_id")
-    @NotBlank(message = "接收者用户ID不能为空")
+//    @NotBlank(message = "接收者用户ID不能为空")
     private Long receiverId;
 
 
     @Schema(description = "消息标题")
     @TableField("title")
-    @NotBlank(message = "消息标题不能为空")
+//    @NotBlank(message = "消息标题不能为空")
     private String title;
 
 

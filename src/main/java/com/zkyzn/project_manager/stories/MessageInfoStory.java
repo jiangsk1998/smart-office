@@ -63,6 +63,7 @@ public class MessageInfoStory {
         Set<Long> userIdSet = userList.stream()
                 .map(User::getUserId)
                 .collect(Collectors.toSet());
+        message.setTitle("超期反馈");
         return sendMessages(message, userIdSet);
     }
 

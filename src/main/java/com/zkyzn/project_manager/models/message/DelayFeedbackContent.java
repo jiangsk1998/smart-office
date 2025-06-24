@@ -48,4 +48,9 @@ public class DelayFeedbackContent extends BaseContent{
     @NotBlank(message = "延期原因不能为空")
     @Schema(description = "延期原因", requiredMode = Schema.RequiredMode.REQUIRED)
     private String content;
+
+    @NotBlank(message = "任务名称")
+    @Schema(description = "任务名称", requiredMode = Schema.RequiredMode.REQUIRED)
+    @JsonProperty("task_name")
+    private String taskName;
 }
