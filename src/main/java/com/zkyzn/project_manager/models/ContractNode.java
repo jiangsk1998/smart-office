@@ -2,7 +2,7 @@ package com.zkyzn.project_manager.models;
 
 import cn.idev.excel.annotation.ExcelProperty;
 import com.baomidou.mybatisplus.annotation.*;
-import com.zkyzn.project_manager.converts.date.LocalDateConverter;
+import com.zkyzn.project_manager.converts.date.DeprecatedLocalDateConverter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -45,7 +45,7 @@ public class ContractNode {
 
     @Schema(description = "计划到款日期", required = true)
     @TableField("planned_payment_date")
-    @ExcelProperty(value = "计划到款日期", converter = LocalDateConverter.class)
+    @ExcelProperty(value = "计划到款日期", converter = DeprecatedLocalDateConverter.class)
     private LocalDate plannedPaymentDate;
 
     @Schema(description = "到款节点名称", required = true)
