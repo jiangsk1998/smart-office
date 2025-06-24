@@ -73,6 +73,12 @@ public class MessageInfoController {
         return ResUtil.ok(messageInfoService.isTop(id,isTop));
     }
 
+    @GetMapping("/status/{readStatus}/count")
+    @Operation(summary = "消息状态统计")
+    public Result<Integer> statusCount(@PathVariable Boolean readStatus) {
+        return ResUtil.ok(messageInfoService.statusCount(readStatus));
+    }
+
     @GetMapping("/query")  // 改为 POST 方法接收复杂查询条件
     @Operation(summary = "消息列表（分页查询）")
     public ResultList<MessageInfo> getMessagesByPage(
