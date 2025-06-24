@@ -85,7 +85,7 @@ public class FileStory {
      * @param file 文件流
      * @return 文件存储相对路径
      */
-    public String saveToPerson(Integer id, MultipartFile file) throws IOException {
+    public String saveToPerson(Long id, MultipartFile file) throws IOException {
         String timeString = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
         String fileName = timeString + "_" + file.getOriginalFilename();
         String relativeTempPath = Paths.get("person", id.toString(), fileName).toString();
@@ -176,7 +176,7 @@ public class FileStory {
      * @param folder 用户目录
      * @return 文件列表
      */
-    public List<FileResp> dirPersonFolder(Integer id, String folder) throws Exception {
+    public List<FileResp> dirPersonFolder(Long id, String folder) throws Exception {
         // 验证输入参数
         if (id == null || folder == null || folder.isBlank()) {
             throw new IllegalArgumentException("参数错误: id或folder为空");

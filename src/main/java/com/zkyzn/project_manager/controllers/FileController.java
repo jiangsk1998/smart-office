@@ -7,6 +7,7 @@ import com.zkyzn.project_manager.so.file.MergeFileReq;
 import com.zkyzn.project_manager.stories.FileStory;
 import com.zkyzn.project_manager.utils.FileUtil;
 import com.zkyzn.project_manager.utils.ResUtil;
+import com.zkyzn.project_manager.utils.SecurityUtil;
 import com.zkyzn.project_manager.utils.UrlUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -55,7 +56,7 @@ public class FileController {
     public Result<String> postFileToPersonTempFolder(
             @RequestParam("file") MultipartFile formFile
     ) throws IOException {
-        var relativePathStr = fileStory.saveToPerson(1, formFile);
+        var relativePathStr = fileStory.saveToPerson(SecurityUtil.getCurrentUserId(), formFile);
         URI uri = UrlUtil.getUrlByRelativePath(baseUrl, relativePathStr);
         return ResUtil.ok(uri.toString());
     }
@@ -119,7 +120,7 @@ public class FileController {
     public ResultList<FileResp> dirPersonFolder(
             @RequestParam(defaultValue = "/") String path
     ) throws Exception {
-        var files = fileStory.dirPersonFolder(1,path);
+        var files = fileStory.dirPersonFolder(SecurityUtil.getCurrentUserId(),path);
         return ResUtil.list(files);
     }
 }
