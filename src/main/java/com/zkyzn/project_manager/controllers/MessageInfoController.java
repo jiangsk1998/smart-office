@@ -67,9 +67,9 @@ public class MessageInfoController {
         return ResUtil.ok(messageInfoService.deleteMessageById(id));
     }
 
-    @DeleteMapping("/{id}/isTop")
+    @PutMapping("/{id}/isTop")
     @Operation(summary = "消息置顶")
-    public Result<Boolean> deleteMessageById(@PathVariable String id, @Valid @RequestParam Boolean isTop) {
+    public Result<Boolean> isTop(@PathVariable String id, @Valid @RequestParam Boolean isTop) {
         return ResUtil.ok(messageInfoService.isTop(id,isTop));
     }
 
