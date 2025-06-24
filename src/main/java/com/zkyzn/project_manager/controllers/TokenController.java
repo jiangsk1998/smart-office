@@ -6,19 +6,24 @@ import com.zkyzn.project_manager.services.UserInfoService;
 import com.zkyzn.project_manager.so.Result;
 import com.zkyzn.project_manager.so.ResultList;
 import com.zkyzn.project_manager.utils.JwtUtil; // 引入 JwtUtil
+import com.zkyzn.project_manager.utils.RSAUtil;
 import com.zkyzn.project_manager.utils.ResUtil;
 import com.zkyzn.project_manager.utils.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder; // 引入加密类
 import org.springframework.web.bind.annotation.*;
 
+import java.security.PrivateKey;
 import java.time.ZonedDateTime;
 import java.util.List;
 
+@Slf4j
 @RestController
 @Tag(name = "api/token", description = "用户权限部分")
 @RequestMapping("api/token")
@@ -26,6 +31,8 @@ public class TokenController {
 
     @Resource
     private UserInfoService userInfoService;
+    @Value("${security.password.private-key}")
+    private String privateKeyStr;
 
     // 引入BCryptPasswordEncoder用于密码加密
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -38,8 +45,18 @@ public class TokenController {
             return ResUtil.fail("用户账号已存在");
         }
 
+        // 解密密码
+        String rawPassword = userInfo.getUserPassword();
+        try {
+            PrivateKey privateKey = RSAUtil.loadPrivateKey(privateKeyStr);
+            rawPassword = RSAUtil.decrypt(rawPassword, privateKey);
+        } catch (Exception e) {
+            log.error("使用公私钥解密密码失败，请联系管理员！", e);
+            return ResUtil.fail("使用公私钥解密密码失败，请联系管理员！");
+        }
+
         // 密码加密存储
-        userInfo.setUserPassword(passwordEncoder.encode(userInfo.getUserPassword()));
+        userInfo.setUserPassword(passwordEncoder.encode(rawPassword));
         userInfo.setCreateTime(ZonedDateTime.now());
         userInfo.setUpdateTime(ZonedDateTime.now());
 
@@ -58,8 +75,18 @@ public class TokenController {
             return ResUtil.fail("用户不存在");
         }
 
+        // 解密密码
+        String rawPassword = userPassword;
+        try {
+            PrivateKey privateKey = RSAUtil.loadPrivateKey(privateKeyStr);
+            rawPassword = RSAUtil.decrypt(rawPassword, privateKey);
+        } catch (Exception e) {
+            log.error("使用公私钥解密密码失败，请联系管理员！", e);
+            return ResUtil.fail("使用公私钥解密密码失败，请联系管理员！");
+        }
+
         // 验证密码
-        if (!passwordEncoder.matches(userPassword, user.getUserPassword())) { // 使用passwordEncoder.matches进行密码比对
+        if (!passwordEncoder.matches(userPassword, rawPassword)) { // 使用passwordEncoder.matches进行密码比对
             return ResUtil.fail("密码错误");
         }
 
@@ -89,7 +116,16 @@ public class TokenController {
 
         // 如果密码被修改，也需要加密
         if (userInfo.getUserPassword() != null && !userInfo.getUserPassword().isEmpty()) {
-            userInfo.setUserPassword(passwordEncoder.encode(userInfo.getUserPassword()));
+            // 解密密码
+            String rawPassword = userInfo.getUserPassword();
+            try {
+                PrivateKey privateKey = RSAUtil.loadPrivateKey(privateKeyStr);
+                rawPassword = RSAUtil.decrypt(rawPassword, privateKey);
+            } catch (Exception e) {
+                log.error("使用公私钥解密密码失败，请联系管理员！", e);
+                return ResUtil.fail("使用公私钥解密密码失败，请联系管理员！");
+            }
+            userInfo.setUserPassword(passwordEncoder.encode(rawPassword));
         }
 
         if (userInfoService.updateById(userInfo)) {
@@ -137,7 +173,17 @@ public class TokenController {
             return ResUtil.fail("用户不存在");
         }
 
-        user.setUserPassword(passwordEncoder.encode(newPassword)); // 密码加密
+        // 解密密码
+        String rawPassword = newPassword;
+        try {
+            PrivateKey privateKey = RSAUtil.loadPrivateKey(privateKeyStr);
+            rawPassword = RSAUtil.decrypt(rawPassword, privateKey);
+        } catch (Exception e) {
+            log.error("使用公私钥解密密码失败，请联系管理员！", e);
+            return ResUtil.fail("使用公私钥解密密码失败，请联系管理员！");
+        }
+
+        user.setUserPassword(passwordEncoder.encode(rawPassword)); // 密码加密
         user.setUpdateTime(ZonedDateTime.now());
         return ResUtil.ok(userInfoService.updateById(user));
     }
