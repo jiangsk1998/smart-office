@@ -30,6 +30,8 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.zkyzn.project_manager.constants.AppConstants.FOLDER_TYPES;
+
 /**
  * @author Mr-ti
  */
@@ -453,14 +455,15 @@ public class ProjectInfoStory {
         List<ProjectDocument> projectDocuments = projectDocumentService.getByDepartment(SecurityUtil.getCurrentUserDepartmentName());
         if (StringUtils.isBlank(req.getDocumentType())) {
             // 返回目录
-            return projectDocuments.stream().collect(Collectors.groupingBy(ProjectDocument::getDocumentType))
-                    .entrySet().stream().map(entry -> {
+            Map<String, List<ProjectDocument>> grouped = projectDocuments.stream().collect(Collectors.groupingBy(ProjectDocument::getDocumentType));
+
+            return FOLDER_TYPES.stream().map(folder -> {
                         ProjectFolderResp projectFolderResp = new ProjectFolderResp();
-                        projectFolderResp.setFileName(entry.getKey());
-                        projectFolderResp.setDocumentType(entry.getKey());
+                        projectFolderResp.setFileName(folder);
+                        projectFolderResp.setDocumentType(folder);
                         projectFolderResp.setIsDirectory(Boolean.TRUE);
-                        projectFolderResp.setSize(entry.getValue().stream().mapToLong(ProjectDocument::getFileSize).sum());
-                        projectFolderResp.setUri(entry.getKey());
+                        projectFolderResp.setSize(Optional.ofNullable(grouped.get(folder)).orElse(Collections.emptyList()).stream().mapToLong(ProjectDocument::getFileSize).sum());
+                        projectFolderResp.setUri(folder);
                         return projectFolderResp;
                     }).collect(Collectors.toList());
         } else {

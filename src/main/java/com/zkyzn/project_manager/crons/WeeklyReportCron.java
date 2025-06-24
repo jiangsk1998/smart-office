@@ -11,6 +11,7 @@ import com.zkyzn.project_manager.services.ProjectInfoService;
 import com.zkyzn.project_manager.services.ProjectPlanService;
 import com.zkyzn.project_manager.services.UserInfoService;
 import com.zkyzn.project_manager.stories.MessageInfoStory;
+import com.zkyzn.project_manager.utils.ReportWordGenerator;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -103,6 +104,8 @@ public class WeeklyReportCron {
                     uncompletedTasks,
                     thisWeekDueTasks
             );
+
+            ReportWordGenerator.generateReportWord(reportContent,"jiangsk");
 
             MessageInfo message = MessageInfo.builder()
                     .senderId(SYSTEM_USER_ID)

@@ -7,6 +7,7 @@ import com.github.yulichang.base.MPJBaseServiceImpl;
 import com.zkyzn.project_manager.mappers.MessageInfoDao;
 import com.zkyzn.project_manager.models.MessageInfo;
 import com.zkyzn.project_manager.so.message.MsgReq;
+import com.zkyzn.project_manager.utils.SecurityUtil;
 import jakarta.validation.Valid;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -133,5 +134,14 @@ public class MessageInfoService extends MPJBaseServiceImpl<MessageInfoDao, Messa
 
     public Boolean isTop(String id, @Valid Boolean isTop) {
         return this.lambdaUpdate().eq(MessageInfo::getMessageId, id).set(MessageInfo::getIsTop, isTop).update();
+    }
+
+    public Integer statusCount(Boolean readStatus) {
+        LambdaQueryWrapper<MessageInfo> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper
+                .eq(MessageInfo::getReceiverId, SecurityUtil.getCurrentUserId())
+                .eq(MessageInfo::getIsDeleted, 0)
+                .eq(MessageInfo::getReadStatus, readStatus);
+        return baseMapper.selectCount(queryWrapper).intValue();
     }
 }
