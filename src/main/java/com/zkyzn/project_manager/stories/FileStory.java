@@ -206,14 +206,8 @@ public class FileStory {
             throw new IllegalArgumentException("参数错误: id或folder为空");
         }
 
-        String root = "/";
-
-        if (root.equals(folder)) {
-            return getFileResp(id);
-        }
-
         // 构建文件路径
-        String relativeTempPath = Paths.get("person", id.toString(), root).toString();
+        String relativeTempPath = Paths.get("person", id.toString(), folder).toString();
         Path absolutePath = Paths.get(fileRootPath, relativeTempPath);
 
         // 检查路径是否存在且是目录
@@ -226,8 +220,7 @@ public class FileStory {
 
         // 流处理资源管理
         try (Stream<Path> stream = Files.list(absolutePath)) {
-            return stream.filter(path -> path.toString().contains(folder))
-                    .map(path -> {
+            return stream.map(path -> {
                 try {
                     FileResp file = new FileResp();
                     file.setFileName(path.getFileName().toString());
@@ -253,74 +246,6 @@ public class FileStory {
         } catch (IOException | SecurityException e) {
             throw new Exception("无法访问目录: " + absolutePath, e);
         }
-    }
-
-    /**
-     * 如果folder是根目录。默认添加目录项目计划，图纸目录，生产会材料，汇报材料，二次统计，合并文档，项目合同，其他
-     *
-     * @param id
-     * @return
-     */
-    private List<FileResp> getFileResp(Long id) {
-
-        List<FileResp> fileRespList = new ArrayList<>();
-
-        FileResp projectPlan = new FileResp();
-        projectPlan.setFileName("项目计划");
-        projectPlan.setIsDirectory(true);
-        projectPlan.setSize(0L);
-        projectPlan.setUri("项目计划");
-        fileRespList.add(projectPlan);
-
-        FileResp drawDirectory = new FileResp();
-        drawDirectory.setFileName("图纸目录");
-        drawDirectory.setIsDirectory(true);
-        drawDirectory.setSize(0L);
-        projectPlan.setUri("图纸目录");
-        fileRespList.add(drawDirectory);
-
-        FileResp productionMeetingMaterials = new FileResp();
-        productionMeetingMaterials.setFileName("生产会材料");
-        productionMeetingMaterials.setIsDirectory(true);
-        productionMeetingMaterials.setSize(0L);
-        projectPlan.setUri("生产会材料");
-        fileRespList.add(productionMeetingMaterials);
-
-        FileResp reportMaterials = new FileResp();
-        reportMaterials.setFileName("汇报材料");
-        reportMaterials.setIsDirectory(true);
-        reportMaterials.setSize(0L);
-        projectPlan.setUri("汇报材料");
-        fileRespList.add(reportMaterials);
-
-        FileResp secondaryStatistics = new FileResp();
-        secondaryStatistics.setFileName("二次统计");
-        secondaryStatistics.setIsDirectory(true);
-        secondaryStatistics.setSize(0L);
-        projectPlan.setUri("二次统计");
-        fileRespList.add(secondaryStatistics);
-
-        FileResp mergeDocument = new FileResp();
-        mergeDocument.setFileName("合并文档");
-        mergeDocument.setIsDirectory(true);
-        mergeDocument.setSize(0L);
-        projectPlan.setUri("合并文档");
-        fileRespList.add(mergeDocument);
-
-        FileResp projectContract = new FileResp();
-        projectContract.setFileName("项目合同");
-        projectContract.setIsDirectory(true);
-        projectContract.setSize(0L);
-        projectPlan.setUri("项目合同");
-        fileRespList.add(projectContract);
-
-        FileResp other = new FileResp();
-        other.setFileName("其他");
-        other.setIsDirectory(true);
-        other.setSize(0L);
-        projectPlan.setUri("其他");
-        fileRespList.add(other);
-        return fileRespList;
     }
 
     /**
