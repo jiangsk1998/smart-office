@@ -1,11 +1,11 @@
 package com.zkyzn.project_manager.models;
 
 import com.baomidou.mybatisplus.annotation.*;
-import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.zkyzn.project_manager.enums.PhaseStatusEnum;
+import com.zkyzn.project_manager.utils.typehandle.JsonListUserTypeHandler;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -87,9 +87,8 @@ public class ProjectInfo {
 
     @NotBlank(message = "计划主管不能为空")
     @Schema(description = "计划主管姓名", requiredMode = Schema.RequiredMode.REQUIRED)
-    @TableField(value = "plan_supervisors", typeHandler = JacksonTypeHandler.class)
+    @TableField(value = "plan_supervisors", typeHandler = JsonListUserTypeHandler.class) // 使用新的TypeHandler
     private List<User> planSupervisors;
-
     @Schema(description = "项目参与人")
     @TableField("project_participants")
     private String projectParticipants;

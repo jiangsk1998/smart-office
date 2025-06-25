@@ -2,7 +2,7 @@ spring:
   application:
     name: "project_manager"
   datasource:
-    url: jdbc:mysql://192.168.1.111:3306/project_manager?characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai
+    url: jdbc:mysql://192.168.1.111:3306/project_manager?characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&json_string_as_bytes=false
     username: project
     password: project
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -59,10 +59,12 @@ file:
 debug: true
 logging:
   level:
-    org.springframework.boot: debug
-    com.zkyzn.project_manager.crons.DelayNoticeCron: debug # 新增这一行，用于调试定时任务
-    com.zkyzn.project_manager.crons.WeeklyReportCron: debug
-    org.springframework.scheduling.annotation.ScheduledAnnotationBeanPostProcessor: debug # 用于查看定时任务的调度信息
+    root: INFO # 或 DEBUG
+    com.zkyzn.project_manager: TRACE # 应用包
+    com.baomidou.mybatisplus: TRACE # MyBatis Plus 框架日志
+    com.fasterxml.jackson: TRACE # Jackson 库的日志
+    org.apache.ibatis: TRACE # MyBatis 核心日志
+    org.apache.ibatis.type: TRACE # typeHandler 的日志
 security:
   jwt:
     enabled: false

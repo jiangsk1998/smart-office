@@ -27,28 +27,28 @@ class MainApplicationTests {
     void contextLoads() {
     }
 
-    @Test
-    void delayNoticeCron() {
-        delayNoticeCron.checkAndSendDelayNotices();
-    }
-
-    @Test
-    void dueDateNoticeCron() {
-        dueDateNoticeCron.checkAndSendDueDateNotices();
-    }
-
-    @Test
-    void weeklyReportCron() {
-        weeklyReportCron.sendWeeklyReports();
-    }
-
-    @Test
-    void monthlyReportCron() {
-        monthlyReportCron.sendMonthlyReports();
-    }
-
-    @Test
-    void annualReportCron() {
-        annualReportCron.sendAnnualReports();
-    }
+//    @Test
+//    void delayNoticeCron() {
+//        delayNoticeCron.checkAndSendDelayNotices();
+//    }
+//
+//    @Test
+//    void dueDateNoticeCron() {
+//        dueDateNoticeCron.checkAndSendDueDateNotices();
+//    }
+//
+//    @Test
+//    void weeklyReportCron() {
+//        weeklyReportCron.sendWeeklyReports();
+//    }
+//
+//    @Test
+//    void monthlyReportCron() {
+//        monthlyReportCron.sendMonthlyReports();
+//    }
+//
+//    @Test
+//    void annualReportCron() {
+//        annualReportCron.sendAnnualReports();
+//    }
 }

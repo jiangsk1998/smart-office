@@ -6,6 +6,9 @@ import com.github.yulichang.query.MPJLambdaQueryWrapper;
 import com.zkyzn.project_manager.enums.ProjectStatusEnum;
 import com.zkyzn.project_manager.mappers.ProjectInfoDao;
 import com.zkyzn.project_manager.models.ProjectInfo;
+import com.zkyzn.project_manager.utils.JsonUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -17,6 +20,8 @@ import java.util.List;
  */
 @Service
 public class ProjectInfoService extends MPJBaseServiceImpl<ProjectInfoDao, ProjectInfo> {
+
+    private static final Logger logger = LoggerFactory.getLogger(ProjectInfoService.class);
 
     /**
      * 通过项目ID查询（主键查询）
@@ -44,7 +49,21 @@ public class ProjectInfoService extends MPJBaseServiceImpl<ProjectInfoDao, Proje
                 .eq(ProjectInfo::getProjectNumber, projectNumber)
                 .last("LIMIT 1");
 
-        return baseMapper.selectOne(wrapper);
+        ProjectInfo projectInfo = baseMapper.selectOne(wrapper); // 获取查询结果
+
+        // 添加日志，打印原始ProjectInfo对象及其plan_supervisors字段
+        if (projectInfo != null) {
+            logger.info("Fetched ProjectInfo for projectNumber {}: {}", projectNumber, JsonUtil.toJson(projectInfo));
+            if (projectInfo.getPlanSupervisors() == null) {
+                logger.warn("plan_supervisors is null after fetching for projectNumber: {}", projectNumber);
+            } else {
+                logger.info("plan_supervisors value: {}", JsonUtil.toJson(projectInfo.getPlanSupervisors()));
+            }
+        } else {
+            logger.warn("No ProjectInfo found for projectNumber: {}", projectNumber);
+        }
+
+        return projectInfo;
     }
 
     /**

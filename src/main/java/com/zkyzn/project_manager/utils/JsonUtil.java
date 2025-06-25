@@ -7,22 +7,36 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired; // 导入 Autowired
+import org.springframework.stereotype.Component; // 导入 Component
 
-/**
- * Utility class for JSON serialization.
- */
+@Component // 将JsonUtil声明为Spring组件
 public class JsonUtil {
 
-    private static final ObjectMapper objectMapper = new ObjectMapper();
+    // 移除静态初始化块，通过Spring注入
+    private static ObjectMapper objectMapper;
     private static final Logger logger = LoggerFactory.getLogger(JsonUtil.class);
 
-    static {
-        // Register module for Java 8 date/time types
-        objectMapper.registerModule(new JavaTimeModule());
-        // Configure to not write dates as timestamps
-        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-        objectMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+    // 通过setter方法注入ObjectMapper，确保Spring管理
+    @Autowired
+    public void setObjectMapper(ObjectMapper injectedObjectMapper) {
+        JsonUtil.objectMapper = injectedObjectMapper;
+        logger.info("ObjectMapper injected into JsonUtil. Hash: {}", injectedObjectMapper.hashCode());
+    }
+
+    public static ObjectMapper getObjectMapper() {
+        // 提供一个公共方法来获取配置好的ObjectMapper实例
+        // 在确保注入已完成的情况下使用
+        if (objectMapper == null) {
+            logger.warn("ObjectMapper in JsonUtil is null. This might indicate an issue with Spring context initialization or non-Spring usage.");
+            // 因为它可能不会包含所有的自定义配置
+            objectMapper = new ObjectMapper();
+            objectMapper.registerModule(new JavaTimeModule());
+            objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+            objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            objectMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+        }
+        return objectMapper;
     }
 
     /**
@@ -35,10 +49,13 @@ public class JsonUtil {
             return null;
         }
         try {
-            return objectMapper.writeValueAsString(obj);
+            // 使用通过Spring注入的ObjectMapper
+            return getObjectMapper().writeValueAsString(obj);
         } catch (JsonProcessingException e) {
-            logger.error("Failed to serialize object to JSON", e);
-            return obj.toString(); // Fallback to toString()
+            logger.error("Failed to serialize object to JSON: {}", obj.getClass().getName(), e);
+            // Fallback to toString() should ideally be avoided for structured data.
+            // Consider throwing a custom exception or returning null for clear error handling.
+            return obj.toString();
         }
     }
 }
