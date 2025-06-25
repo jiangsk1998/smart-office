@@ -81,4 +81,8 @@ public class ProjectPhase {
     @TableField(value = "update_time")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssXXX")
     private ZonedDateTime updateTime;
+
+    @Schema(description = "顺序码")
+    @TableField(value = "sort")
+    private Integer sort;
 }

@@ -2,6 +2,7 @@ package com.zkyzn.project_manager.so.task;
 
 
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
@@ -77,5 +78,9 @@ public class ProjectTaskReq {
             implementation = TaskStatusEnum.class) // 关键修改
     @JsonProperty(value = "task_status")
     private TaskStatusEnum taskStatus;
+
+    @Schema(description = "顺序码")
+    @JsonProperty("sort")
+    private Integer sort;
 
 }

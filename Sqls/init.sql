@@ -119,6 +119,7 @@ create table project_manager.tab_project_phase
     deliverable_type   varchar(50)                           null comment '成果类型',
     create_time        datetime    default CURRENT_TIMESTAMP null comment '创建时间',
     update_time        datetime    default CURRENT_TIMESTAMP null on update CURRENT_TIMESTAMP comment '修改时间',
+    sort               int                                   null comment '顺序码',
     constraint fk_phase_project
         foreign key (project_id) references project_manager.tab_project_info (project_id)
             on delete cascade
@@ -148,6 +149,7 @@ create table project_manager.tab_project_plan
     real_end_date      date                                  null comment '实际结束时间',
     phase_id           bigint                                null comment '项目阶段ID',
     is_top             tinyint(1)                            null comment '1是 0否',
+    sort               int                                   null comment '顺序码',
     constraint fk_plan_project
         foreign key (project_id) references project_manager.tab_project_info (project_id)
             on delete cascade

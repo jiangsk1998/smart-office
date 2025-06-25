@@ -1,6 +1,7 @@
 package com.zkyzn.project_manager.so.phase;
 
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
@@ -67,5 +68,9 @@ public class ProjectPhaseReq {
     @Schema(description = "成果类型")
     @JsonProperty("deliverable_type")
     private String deliverableType;
+
+    @Schema(description = "顺序码")
+    @JsonProperty("sort")
+    private Integer sort;
 
 }

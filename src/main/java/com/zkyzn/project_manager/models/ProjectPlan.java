@@ -112,4 +112,8 @@ public class ProjectPlan {
     @TableField("real_end_date")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private ZonedDateTime realEndDate;
+
+    @Schema(description = "顺序码")
+    @TableField(value = "sort")
+    private Integer sort;
 }
