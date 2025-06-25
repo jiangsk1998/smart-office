@@ -78,12 +78,13 @@ public class PersonnelPlanStory {
      *
      * @param page
      * @param personName 责任人姓名
+     * @param keyword
      * @return 每日任务列表
      */
-    public Page<ProjectPlan> getPersonnelDailyTaskStatsListByPersonName(Page<ProjectPlan> page, String personName) {
+    public Page<ProjectPlan> getPersonnelDailyTaskStatsListByPersonName(Page<ProjectPlan> page, String personName, String keyword) {
         LocalDate today = LocalDate.now();
 
-        return projectPlanService.listTasksDueOnDateForPerson(page, personName, today);
+        return projectPlanService.listTasksDueOnDateForPerson(page, personName, today, keyword);
     }
 
     /**
@@ -143,16 +144,17 @@ public class PersonnelPlanStory {
      *
      * @param page
      * @param personName 责任人姓名
+     * @param keyword
      * @return 每周任务列表
      */
-    public Page<ProjectPlan> getPersonnelWeeklyTaskStatsListByPersonName(Page<ProjectPlan> page, String personName) {
+    public Page<ProjectPlan> getPersonnelWeeklyTaskStatsListByPersonName(Page<ProjectPlan> page, String personName, String keyword) {
         LocalDate today = LocalDate.now();
 
         // 定义本周的开始和结束日期（周一到周日）
         LocalDate startOfWeek = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
         LocalDate endOfWeek = today.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
 
-        return projectPlanService.listTasksDueBetweenDatesForPerson(page, personName, startOfWeek, endOfWeek);
+        return projectPlanService.listTasksDueBetweenDatesForPerson(page, personName, startOfWeek, endOfWeek, keyword);
     }
 
     /**
@@ -234,16 +236,17 @@ public class PersonnelPlanStory {
      *
      * @param page
      * @param personName 责任人姓名
+     * @param keyword
      * @return 个人周完成工作列表
      */
-    public Page<ProjectPlan> getPersonnelWeeklyProgressListByPersonName(Page<ProjectPlan> page, String personName) {
+    public Page<ProjectPlan> getPersonnelWeeklyProgressListByPersonName(Page<ProjectPlan> page, String personName, String keyword) {
         LocalDate today = LocalDate.now();
 
         // 1. 计算上周的进度
         LocalDate lastWeekStart = today.minusWeeks(1).with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
         LocalDate lastWeekEnd = today.minusWeeks(1).with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
 
-        return projectPlanService.listCompletedTasksForPersonByDateRange(page, personName, lastWeekStart, lastWeekEnd);
+        return projectPlanService.listCompletedTasksForPersonByDateRange(page, personName, lastWeekStart, lastWeekEnd, keyword);
     }
 
     /**
@@ -316,9 +319,10 @@ public class PersonnelPlanStory {
      *
      * @param page
      * @param personName 责任人姓名
+     * @param keyword
      * @return 个人月度工作完成任务列表
      */
-    public Page<ProjectPlan> getPersonnelMonthlyProgressStatsListByPersonName(Page<ProjectPlan> page, String personName) {
+    public Page<ProjectPlan> getPersonnelMonthlyProgressStatsListByPersonName(Page<ProjectPlan> page, String personName, String keyword) {
         LocalDate today = LocalDate.now();
 
         // 定义本月的开始和结束日期
@@ -326,7 +330,7 @@ public class PersonnelPlanStory {
         LocalDate firstDayOfMonth = thisMonth.atDay(1);
         LocalDate lastDayOfMonth = thisMonth.atEndOfMonth();
 
-        return projectPlanService.listCompletedTasksForPersonByDateRanges(page, personName, firstDayOfMonth, lastDayOfMonth, today);
+        return projectPlanService.listCompletedTasksForPersonByDateRanges(page, personName, firstDayOfMonth, lastDayOfMonth, today, keyword);
     }
 
     /**
@@ -384,15 +388,16 @@ public class PersonnelPlanStory {
      *
      * @param page
      * @param personName 责任人姓名
+     * @param keyword
      * @return 个人周度未完成事项列表
      */
-    public Page<ProjectPlan> getPersonnelWeeklyUncompletedStatsListByPersonName(Page<ProjectPlan> page, String personName) {
+    public Page<ProjectPlan> getPersonnelWeeklyUncompletedStatsListByPersonName(Page<ProjectPlan> page, String personName, String keyword) {
         LocalDate today = LocalDate.now();
 
         // 1. 上周未完成事项数
         LocalDate lastWeekStart = today.minusWeeks(1).with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
         LocalDate lastWeekEnd = lastWeekStart.plusDays(6);
-        return projectPlanService.listUncompletedTasksForWeek(page, personName, lastWeekStart, lastWeekEnd);
+        return projectPlanService.listUncompletedTasksForWeek(page, personName, lastWeekStart, lastWeekEnd, keyword);
     }
 
     /**

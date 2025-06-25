@@ -36,11 +36,12 @@ public class DepartmentPlanController {
     @GetMapping(value = "/{departmentName}/stats/list")
     public ResultList<ProjectPlan> getDepartmentTaskStatsList(
             @PathVariable("departmentName") String departmentName,
+            @RequestParam(required = false) String keyword,
             @RequestParam(value = "page", defaultValue = "1") Integer pageNum,
             @RequestParam(value = "size", defaultValue = "10") Integer pageSize
     ) {
         Page<ProjectPlan> page = new Page<>(pageNum, pageSize);
-        return ResUtil.list(departmentPlanStory.getDepartmentTaskStatsListByDepartmentName(page, departmentName));
+        return ResUtil.list(departmentPlanStory.getDepartmentTaskStatsListByDepartmentName(page, departmentName, keyword));
     }
 
     @Operation(summary = "项目月进度")
@@ -64,11 +65,12 @@ public class DepartmentPlanController {
     @GetMapping(value = "/{departmentName}/weekly/stats/list")
     public ResultList<ProjectPlan> getDepartmentWeeklyTaskStatsList(
             @PathVariable("departmentName") String departmentName,
+            @RequestParam(required = false) String keyword,
             @RequestParam(value = "page", defaultValue = "1") Integer pageNum,
             @RequestParam(value = "size", defaultValue = "10") Integer pageSize
     ) {
         Page<ProjectPlan> page = new Page<>(pageNum, pageSize);
-        return ResUtil.list(departmentPlanStory.getDepartmentWeeklyTaskStatsListByDepartmentName(page, departmentName));
+        return ResUtil.list(departmentPlanStory.getDepartmentWeeklyTaskStatsListByDepartmentName(page, departmentName, keyword));
     }
 
     @Operation(summary = "周工作完成进度")
@@ -83,11 +85,12 @@ public class DepartmentPlanController {
     @GetMapping(value = "/{departmentName}/weekly/progress/list")
     public ResultList<ProjectPlan> getDepartmentWeeklyProgressList(
             @PathVariable("departmentName") String departmentName,
+            @RequestParam(required = false) String keyword,
             @RequestParam(value = "page", defaultValue = "1") Integer pageNum,
             @RequestParam(value = "size", defaultValue = "10") Integer pageSize
     ) {
         Page<ProjectPlan> page = new Page<>(pageNum, pageSize);
-        return ResUtil.list(departmentPlanStory.getDepartmentWeeklyProgressListByDepartmentName(page, departmentName));
+        return ResUtil.list(departmentPlanStory.getDepartmentWeeklyProgressListByDepartmentName(page, departmentName, keyword));
     }
 
     @Operation(summary = "月工作完成进度")
@@ -102,11 +105,12 @@ public class DepartmentPlanController {
     @GetMapping(value = "/{departmentName}/monthly/completion/progress/list")
     public ResultList<ProjectPlan> getDepartmentMonthlyProgressStatsList(
             @PathVariable("departmentName") String departmentName,
+            @RequestParam(required = false) String keyword,
             @RequestParam(value = "page", defaultValue = "1") Integer pageNum,
             @RequestParam(value = "size", defaultValue = "10") Integer pageSize
     ) {
         Page<ProjectPlan> page = new Page<>(pageNum, pageSize);
-        return ResUtil.list(departmentPlanStory.getDepartmentMonthlyProgressStatsListByDepartmentName(page, departmentName));
+        return ResUtil.list(departmentPlanStory.getDepartmentMonthlyProgressStatsListByDepartmentName(page, departmentName, keyword));
     }
 
     @Operation(summary = "项目拖期项统计")
@@ -121,11 +125,12 @@ public class DepartmentPlanController {
     @GetMapping(value = "/{departmentName}/monthly/delayed/stats/list")
     public ResultList<ProjectPlan> getDepartmentMonthlyDelayedStatsList(
             @PathVariable("departmentName") String departmentName,
+            @RequestParam(required = false) String keyword,
             @RequestParam(value = "page", defaultValue = "1") Integer pageNum,
             @RequestParam(value = "size", defaultValue = "10") Integer pageSize
     ) {
         Page<ProjectPlan> page = new Page<>(pageNum, pageSize);
-        return ResUtil.list(departmentPlanStory.getDepartmentMonthlyDelayedStatsListByDepartmentName(page, departmentName));
+        return ResUtil.list(departmentPlanStory.getDepartmentMonthlyDelayedStatsListByDepartmentName(page, departmentName, keyword));
     }
 
     @Operation(summary = "人员月进度")

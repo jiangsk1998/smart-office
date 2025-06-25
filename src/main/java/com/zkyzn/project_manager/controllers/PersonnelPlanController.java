@@ -39,11 +39,12 @@ public class PersonnelPlanController {
     @GetMapping(value = "/{personName}/daily/stats/list")
     public ResultList<ProjectPlan> getPersonnelDailyTaskStatsList(
             @PathVariable("personName") String personName,
+            @RequestParam(required = false) String keyword,
             @RequestParam(value = "page", defaultValue = "1") Integer pageNum,
             @RequestParam(value = "size", defaultValue = "10") Integer pageSize
     ) {
         Page<ProjectPlan> page = new Page<>(pageNum, pageSize);
-        return ResUtil.list(personnelPlanStory.getPersonnelDailyTaskStatsListByPersonName(page, personName));
+        return ResUtil.list(personnelPlanStory.getPersonnelDailyTaskStatsListByPersonName(page, personName, keyword));
     }
 
     @Operation(summary = "本周到期事项")
@@ -58,11 +59,12 @@ public class PersonnelPlanController {
     @GetMapping(value = "/{personName}/weekly/stats/list")
     public ResultList<ProjectPlan> getPersonnelWeeklyTaskStatsList(
             @PathVariable("personName") String personName,
+            @RequestParam(required = false) String keyword,
             @RequestParam(value = "page", defaultValue = "1") Integer pageNum,
             @RequestParam(value = "size", defaultValue = "10") Integer pageSize
     ) {
         Page<ProjectPlan> page = new Page<>(pageNum, pageSize);
-        return ResUtil.list(personnelPlanStory.getPersonnelWeeklyTaskStatsListByPersonName(page, personName));
+        return ResUtil.list(personnelPlanStory.getPersonnelWeeklyTaskStatsListByPersonName(page, personName, keyword));
     }
 
     @Operation(summary = "本周工作完成进度")
@@ -77,11 +79,12 @@ public class PersonnelPlanController {
     @GetMapping(value = "/{personName}/weekly/progress/list")
     public ResultList<ProjectPlan> getPersonnelWeeklyProgressList(
             @PathVariable("personName") String personName,
+            @RequestParam(required = false) String keyword,
             @RequestParam(value = "page", defaultValue = "1") Integer pageNum,
             @RequestParam(value = "size", defaultValue = "10") Integer pageSize
     ) {
         Page<ProjectPlan> page = new Page<>(pageNum, pageSize);
-        return ResUtil.list(personnelPlanStory.getPersonnelWeeklyProgressListByPersonName(page, personName));
+        return ResUtil.list(personnelPlanStory.getPersonnelWeeklyProgressListByPersonName(page, personName, keyword));
     }
 
     @Operation(summary = "月工作完成进度")
@@ -96,11 +99,12 @@ public class PersonnelPlanController {
     @GetMapping(value = "/{personName}/monthly/progress/list")
     public ResultList<ProjectPlan> getPersonnelMonthlyProgressList(
             @PathVariable("personName") String personName,
+            @RequestParam(required = false) String keyword,
             @RequestParam(value = "page", defaultValue = "1") Integer pageNum,
             @RequestParam(value = "size", defaultValue = "10") Integer pageSize
     ) {
         Page<ProjectPlan> page = new Page<>(pageNum, pageSize);
-        return ResUtil.list(personnelPlanStory.getPersonnelMonthlyProgressStatsListByPersonName(page, personName));
+        return ResUtil.list(personnelPlanStory.getPersonnelMonthlyProgressStatsListByPersonName(page, personName, keyword));
     }
 
     @Operation(summary = "上周未完成事项")
@@ -115,11 +119,12 @@ public class PersonnelPlanController {
     @GetMapping(value = "/{personName}/lastWeekUncompleted/list")
     public ResultList<ProjectPlan> getPersonnelWeeklyUncompletedStatsList(
             @PathVariable("personName") String personName,
+            @RequestParam(required = false) String keyword,
             @RequestParam(value = "page", defaultValue = "1") Integer pageNum,
             @RequestParam(value = "size", defaultValue = "10") Integer pageSize
     ) {
         Page<ProjectPlan> page = new Page<>(pageNum, pageSize);
-        return ResUtil.list(personnelPlanStory.getPersonnelWeeklyUncompletedStatsListByPersonName(page, personName));
+        return ResUtil.list(personnelPlanStory.getPersonnelWeeklyUncompletedStatsListByPersonName(page, personName, keyword));
     }
 
     @Operation(summary = "待办置顶")

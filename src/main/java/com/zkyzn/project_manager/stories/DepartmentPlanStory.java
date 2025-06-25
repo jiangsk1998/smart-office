@@ -75,9 +75,9 @@ public class DepartmentPlanStory {
         return response;
     }
 
-    public Page<ProjectPlan> getDepartmentTaskStatsListByDepartmentName(Page<ProjectPlan> page, String departmentName) {
+    public Page<ProjectPlan> getDepartmentTaskStatsListByDepartmentName(Page<ProjectPlan> page, String departmentName, String keyword) {
         LocalDate today = LocalDate.now();
-        return projectPlanService.listTasksDueOnDate(page, departmentName, today);
+        return projectPlanService.listTasksDueOnDate(page, departmentName, today, keyword);
     }
 
     public DepartmentWeeklyTaskStatsResp getDepartmentWeeklyTaskStatsByDepartmentName(String departmentName) {
@@ -126,14 +126,14 @@ public class DepartmentPlanStory {
         return response;
     }
 
-    public Page<ProjectPlan> getDepartmentWeeklyTaskStatsListByDepartmentName(Page<ProjectPlan> page, String departmentName) {
+    public Page<ProjectPlan> getDepartmentWeeklyTaskStatsListByDepartmentName(Page<ProjectPlan> page, String departmentName, String keyword) {
         LocalDate today = LocalDate.now();
 
         // 定义周的开始和结束（周一到周日）
         LocalDate startOfWeek = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
         LocalDate endOfWeek = today.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
 
-        return projectPlanService.listTasksDueBetweenDates(page, departmentName, startOfWeek, endOfWeek);
+        return projectPlanService.listTasksDueBetweenDates(page, departmentName, startOfWeek, endOfWeek, keyword);
     }
 
     public List<DepartmentProjectProgressResp> getDepartmentProjectMonthlyProgressByDepartmentName(String departmentName) {
@@ -255,13 +255,14 @@ public class DepartmentPlanStory {
      *
      * @param page
      * @param departmentName 科室名称
+     * @param keyword
      * @return 任务列表
      */
-    public Page<ProjectPlan> getDepartmentWeeklyProgressListByDepartmentName(Page<ProjectPlan> page, String departmentName) {
+    public Page<ProjectPlan> getDepartmentWeeklyProgressListByDepartmentName(Page<ProjectPlan> page, String departmentName, String keyword) {
         LocalDate today = LocalDate.now();
         LocalDate lastWeekStart = today.minusWeeks(1).with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
         LocalDate lastWeekEnd = today.minusWeeks(1).with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
-        return projectPlanService.listCompletedTasksByEndDateRange(page, departmentName, lastWeekStart, lastWeekEnd);
+        return projectPlanService.listCompletedTasksByEndDateRange(page, departmentName, lastWeekStart, lastWeekEnd, keyword);
     }
 
     /**
@@ -329,7 +330,7 @@ public class DepartmentPlanStory {
         return response;
     }
 
-    public Page<ProjectPlan> getDepartmentMonthlyProgressStatsListByDepartmentName(Page<ProjectPlan> page, String departmentName) {
+    public Page<ProjectPlan> getDepartmentMonthlyProgressStatsListByDepartmentName(Page<ProjectPlan> page, String departmentName, String keyword) {
         LocalDate today = LocalDate.now();
         LocalDate yesterday = today.minusDays(1);
 
@@ -337,7 +338,7 @@ public class DepartmentPlanStory {
         YearMonth thisMonth = YearMonth.from(today);
         LocalDate firstDayOfMonth = thisMonth.atDay(1);
         LocalDate lastDayOfMonth = thisMonth.atEndOfMonth();
-        return projectPlanService.listCompletedTasksByDateRanges(page, departmentName, firstDayOfMonth, lastDayOfMonth, today);
+        return projectPlanService.listCompletedTasksByDateRanges(page, departmentName, firstDayOfMonth, lastDayOfMonth, today, keyword);
     }
 
     /**
@@ -388,14 +389,15 @@ public class DepartmentPlanStory {
      *
      * @param page
      * @param departmentName 科室名称
+     * @param keyword
      * @return 月度拖期统计
      */
-    public Page<ProjectPlan> getDepartmentMonthlyDelayedStatsListByDepartmentName(Page<ProjectPlan> page, String departmentName) {
+    public Page<ProjectPlan> getDepartmentMonthlyDelayedStatsListByDepartmentName(Page<ProjectPlan> page, String departmentName, String keyword) {
         LocalDate today = LocalDate.now();
 
         // 1. 本月拖期项目数
         YearMonth thisMonth = YearMonth.from(today);
-        return projectPlanService.listDelayedTasksForMonth(page, departmentName, thisMonth.atDay(1), thisMonth.atEndOfMonth());
+        return projectPlanService.listDelayedTasksForMonth(page, departmentName, thisMonth.atDay(1), thisMonth.atEndOfMonth(), keyword);
     }
 
     public List<PersonnelMonthlyProgressResp> getPersonnelMonthlyProgressByDepartmentName(String departmentName) {
