@@ -6,6 +6,9 @@ import com.zkyzn.project_manager.models.ProjectInfo;
 import com.zkyzn.project_manager.models.User;
 import com.zkyzn.project_manager.services.MessageInfoService;
 import com.zkyzn.project_manager.services.ProjectInfoService;
+import com.zkyzn.project_manager.so.Result;
+import com.zkyzn.project_manager.utils.JsonUtil;
+import com.zkyzn.project_manager.utils.ResUtil;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
@@ -52,19 +55,23 @@ public class MessageInfoStory {
 
     /**
      * 发送超期反馈消息给项目主管
+     *
      * @param message
      * @param projectNumber
      * @return
      */
-    public boolean postSendFeedbackMessage(MessageInfo message, String projectNumber) {
+    public Result<Boolean> postSendFeedbackMessage(MessageInfo message, String projectNumber) {
 
         ProjectInfo projectInfo = projectInfoService.getByProjectNumber(projectNumber);
         List<User> userList = projectInfo.getPlanSupervisors();
+        if (CollectionUtils.isEmpty(userList)) {
+            return ResUtil.fail("查无主管,"+ "项目信息为："+JsonUtil.toJson(projectInfo));
+        }
         Set<Long> userIdSet = userList.stream()
                 .map(User::getUserId)
                 .collect(Collectors.toSet());
         message.setTitle("超期反馈");
-        return sendMessages(message, userIdSet);
+        return ResUtil.ok(sendMessages(message, userIdSet));
     }
 
     /**

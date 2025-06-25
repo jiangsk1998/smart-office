@@ -35,8 +35,8 @@ public class ProjectInfoService extends MPJBaseServiceImpl<ProjectInfoDao, Proje
      * @return 匹配的项目信息实体或null
      */
     public ProjectInfo getByProjectNumber(String projectNumber) {
-        if (!StringUtils.hasText(projectNumber)) {
-            return null;
+        if (org.apache.commons.lang3.StringUtils.isBlank(projectNumber)) {
+            return new ProjectInfo();
         }
 
         MPJLambdaQueryWrapper<ProjectInfo> wrapper = new MPJLambdaQueryWrapper<>();
