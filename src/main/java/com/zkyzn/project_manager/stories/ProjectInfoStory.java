@@ -28,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.File;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static com.zkyzn.project_manager.constants.AppConstants.FOLDER_TYPES;
@@ -428,6 +429,8 @@ public class ProjectInfoStory {
         if (!planList.isEmpty()) {
             // 1. 生成阶段列表（此时phaseId为空）
             List<ProjectPhase> phaseList = generatePhases(planList, project.getDepartment());
+            final AtomicInteger sort = new AtomicInteger(0);
+            phaseList.forEach(phase -> phase.setSort(sort.incrementAndGet()));
             // 2. 批量保存阶段并获取自动生成的phaseId
             projectPhaseService.saveBatch(phaseList);
 
@@ -439,7 +442,9 @@ public class ProjectInfoStory {
                     ));
 
             // 4. 遍历所有任务，设置对应的阶段ID
+            sort.set(0); // 重置顺序号
             for (ProjectPlan plan : planList) {
+                plan.setSort(sort.incrementAndGet());
                 Long phaseId = taskPackageToPhaseIdMap.get(plan.getTaskPackage());
                 if (phaseId != null) {
                     plan.setPhaseId(phaseId); // 关联阶段ID
