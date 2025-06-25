@@ -28,7 +28,7 @@ public class DepartmentPlanController {
         return ResUtil.ok(departmentPlanStory.getDepartmentTaskStatsByDepartmentName(departmentName));
     }
 
-    @Operation(summary = "项目月进度")
+    @Operation(summary = "科室项目月进度")
     @GetMapping("/{departmentName}/projects/monthly/progress")
     public ResultList<DepartmentProjectProgressResp> getDepartmentProjectMonthlyProgress(
             @PathVariable String departmentName

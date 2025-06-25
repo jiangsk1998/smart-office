@@ -1,11 +1,14 @@
 package com.zkyzn.project_manager.stories;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.zkyzn.project_manager.enums.PhaseStatusEnum;
 import com.zkyzn.project_manager.enums.PaymentStatusEnum;
 import com.zkyzn.project_manager.enums.ProjectStatusEnum;
+import com.zkyzn.project_manager.enums.TaskStatusEnum;
 import com.zkyzn.project_manager.models.ContractNode;
 import com.zkyzn.project_manager.models.PaymentNode;
 import com.zkyzn.project_manager.models.ProjectInfo;
+import com.zkyzn.project_manager.models.ProjectPlan;
 import com.zkyzn.project_manager.services.ContractNodeService;
 import com.zkyzn.project_manager.services.PaymentNodeService;
 import com.zkyzn.project_manager.services.ProjectInfoService;
@@ -322,5 +325,56 @@ public class ProjectOverviewStory {
         return BigDecimal.valueOf(current - previous)
                 .divide(BigDecimal.valueOf(previous), 4, RoundingMode.HALF_UP)
                 .multiply(BigDecimal.valueOf(100));
+    }
+
+    /**
+     * 获取所有科室当月项目进度
+     */
+    public List<DepartmentMonthlyProgress> getMonthlyDepartmentProgress() {
+        // 1. 获取当前月份范围
+        YearMonth currentMonth = YearMonth.now();
+        LocalDate firstDayOfMonth = currentMonth.atDay(1);
+        LocalDate lastDayOfMonth = currentMonth.atEndOfMonth();
+
+        // 2. 查询当月所有任务
+        QueryWrapper<ProjectPlan> wrapper = new QueryWrapper<>();
+        wrapper.select("department",
+                        "COUNT(*) AS total_tasks",
+                        "SUM(CASE WHEN task_status = '" + TaskStatusEnum.COMPLETED.name() + "' THEN 1 ELSE 0 END) AS completed_tasks")
+                .between("end_date", firstDayOfMonth, lastDayOfMonth)
+                .groupBy("department");
+
+        List<Map<String, Object>> results = projectPlanService.listMaps(wrapper);
+
+        // 3. 处理结果 - 修复类型转换问题
+        List<DepartmentMonthlyProgress> progressList = new ArrayList<>();
+        for (Map<String, Object> result : results) {
+            DepartmentMonthlyProgress progress = new DepartmentMonthlyProgress();
+            progress.setDepartment((String) result.get("department"));
+
+            // 使用 Number 类型安全转换
+            Number totalTasksNum = (Number) result.get("total_tasks");
+            Number completedTasksNum = (Number) result.get("completed_tasks");
+
+            int totalTasks = totalTasksNum != null ? totalTasksNum.intValue() : 0;
+            int completedTasks = completedTasksNum != null ? completedTasksNum.intValue() : 0;
+
+            progress.setTotalTasks(totalTasks);
+            progress.setCompletedTasks(completedTasks);
+
+            // 计算完成率
+            if (totalTasks > 0) {
+                BigDecimal completionRate = BigDecimal.valueOf(completedTasks)
+                        .divide(BigDecimal.valueOf(totalTasks), 4, RoundingMode.HALF_UP)
+                        .multiply(BigDecimal.valueOf(100));
+                progress.setCompletionRate(completionRate);
+            } else {
+                progress.setCompletionRate(BigDecimal.ZERO);
+            }
+
+            progressList.add(progress);
+        }
+
+        return progressList;
     }
 }

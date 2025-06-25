@@ -1,6 +1,7 @@
 package com.zkyzn.project_manager.controllers;
 
 import com.zkyzn.project_manager.so.Result;
+import com.zkyzn.project_manager.so.project.overview.DepartmentMonthlyProgress;
 import com.zkyzn.project_manager.so.project.overview.ProjectOverviewResponse;
 import com.zkyzn.project_manager.stories.ProjectOverviewStory;
 import com.zkyzn.project_manager.utils.ResUtil;
@@ -10,6 +11,8 @@ import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 /**
  * @author: Mr-ti
@@ -28,5 +31,13 @@ public class ProjectOverviewController {
     public Result<ProjectOverviewResponse> getProjectOverviewStats() {
         ProjectOverviewResponse response = projectOverviewStory.getProjectOverviewStats();
         return ResUtil.ok(response);
+    }
+
+    @Operation(summary = "获取所有科室当月项目进度")
+    @GetMapping("/department-progress")
+    public Result<List<DepartmentMonthlyProgress>> getAllDepartmentMonthlyProgress() {
+        List<DepartmentMonthlyProgress> progressList =
+                projectOverviewStory.getMonthlyDepartmentProgress();
+        return ResUtil.ok(progressList);
     }
 }
