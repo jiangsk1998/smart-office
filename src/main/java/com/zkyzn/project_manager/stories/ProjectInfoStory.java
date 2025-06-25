@@ -470,6 +470,7 @@ public class ProjectInfoStory {
             return projectDocuments.stream()
                     .filter(doc -> req.getDocumentType().equals(doc.getDocumentType()))
                     .sorted(Comparator.comparing(ProjectDocument::getUploadTime).reversed())
+                    .filter(doc -> StringUtils.isBlank(req.getKeyword()) || doc.getDocumentName().contains(req.getKeyword()))
                     .map(doc -> {
                         ProjectFolderResp projectFolderResp = new ProjectFolderResp();
                         projectFolderResp.setFileName(doc.getDocumentName());

@@ -118,9 +118,10 @@ public class FileController {
     @Operation(summary = "获取个人空间下文件")
     @GetMapping(value = "/person/folder")
     public ResultList<FileResp> dirPersonFolder(
-            @RequestParam(defaultValue = "/") String path
+            @RequestParam(defaultValue = "/") String path,
+            @RequestParam(required = false) String keyword
     ) throws Exception {
-        var files = fileStory.dirPersonFolder(SecurityUtil.getCurrentUserId(),path);
+        var files = fileStory.dirPersonFolder(SecurityUtil.getCurrentUserId(), path, keyword);
         return ResUtil.list(files);
     }
 }

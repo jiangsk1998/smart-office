@@ -3,6 +3,7 @@ package com.zkyzn.project_manager.stories;
 import com.zkyzn.project_manager.so.file.FileResp;
 import com.zkyzn.project_manager.utils.UrlUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.docx4j.jaxb.Context;
 import org.docx4j.openpackaging.contenttype.ContentType;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
@@ -196,11 +197,12 @@ public class FileStory {
     /**
      * 查询当前用户空间下的文件
      *
-     * @param id     用户Id
-     * @param folder 用户目录
+     * @param id      用户Id
+     * @param folder  用户目录
+     * @param keyword 过滤关键词
      * @return 文件列表
      */
-    public List<FileResp> dirPersonFolder(Long id, String folder) throws Exception {
+    public List<FileResp> dirPersonFolder(Long id, String folder, String keyword) throws Exception {
         // 验证输入参数
         if (id == null || folder == null || folder.isBlank()) {
             throw new IllegalArgumentException("参数错误: id或folder为空");
@@ -242,7 +244,9 @@ public class FileStory {
                     partialFile.setUri("[无法获取完整信息]");
                     return partialFile;
                 }
-            }).collect(Collectors.toList()); // 确保兼容性
+            })
+                    .filter(fileResp -> StringUtils.isBlank(keyword) || fileResp.getFileName().contains(keyword)) // 有关键词的情况下根据关键词过滤
+                    .collect(Collectors.toList()); // 确保兼容性
         } catch (IOException | SecurityException e) {
             throw new Exception("无法访问目录: " + absolutePath, e);
         }

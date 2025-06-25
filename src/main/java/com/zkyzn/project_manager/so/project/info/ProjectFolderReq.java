@@ -15,4 +15,7 @@ public class ProjectFolderReq {
             requiredMode = Schema.RequiredMode.REQUIRED,
             allowableValues = {"项目计划", "图纸目录", "生产会材料", "汇报材料", "二次统计", "合并文档", "其他"})
     private String documentType;
+
+    @Schema(description = "关键词")
+    private String keyword;
 }
