@@ -2,15 +2,16 @@ package com.zkyzn.project_manager.services;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.yulichang.base.MPJBaseServiceImpl;
 import com.github.yulichang.query.MPJLambdaQueryWrapper;
 import com.zkyzn.project_manager.enums.TaskStatusEnum;
 import com.zkyzn.project_manager.mappers.ProjectPlanDao;
-import com.zkyzn.project_manager.models.ProjectInfo;
 import com.zkyzn.project_manager.models.ProjectPlan;
 import com.zkyzn.project_manager.so.personnel.PersonnelTodoTaskResp;
 import com.zkyzn.project_manager.so.project.ai.MonthlyPlansDTO;
 import com.zkyzn.project_manager.so.project.dashboard.ChangeRecord;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -185,6 +186,16 @@ public class ProjectPlanService extends MPJBaseServiceImpl<ProjectPlanDao, Proje
         return baseMapper.selectCount(wrapper);
     }
 
+    public Page<ProjectPlan> listTasksDueOnDate(Page<ProjectPlan> page, String departmentName, LocalDate date, String keyword) {
+        QueryWrapper<ProjectPlan> wrapper = new QueryWrapper<>();
+        wrapper.eq("department", departmentName)
+                .eq("end_date", date);
+        if (StringUtils.isNotBlank(keyword)) {
+            wrapper.like("task_description", keyword);
+        }
+        return baseMapper.selectPage(page, wrapper);
+    }
+
     public List<Map<String, Object>> countTasksByDepartment(Long projectId, LocalDate start, LocalDate end) {
         QueryWrapper<ProjectPlan> wrapper = new QueryWrapper<>();
         wrapper.select("department, COUNT(*) as task_count")
@@ -217,6 +228,20 @@ public class ProjectPlanService extends MPJBaseServiceImpl<ProjectPlanDao, Proje
                 .ge("end_date", startDate)
                 .le("end_date", endDate);
         return baseMapper.selectCount(wrapper);
+    }
+
+    /**
+     * 获取指定科室在日期范围内的到期任务列表
+     */
+    public Page<ProjectPlan> listTasksDueBetweenDates(Page<ProjectPlan> page, String departmentName, LocalDate startDate, LocalDate endDate, String keyword) {
+        QueryWrapper<ProjectPlan> wrapper = new QueryWrapper<>();
+        wrapper.eq("department", departmentName)
+                .ge("end_date", startDate)
+                .le("end_date", endDate);
+        if (StringUtils.isNotBlank(keyword)) {
+            wrapper.like("task_description", keyword);
+        }
+        return baseMapper.selectPage(page, wrapper);
     }
 
     /**
@@ -271,6 +296,21 @@ public class ProjectPlanService extends MPJBaseServiceImpl<ProjectPlanDao, Proje
     }
 
     /**
+     * 获取指定科室在日期范围内计划完成且状态为“已完成”的任务列表
+     */
+    public Page<ProjectPlan> listCompletedTasksByEndDateRange(Page<ProjectPlan> page, String departmentName, LocalDate startDate, LocalDate endDate, String keyword) {
+        QueryWrapper<ProjectPlan> wrapper = new QueryWrapper<>();
+        wrapper.eq("department", departmentName)
+                .eq("task_status", TaskStatusEnum.COMPLETED.name())
+                .ge("end_date", startDate)
+                .le("end_date", endDate);
+        if (StringUtils.isNotBlank(keyword)) {
+            wrapper.like("task_description", keyword);
+        }
+        return baseMapper.selectPage(page, wrapper);
+    }
+
+    /**
      * 统计指定科室，在某日期范围（planStartDate-planEndDate）内计划完成，
      * 并在某个截止日期（realEndDateCutoff）前实际完成的任务数
      */
@@ -285,6 +325,25 @@ public class ProjectPlanService extends MPJBaseServiceImpl<ProjectPlanDao, Proje
     }
 
     /**
+     * 获取指定科室，在某日期范围（planStartDate-planEndDate）内计划完成，
+     * 并在某个截止日期（realEndDateCutoff）前实际完成的任务列表
+     */
+    public Page<ProjectPlan> listCompletedTasksByDateRanges(Page<ProjectPlan> page, String departmentName,
+                                                            LocalDate planStartDate, LocalDate planEndDate, LocalDate realEndDateCutoff,
+                                                            String keyword) {
+        QueryWrapper<ProjectPlan> wrapper = new QueryWrapper<>();
+        wrapper.eq("department", departmentName)
+                .eq("task_status", TaskStatusEnum.COMPLETED.name())
+                .ge("end_date", planStartDate)  // 任务应在本月内完成
+                .le("end_date", planEndDate)
+                .le("real_end_date", realEndDateCutoff); // 任务在指定日期或之前实际完成
+        if (StringUtils.isNotBlank(keyword)) {
+            wrapper.like("task_description", keyword);
+        }
+        return baseMapper.selectPage(page, wrapper);
+    }
+
+    /**
      * 统计指定科室在某月内计划完成，但当前已拖期的任务数
      * 拖期定义: 已到截止时间，但任务不处于“已完成”或者“中止”状态
      */
@@ -296,6 +355,23 @@ public class ProjectPlanService extends MPJBaseServiceImpl<ProjectPlanDao, Proje
                 .lt("end_date", LocalDate.now()) // 关键：截止日期已过
                 .notIn("task_status", Arrays.asList(TaskStatusEnum.COMPLETED.name(), TaskStatusEnum.STOP.name())); // 关键：状态不是“已完成”或“中止”
         return baseMapper.selectCount(wrapper);
+    }
+
+    /**
+     * 获取指定科室在某月内计划完成，但当前已拖期的任务列表
+     * 拖期定义: 已到截止时间，但任务不处于“已完成”或者“中止”状态
+     */
+    public Page<ProjectPlan> listDelayedTasksForMonth(Page<ProjectPlan> page, String departmentName, LocalDate monthStartDate, LocalDate monthEndDate, String keyword) {
+        QueryWrapper<ProjectPlan> wrapper = new QueryWrapper<>();
+        wrapper.eq("department", departmentName)
+                .ge("end_date", monthStartDate)
+                .le("end_date", monthEndDate)
+                .lt("end_date", LocalDate.now()) // 关键：截止日期已过
+                .notIn("task_status", Arrays.asList(TaskStatusEnum.COMPLETED.name(), TaskStatusEnum.STOP.name())); // 关键：状态不是“已完成”或“中止”
+        if (StringUtils.isNotBlank(keyword)) {
+            wrapper.like("task_description", keyword);
+        }
+        return baseMapper.selectPage(page, wrapper);
     }
 
     /**
@@ -349,6 +425,19 @@ public class ProjectPlanService extends MPJBaseServiceImpl<ProjectPlanDao, Proje
     }
 
     /**
+     * 获取指定责任人在特定日期的到期任务列表
+     */
+    public Page<ProjectPlan> listTasksDueOnDateForPerson(Page<ProjectPlan> page, String personName, LocalDate date, String keyword) {
+        QueryWrapper<ProjectPlan> wrapper = new QueryWrapper<>();
+        wrapper.eq("responsible_person", personName)
+                .eq("end_date", date);
+        if (StringUtils.isNotBlank(keyword)) {
+            wrapper.like("task_description", keyword);
+        }
+        return baseMapper.selectPage(page, wrapper);
+    }
+
+    /**
      * 统计指定责任人在日期范围内的到期任务总数
      */
     public long countTasksDueBetweenDatesForPerson(String personName, LocalDate startDate, LocalDate endDate) {
@@ -357,6 +446,20 @@ public class ProjectPlanService extends MPJBaseServiceImpl<ProjectPlanDao, Proje
                 .ge("end_date", startDate)
                 .le("end_date", endDate);
         return baseMapper.selectCount(wrapper);
+    }
+
+    /**
+     * 获取指定责任人在日期范围内的到期任务列表
+     */
+    public Page<ProjectPlan> listTasksDueBetweenDatesForPerson(Page<ProjectPlan> page, String personName, LocalDate startDate, LocalDate endDate, String keyword) {
+        QueryWrapper<ProjectPlan> wrapper = new QueryWrapper<>();
+        wrapper.eq("responsible_person", personName)
+                .ge("end_date", startDate)
+                .le("end_date", endDate);
+        if (StringUtils.isNotBlank(keyword)) {
+            wrapper.like("task_description", keyword);
+        }
+        return baseMapper.selectPage(page, wrapper);
     }
 
     /**
@@ -383,6 +486,21 @@ public class ProjectPlanService extends MPJBaseServiceImpl<ProjectPlanDao, Proje
     }
 
     /**
+     * 获取指定责任人在日期范围内已完成的任务列表
+     */
+    public Page<ProjectPlan> listCompletedTasksForPersonByDateRange(Page<ProjectPlan> page, String personName, LocalDate startDate, LocalDate endDate, String keyword) {
+        QueryWrapper<ProjectPlan> wrapper = new QueryWrapper<>();
+        wrapper.eq("responsible_person", personName)
+                .eq("task_status", TaskStatusEnum.COMPLETED.name())
+                .ge("end_date", startDate)
+                .le("end_date", endDate);
+        if (StringUtils.isNotBlank(keyword)) {
+            wrapper.like("task_description", keyword);
+        }
+        return baseMapper.selectPage(page, wrapper);
+    }
+
+    /**
      * 统计指定责任人，在某日期范围（planStartDate-planEndDate）内计划完成，
      * 并在某个截止日期（realEndDateCutoff）前实际完成的任务数
      */
@@ -394,6 +512,25 @@ public class ProjectPlanService extends MPJBaseServiceImpl<ProjectPlanDao, Proje
                 .le("end_date", planEndDate)
                 .le("real_end_date", realEndDateCutoff);
         return baseMapper.selectCount(wrapper);
+    }
+
+    /**
+     * 获取指定责任人，在某日期范围（planStartDate-planEndDate）内计划完成，
+     * 并在某个截止日期（realEndDateCutoff）前实际完成的任务列表
+     */
+    public Page<ProjectPlan> listCompletedTasksForPersonByDateRanges(Page<ProjectPlan> page, String personName,
+                                                                     LocalDate planStartDate, LocalDate planEndDate, LocalDate realEndDateCutoff,
+                                                                     String keyword) {
+        QueryWrapper<ProjectPlan> wrapper = new QueryWrapper<>();
+        wrapper.eq("responsible_person", personName)
+                .eq("task_status", TaskStatusEnum.COMPLETED.name())
+                .ge("end_date", planStartDate)
+                .le("end_date", planEndDate)
+                .le("real_end_date", realEndDateCutoff);
+        if (StringUtils.isNotBlank(keyword)) {
+            wrapper.like("task_description", keyword);
+        }
+        return baseMapper.selectPage(page, wrapper);
     }
 
     /**
@@ -410,6 +547,22 @@ public class ProjectPlanService extends MPJBaseServiceImpl<ProjectPlanDao, Proje
         return baseMapper.selectCount(wrapper);
     }
 
+    /**
+     * 获取指定责任人在某周内计划完成，但当前已拖期的任务列表
+     * 拖期/未完成定义: 已到截止时间，但任务不处于“已完成”或者“中止”状态
+     */
+    public Page<ProjectPlan> listUncompletedTasksForWeek(Page<ProjectPlan> page, String personName, LocalDate weekStartDate, LocalDate weekEndDate, String keyword) {
+        QueryWrapper<ProjectPlan> wrapper = new QueryWrapper<>();
+        wrapper.eq("responsible_person", personName)
+                .ge("end_date", weekStartDate)
+                .le("end_date", weekEndDate)
+                .lt("end_date", LocalDate.now()) // 截止日期已过
+                .notIn("task_status", Arrays.asList(TaskStatusEnum.COMPLETED.toString(), TaskStatusEnum.STOP.toString())); // 状态不是“已完成”或“中止”
+        if (StringUtils.isNotBlank(keyword)) {
+            wrapper.like("task_description", keyword);
+        }
+        return baseMapper.selectPage(page, wrapper);
+    }
 
     /**
      * 查询指定责任人在时间范围内的待办事项（未开始或中止）

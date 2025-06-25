@@ -46,7 +46,7 @@ public class MessageInfoController {
         BaseContent content = messageInfo.getContent();
 
         if (content instanceof DelayFeedbackContent delayFeedbackContent) {
-            return ResUtil.ok(this.messageInfoStory.postSendFeedbackMessage(messageInfo, delayFeedbackContent.getProjectNumber()));
+            return this.messageInfoStory.postSendFeedbackMessage(messageInfo, delayFeedbackContent.getProjectNumber());
 
         } else {
             return ResUtil.fail("只允许发送超期反馈类型消息");

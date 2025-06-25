@@ -1,6 +1,8 @@
 package com.zkyzn.project_manager.controllers;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zkyzn.project_manager.models.MessageInfo;
+import com.zkyzn.project_manager.models.ProjectPlan;
 import com.zkyzn.project_manager.so.Result;
 import com.zkyzn.project_manager.so.ResultList;
 import com.zkyzn.project_manager.so.personnel.*;
@@ -33,12 +35,36 @@ public class PersonnelPlanController {
         return ResUtil.ok(personnelPlanStory.getPersonnelDailyTaskStatsByPersonName(personName));
     }
 
+    @Operation(summary = "今日到期事项列表")
+    @GetMapping(value = "/{personName}/daily/stats/list")
+    public ResultList<ProjectPlan> getPersonnelDailyTaskStatsList(
+            @PathVariable("personName") String personName,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(value = "page", defaultValue = "1") Integer pageNum,
+            @RequestParam(value = "size", defaultValue = "10") Integer pageSize
+    ) {
+        Page<ProjectPlan> page = new Page<>(pageNum, pageSize);
+        return ResUtil.list(personnelPlanStory.getPersonnelDailyTaskStatsListByPersonName(page, personName, keyword));
+    }
+
     @Operation(summary = "本周到期事项")
     @GetMapping(value = "/{personName}/weekly/stats")
     public Result<PersonnelWeeklyTaskStatsResp> getPersonnelWeeklyTaskStats(
             @PathVariable("personName") String personName
     ) {
         return ResUtil.ok(personnelPlanStory.getPersonnelWeeklyTaskStatsByPersonName(personName));
+    }
+
+    @Operation(summary = "本周到期事项列表")
+    @GetMapping(value = "/{personName}/weekly/stats/list")
+    public ResultList<ProjectPlan> getPersonnelWeeklyTaskStatsList(
+            @PathVariable("personName") String personName,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(value = "page", defaultValue = "1") Integer pageNum,
+            @RequestParam(value = "size", defaultValue = "10") Integer pageSize
+    ) {
+        Page<ProjectPlan> page = new Page<>(pageNum, pageSize);
+        return ResUtil.list(personnelPlanStory.getPersonnelWeeklyTaskStatsListByPersonName(page, personName, keyword));
     }
 
     @Operation(summary = "本周工作完成进度")
@@ -49,6 +75,18 @@ public class PersonnelPlanController {
         return ResUtil.ok(personnelPlanStory.getPersonnelWeeklyProgressByPersonName(personName));
     }
 
+    @Operation(summary = "本周工作完成列表")
+    @GetMapping(value = "/{personName}/weekly/progress/list")
+    public ResultList<ProjectPlan> getPersonnelWeeklyProgressList(
+            @PathVariable("personName") String personName,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(value = "page", defaultValue = "1") Integer pageNum,
+            @RequestParam(value = "size", defaultValue = "10") Integer pageSize
+    ) {
+        Page<ProjectPlan> page = new Page<>(pageNum, pageSize);
+        return ResUtil.list(personnelPlanStory.getPersonnelWeeklyProgressListByPersonName(page, personName, keyword));
+    }
+
     @Operation(summary = "月工作完成进度")
     @GetMapping(value = "/{personName}/monthly/progress")
     public Result<PersonnelMonthlyProgressResp> getPersonnelMonthlyProgress(
@@ -57,12 +95,36 @@ public class PersonnelPlanController {
         return ResUtil.ok(personnelPlanStory.getPersonnelMonthlyProgressStatsByPersonName(personName));
     }
 
+    @Operation(summary = "月工作完成列表")
+    @GetMapping(value = "/{personName}/monthly/progress/list")
+    public ResultList<ProjectPlan> getPersonnelMonthlyProgressList(
+            @PathVariable("personName") String personName,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(value = "page", defaultValue = "1") Integer pageNum,
+            @RequestParam(value = "size", defaultValue = "10") Integer pageSize
+    ) {
+        Page<ProjectPlan> page = new Page<>(pageNum, pageSize);
+        return ResUtil.list(personnelPlanStory.getPersonnelMonthlyProgressStatsListByPersonName(page, personName, keyword));
+    }
+
     @Operation(summary = "上周未完成事项")
     @GetMapping(value = "/{personName}/lastWeekUncompleted")
     public Result<PersonnelWeeklyUncompletedStatsResp> getPersonnelWeeklyUncompletedStats(
             @PathVariable("personName") String personName
     ) {
         return ResUtil.ok(personnelPlanStory.getPersonnelWeeklyUncompletedStatsByPersonName(personName));
+    }
+
+    @Operation(summary = "上周未完成事项列表")
+    @GetMapping(value = "/{personName}/lastWeekUncompleted/list")
+    public ResultList<ProjectPlan> getPersonnelWeeklyUncompletedStatsList(
+            @PathVariable("personName") String personName,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(value = "page", defaultValue = "1") Integer pageNum,
+            @RequestParam(value = "size", defaultValue = "10") Integer pageSize
+    ) {
+        Page<ProjectPlan> page = new Page<>(pageNum, pageSize);
+        return ResUtil.list(personnelPlanStory.getPersonnelWeeklyUncompletedStatsListByPersonName(page, personName, keyword));
     }
 
     @Operation(summary = "待办置顶")
