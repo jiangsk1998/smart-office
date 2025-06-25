@@ -1,6 +1,8 @@
 package com.zkyzn.project_manager.stories;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zkyzn.project_manager.models.ProjectInfo;
+import com.zkyzn.project_manager.models.ProjectPlan;
 import com.zkyzn.project_manager.services.DepartmentService;
 import com.zkyzn.project_manager.services.ProjectInfoService;
 import com.zkyzn.project_manager.services.ProjectPlanService;
@@ -73,6 +75,11 @@ public class DepartmentPlanStory {
         return response;
     }
 
+    public Page<ProjectPlan> getDepartmentTaskStatsListByDepartmentName(Page<ProjectPlan> page, String departmentName) {
+        LocalDate today = LocalDate.now();
+        return projectPlanService.listTasksDueOnDate(page, departmentName, today);
+    }
+
     public DepartmentWeeklyTaskStatsResp getDepartmentWeeklyTaskStatsByDepartmentName(String departmentName) {
         DepartmentWeeklyTaskStatsResp response = new DepartmentWeeklyTaskStatsResp();
         LocalDate today = LocalDate.now();
@@ -117,6 +124,16 @@ public class DepartmentPlanStory {
         response.setLast10WeeksDueCounts(weeklyCounts);
 
         return response;
+    }
+
+    public Page<ProjectPlan> getDepartmentWeeklyTaskStatsListByDepartmentName(Page<ProjectPlan> page, String departmentName) {
+        LocalDate today = LocalDate.now();
+
+        // 定义周的开始和结束（周一到周日）
+        LocalDate startOfWeek = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        LocalDate endOfWeek = today.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
+
+        return projectPlanService.listTasksDueBetweenDates(page, departmentName, startOfWeek, endOfWeek);
     }
 
     public List<DepartmentProjectProgressResp> getDepartmentProjectMonthlyProgressByDepartmentName(String departmentName) {
@@ -234,6 +251,20 @@ public class DepartmentPlanStory {
     }
 
     /**
+     * 获取科室周工作任务列表
+     *
+     * @param page
+     * @param departmentName 科室名称
+     * @return 任务列表
+     */
+    public Page<ProjectPlan> getDepartmentWeeklyProgressListByDepartmentName(Page<ProjectPlan> page, String departmentName) {
+        LocalDate today = LocalDate.now();
+        LocalDate lastWeekStart = today.minusWeeks(1).with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        LocalDate lastWeekEnd = today.minusWeeks(1).with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
+        return projectPlanService.listCompletedTasksByEndDateRange(page, departmentName, lastWeekStart, lastWeekEnd);
+    }
+
+    /**
      * 获取科室月工作完成进度
      * @param departmentName 科室名称
      * @return 月度进度统计
@@ -298,6 +329,17 @@ public class DepartmentPlanStory {
         return response;
     }
 
+    public Page<ProjectPlan> getDepartmentMonthlyProgressStatsListByDepartmentName(Page<ProjectPlan> page, String departmentName) {
+        LocalDate today = LocalDate.now();
+        LocalDate yesterday = today.minusDays(1);
+
+        // 定义本月的开始和结束日期
+        YearMonth thisMonth = YearMonth.from(today);
+        LocalDate firstDayOfMonth = thisMonth.atDay(1);
+        LocalDate lastDayOfMonth = thisMonth.atEndOfMonth();
+        return projectPlanService.listCompletedTasksByDateRanges(page, departmentName, firstDayOfMonth, lastDayOfMonth, today);
+    }
+
     /**
      * 获取科室月度拖期项目统计
      * @param departmentName 科室名称
@@ -339,6 +381,21 @@ public class DepartmentPlanStory {
         response.setLast10MonthsDelayedCounts(monthlyCounts);
 
         return response;
+    }
+
+    /**
+     * 获取科室月度拖期项目列表
+     *
+     * @param page
+     * @param departmentName 科室名称
+     * @return 月度拖期统计
+     */
+    public Page<ProjectPlan> getDepartmentMonthlyDelayedStatsListByDepartmentName(Page<ProjectPlan> page, String departmentName) {
+        LocalDate today = LocalDate.now();
+
+        // 1. 本月拖期项目数
+        YearMonth thisMonth = YearMonth.from(today);
+        return projectPlanService.listDelayedTasksForMonth(page, departmentName, thisMonth.atDay(1), thisMonth.atEndOfMonth());
     }
 
     public List<PersonnelMonthlyProgressResp> getPersonnelMonthlyProgressByDepartmentName(String departmentName) {
@@ -387,6 +444,5 @@ public class DepartmentPlanStory {
 
         return progressList;
     }
-
 
 }
