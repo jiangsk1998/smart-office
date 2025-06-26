@@ -74,15 +74,15 @@ public class SecurityConfig {
                     }) // 其他所有请求都需要认证
                     .csrf(AbstractHttpConfigurer::disable)
                     .formLogin(AbstractHttpConfigurer::disable)
-                    .httpBasic(AbstractHttpConfigurer::disable)
-                    .addFilterAfter(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class); // 使用注入的JwtTokenFilter
+                    .httpBasic(AbstractHttpConfigurer::disable);
         } else {
             httpSecurity.authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
         }
         httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
-                .httpBasic(AbstractHttpConfigurer::disable); // HTTP Basic 通常也应该在完全放开时禁用
+                .httpBasic(AbstractHttpConfigurer::disable) // HTTP Basic 通常也应该在完全放开时禁用
+                .addFilterAfter(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class); // 使用注入的JwtTokenFilter
 
         return httpSecurity.build();
     }
