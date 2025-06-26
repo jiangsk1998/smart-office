@@ -36,7 +36,7 @@ public class ProjectStatusCron {
         // 处理所有未开始的项目
         List<ProjectInfo> notStartedProjects = projectInfoService.findByStatus(ProjectStatusEnum.NOT_STARTED.name());
         List<ProjectInfo> toInProgressProjects = notStartedProjects.stream()
-                .filter(projectInfo -> projectInfo.getStartDate().isBefore(today))
+                .filter(projectInfo -> projectInfo.getStartDate().isBefore(today) || projectInfo.getStartDate().isEqual(today))
                 .peek(projectInfo -> projectInfo.setStatus(ProjectStatusEnum.IN_PROGRESS.name()))
                 .toList();
         if (!toInProgressProjects.isEmpty()) {
