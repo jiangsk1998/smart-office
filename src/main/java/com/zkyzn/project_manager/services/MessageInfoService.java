@@ -71,9 +71,14 @@ public class MessageInfoService extends MPJBaseServiceImpl<MessageInfoDao, Messa
         LambdaQueryWrapper<MessageInfo> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(MessageInfo::getReceiverId, req.getUserId())
                 .eq(MessageInfo::getIsDeleted, 0)
-                .eq(req.getReadStatus() != null, MessageInfo::getReadStatus, req.getReadStatus())
                 .in(CollectionUtils.isNotEmpty(req.getMessageTypes()), MessageInfo::getMessageType, req.getMessageTypes());
 
+        // 根据 readStatus 参数进行条件判断
+        // 如果 readStatus 不为 null，则添加等于条件
+        // 如果 readStatus 为 null，则表示查询所有状态（即不添加该条件）
+        if (req.getReadStatus() != null) {
+            queryWrapper.eq(MessageInfo::getReadStatus, req.getReadStatus());
+        }
 
         // 关键词搜索（安全OR条件）
         if (StringUtils.isNotBlank(req.getKeyword())) {
