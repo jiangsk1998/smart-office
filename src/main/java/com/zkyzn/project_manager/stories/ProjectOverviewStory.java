@@ -76,13 +76,16 @@ public class ProjectOverviewStory {
         );
 
         // 计算最近10天历史数据
-        List<BigDecimal> last10Days = new ArrayList<>();
+        List<PaymentProgress.DailyData> last10DaysData = new ArrayList<>();
         for (int i = 9; i >= 0; i--) {
             LocalDate date = today.minusDays(i);
             BigDecimal dailyRate = calculateDailyPaymentProgress(
                     date, allContractNodes, allPaymentNodes
             );
-            last10Days.add(dailyRate);
+            PaymentProgress.DailyData dataPoint = new PaymentProgress.DailyData();
+            dataPoint.setDate(date);
+            dataPoint.setValue(dailyRate);
+            last10DaysData.add(dataPoint);
         }
 
         // 计算与前一天的变化值
@@ -95,7 +98,7 @@ public class ProjectOverviewStory {
         PaymentProgress progress = new PaymentProgress();
         progress.setCurrentRate(currentRate);
         progress.setDailyChange(dailyChange);
-        progress.setLast10Days(last10Days);
+        progress.setLast10Days(last10DaysData);
 
         return progress;
     }
@@ -174,12 +177,16 @@ public class ProjectOverviewStory {
         long count = overdueProjects.size();
 
         // 计算最近10天历史数据
-        List<Long> last10Days = new ArrayList<>();
+        List<OverdueProjects.DailyData> last10DaysData = new ArrayList<>();
         LocalDate today = LocalDate.now();
         for (int i = 9; i >= 0; i--) {
             LocalDate date = today.minusDays(i);
             long dailyCount = projectInfoService.countOverdueProjectsByDate(date);
-            last10Days.add(dailyCount);
+
+            OverdueProjects.DailyData dataPoint = new OverdueProjects.DailyData();
+            dataPoint.setDate(date);
+            dataPoint.setValue(dailyCount);
+            last10DaysData.add(dataPoint);
         }
 
         // 计算与前一天的变化百分比
@@ -190,7 +197,7 @@ public class ProjectOverviewStory {
         OverdueProjects result = new OverdueProjects();
         result.setCount(count);
         result.setDailyChangePercentage(dailyChangePercentage);
-        result.setLast10Days(last10Days);
+        result.setLast10Days(last10DaysData);
 
         return result;
     }
@@ -204,12 +211,16 @@ public class ProjectOverviewStory {
         long count = activeProjects.size();
 
         // 计算最近10天历史数据
-        List<Long> last10Days = new ArrayList<>();
+        List<ActiveProjects.DailyData> last10DaysData = new ArrayList<>();
         LocalDate today = LocalDate.now();
         for (int i = 9; i >= 0; i--) {
             LocalDate date = today.minusDays(i);
             long dailyCount = projectInfoService.countActiveProjectsByDate(date);
-            last10Days.add(dailyCount);
+
+            ActiveProjects.DailyData dataPoint = new ActiveProjects.DailyData();
+            dataPoint.setDate(date);
+            dataPoint.setValue(dailyCount);
+            last10DaysData.add(dataPoint);
         }
 
         // 计算与前一天的变化百分比
@@ -220,7 +231,7 @@ public class ProjectOverviewStory {
         ActiveProjects result = new ActiveProjects();
         result.setCount(count);
         result.setDailyChangePercentage(dailyChangePercentage);
-        result.setLast10Days(last10Days);
+        result.setLast10Days(last10DaysData);
 
         return result;
     }
@@ -249,12 +260,15 @@ public class ProjectOverviewStory {
                 BigDecimal.ZERO;
 
         // 计算最近10天历史数据
-        List<BigDecimal> last10Days = new ArrayList<>();
+        List<MonthlyProgress.DailyData> last10DaysData = new ArrayList<>();
         LocalDate today = LocalDate.now();
         for (int i = 9; i >= 0; i--) {
             LocalDate date = today.minusDays(i);
             BigDecimal dailyRate = calculateDailyMonthlyProgress(date);
-            last10Days.add(dailyRate);
+            MonthlyProgress.DailyData dataPoint = new MonthlyProgress.DailyData();
+            dataPoint.setDate(date);
+            dataPoint.setValue(dailyRate);
+            last10DaysData.add(dataPoint);
         }
 
         // 计算与前一天的变化值
@@ -265,7 +279,7 @@ public class ProjectOverviewStory {
         MonthlyProgress progress = new MonthlyProgress();
         progress.setCurrentRate(currentRate);
         progress.setDailyChange(dailyChange);
-        progress.setLast10Days(last10Days);
+        progress.setLast10Days(last10DaysData);
 
         return progress;
     }
@@ -294,12 +308,15 @@ public class ProjectOverviewStory {
         int count = responsiblePersons.size();
 
         // 计算最近10天历史数据
-        List<Integer> last10Days = new ArrayList<>();
+        List<PersonnelData.DailyData> last10DaysData = new ArrayList<>();
         LocalDate today = LocalDate.now();
         for (int i = 9; i >= 0; i--) {
             LocalDate date = today.minusDays(i);
             int dailyCount = projectPlanService.countActiveResponsiblePersonsByDate(date);
-            last10Days.add(dailyCount);
+            PersonnelData.DailyData dataPoint = new PersonnelData.DailyData();
+            dataPoint.setDate(date);
+            dataPoint.setValue(dailyCount);
+            last10DaysData.add(dataPoint);
         }
 
         // 计算与前一天的变化百分比
@@ -310,7 +327,7 @@ public class ProjectOverviewStory {
         PersonnelData result = new PersonnelData();
         result.setCount(count);
         result.setDailyChangePercentage(dailyChangePercentage);
-        result.setLast10Days(last10Days);
+        result.setLast10Days(last10DaysData);
 
         return result;
     }
