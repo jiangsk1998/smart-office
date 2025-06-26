@@ -259,8 +259,13 @@ public class ProjectPlanService extends MPJBaseServiceImpl<ProjectPlanDao, Proje
      * @return 项目ID列表
      */
     public List<Long> getProjectIdsByDepartment(String departmentName) {
-        QueryWrapper<ProjectPlan> wrapper = new QueryWrapper<>();
-        wrapper.select("DISTINCT project_id").eq("department", departmentName);
+        MPJLambdaWrapper<ProjectPlan> wrapper = new MPJLambdaWrapper<>();
+        wrapper.select("DISTINCT project_id");
+
+        if (StringUtils.isNotBlank(departmentName)) {
+            wrapper.eq(ProjectPlan::getDepartment, departmentName);
+        }
+
         List<Object> projectIdsAsObjects = baseMapper.selectObjs(wrapper);
         return projectIdsAsObjects.stream()
                 .map(obj -> Long.valueOf(obj.toString()))
