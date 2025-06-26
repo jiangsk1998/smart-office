@@ -31,13 +31,12 @@ public class ProjectStatusCron {
     public void checkAndChangeTask() {
         log.info("定时任务：开始变更项目状态...");
         LocalDate today = LocalDate.now();
-        LocalDate yesterday = today.minusDays(1);
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
         // 处理所有未开始的项目
         List<ProjectInfo> notStartedProjects = projectInfoService.findByStatus(ProjectStatusEnum.NOT_STARTED.name());
         List<ProjectInfo> toInProgressProjects = notStartedProjects.stream()
-                .filter(projectInfo -> projectInfo.getStartDate().isAfter(yesterday))
+                .filter(projectInfo -> projectInfo.getStartDate().isBefore(today))
                 .peek(projectInfo -> projectInfo.setStatus(ProjectStatusEnum.IN_PROGRESS.name()))
                 .toList();
         if (!toInProgressProjects.isEmpty()) {
