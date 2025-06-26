@@ -13,7 +13,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Mr-ti
@@ -161,7 +163,16 @@ public class ProjectInfoService extends MPJBaseServiceImpl<ProjectInfoDao, Proje
                 wrapper.eq(ProjectInfo::getDepartment, projectInfo.getDepartment());
             }
             if (StringUtils.hasText(projectInfo.getStatus())) {
-                wrapper.eq(ProjectInfo::getStatus, projectInfo.getStatus());
+                // 2. 拆分多状态值
+                List<String> statusList = Arrays.stream(projectInfo.getStatus().split(","))
+                        .map(String::trim)
+                        .filter(s -> !s.isEmpty())
+                        .collect(Collectors.toList());
+
+                // 3. 构建IN查询条件
+                if (!statusList.isEmpty()) {
+                    wrapper.in(ProjectInfo::getStatus, statusList);
+                }
             }
             if (StringUtils.hasText(projectInfo.getCurrentPhase())) {
                 wrapper.eq(ProjectInfo::getCurrentPhase, projectInfo.getCurrentPhase());
