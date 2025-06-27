@@ -58,5 +58,5 @@ public class UserInfo {
     @Schema(description = "删除标记")
     @TableField("is_delete")
     @TableLogic
-    private Integer isDelete;
+    private Integer isDelete = 0;
 }
