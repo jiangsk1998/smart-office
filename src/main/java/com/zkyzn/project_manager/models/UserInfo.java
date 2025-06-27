@@ -37,6 +37,10 @@ public class UserInfo {
     @TableField("department_id")
     private Long departmentId;
 
+    @Schema(description = "部门名称")
+    @TableField(exist = false)
+    private String departmentName;
+
     @Schema(description = "用户名称")
     @TableField("user_name")
     @NotBlank

@@ -4,7 +4,9 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.yulichang.base.MPJBaseServiceImpl;
 import com.github.yulichang.query.MPJLambdaQueryWrapper;
+import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import com.zkyzn.project_manager.mappers.UserInfoDao;
+import com.zkyzn.project_manager.models.Department;
 import com.zkyzn.project_manager.models.UserInfo;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -36,8 +38,10 @@ public class UserInfoService extends MPJBaseServiceImpl<UserInfoDao, UserInfo> {
     // 分页查询接口
     public IPage<UserInfo> page(int current, int size, String userName) {
         Page<UserInfo> page = new Page<>(current, size);
-        MPJLambdaQueryWrapper<UserInfo> wrapper = new MPJLambdaQueryWrapper<>();
-        wrapper = wrapper.selectAll(UserInfo.class);
+        MPJLambdaWrapper<UserInfo> wrapper = new MPJLambdaWrapper<>();
+        wrapper = wrapper.selectAll(UserInfo.class)
+                .selectAs(Department::getName, "department_name")
+                .leftJoin(Department.class, on -> on.eq(Department::getId, UserInfo::getDepartmentId));
 
         if (StringUtils.isNotBlank(userName)) {
             wrapper.like(UserInfo::getUserName, userName);
